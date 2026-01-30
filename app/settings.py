@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'staff.apps.StaffConfig',
-    'patients.apps.PatientsConfig'
+    'patients.apps.PatientsConfig',
+    'vital_signs.apps.VitalSignsConfig'
 ]
 
 MIDDLEWARE = [
