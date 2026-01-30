@@ -54,3 +54,6 @@ class VitalSigns(models.Model):
         related_name='performed_vital_signs'
     )
     # visit = models.ForeignKey(Visit, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Vital signs: {self.patient.first_name} {self.patient.last_name} performed by {self.performed_by.username} on {self.created_at}'

@@ -30,3 +30,6 @@ class PhysicalExam(models.Model):
         null=True,
         related_name='performed_physical_exams',
     )
+
+    def __str__(self):
+        return f'Physical exam: {self.patient.first_name} {self.patient.last_name} performed by: {self.performed_by.username}'
