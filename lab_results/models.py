@@ -8,6 +8,7 @@ from staff.models import Staff
 
 # Create your models here.
 class LabResult(models.Model):
+    notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +36,7 @@ class Result(models.Model):
 
     value_numeric = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     value_categorical = EnumField(CategoricalEnum)
+    notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

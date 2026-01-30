@@ -56,6 +56,7 @@ class Test(models.Model):
 
 class LabRequest(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -65,6 +66,8 @@ class LabRequest(models.Model):
 
 
 class LabTestRequest(models.Model):
+    notes = models.TextField(blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

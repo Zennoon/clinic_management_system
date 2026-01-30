@@ -37,7 +37,7 @@ class VitalSigns(models.Model):
     height_unit = EnumField(HeightUnitEnum, blank=True, null=True, default=HeightUnitEnum.METER)
     spo2 = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     spo2_unit = EnumField(Spo2UnitEnum, blank=True, null=True, default=Spo2UnitEnum.PERCENT)
-    note = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
