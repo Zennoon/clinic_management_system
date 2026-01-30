@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'patients.apps.PatientsConfig',
     'vital_signs.apps.VitalSignsConfig',
     'physical_exams.apps.PhysicalExamsConfig',
-    'lab_requests.apps.LabRequestsConfig'
+    'lab_requests.apps.LabRequestsConfig',
+    'lab_results.apps.LabResultsConfig',
 ]
 
 MIDDLEWARE = [

@@ -32,4 +32,4 @@ class PhysicalExam(models.Model):
     )
 
     def __str__(self):
-        return f'Physical exam: {self.patient.first_name} {self.patient.last_name} performed by: {self.performed_by.username}'
+        return f'Physical exam: {self.patient.fullname} performed by {self.performed_by.username} at {self.created_at}'

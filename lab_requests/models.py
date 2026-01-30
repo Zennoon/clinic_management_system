@@ -1,6 +1,7 @@
 from django.db import models
 from django_enum import EnumField
 
+from patients.models import Patient
 from staff.models import Staff
 
 
@@ -55,19 +56,25 @@ class Test(models.Model):
 
 class LabRequest(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    tests = models.ManyToManyField(Test, through=TestGroup)
+    tests = models.ManyToManyField(Test, through='LabTestRequest')
 
 
 class LabTestRequest(models.Model):
+    is_active = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    tests = models.ForeignKey(Test, on_delete=models.CASCADE)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    lab_request = models.ForeignKey(LabRequest, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     ordered_by = models.ForeignKey(
         Staff,
         on_delete=models.SET_NULL,
+        null=True
     )
