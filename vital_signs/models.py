@@ -42,6 +42,15 @@ class VitalSigns(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    performed_by = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True)
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE,
+        related_name='vital_signs'
+    )
+    performed_by = models.ForeignKey(
+        Staff,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='performed_vital_signs'
+    )
     # visit = models.ForeignKey(Visit, on_delete=models.CASCADE)
