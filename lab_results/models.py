@@ -15,11 +15,6 @@ class LabResult(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.CASCADE,
-        related_name="lab_results"
-    )
     lab_request = models.ForeignKey(
         LabRequest,
         on_delete=models.PROTECT,
@@ -37,7 +32,7 @@ class LabResult(models.Model):
     )
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} lab result {self.id} for lab request {self.lab_request.id} reported by {self.reported_by.username}"
+        return f"Patient {self.visit.patient.fullname} lab result {self.id} for lab request {self.lab_request.id} reported by {self.reported_by.username}"
 
 class Result(models.Model):
     class CategoricalEnum(models.TextChoices):
@@ -54,11 +49,6 @@ class Result(models.Model):
     test = models.ForeignKey(
         Test,
         on_delete=models.PROTECT,
-        related_name="results"
-    )
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.CASCADE,
         related_name="results"
     )
     reported_by = models.ForeignKey(
@@ -85,4 +75,4 @@ class Result(models.Model):
         return self.value_categorical == Result.CategoricalEnum.POSITIVE
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} test {self.test.name} result: {self.result_display} | Abnormal: {self.is_abnormal}"
+        return f"Patient {self.lab_result.visit.patient.fullname} test {self.test.name} result: {self.result_display} | Abnormal: {self.is_abnormal}"

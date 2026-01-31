@@ -60,11 +60,6 @@ class LabRequest(models.Model):
     is_paid = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, help_text="Is this request active?")
 
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.CASCADE,
-        related_name="lab_requests",
-    )
     ordered_by = models.ForeignKey(
         Staff,
         on_delete=models.PROTECT,
@@ -80,7 +75,7 @@ class LabRequest(models.Model):
         return sum(test.price for test in self.tests.all())
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} lab request {self.id}: Ordered by: {self.ordered_by.username} | Price: {self.total_price}"
+        return f"Patient {self.visit.patient.fullname} lab request {self.id}: Ordered by: {self.ordered_by.username} | Price: {self.total_price}"
 
 
 class LabRequestTest(models.Model):
@@ -92,15 +87,15 @@ class LabRequestTest(models.Model):
 
     test = models.ForeignKey(Test, on_delete=models.PROTECT, related_name="lab_requests")
     lab_request = models.ForeignKey(LabRequest, on_delete=models.PROTECT, related_name="tests")
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="lab_request_tests")
     ordered_by = models.ForeignKey(
         Staff,
         on_delete=models.PROTECT,
     )
+    price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
-    @property
-    def price(self):
-        return round(self.test.price or self.test.test_group.price, 2)
+    def save(self, *args, **kwargs):
+        self.price = self.test.price or self.test.test_group.price
+        super().save(*args, **kwargs)
 
     def __str_(self):
-        return f"Patient {self.patient.fullname} lab request test: {self.test.name} price"
+        return f"Lab request test: {self.test.name} price for {self.lab_request.visit.patient.fullname}"

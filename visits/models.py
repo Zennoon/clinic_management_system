@@ -19,7 +19,6 @@ class Visit(models.Model):
         IN_CONSULTATION = 'INC', 'With Doctor'
         AWAITING_LAB_PAYMENT = 'LBP', 'Awaiting Lab Payment'
         AWAITING_LAB_SAMPLE = 'LBS', 'Awaiting Lab Sample'
-        AWAITING_LAB_RESULTS = 'LBR', 'Awaiting Lab Results'
         AWAITING_REVIEW = 'REV', 'Awaiting Results Review'
         COMPLETED = 'FIN', 'Visit Finished'
         CANCELLED = 'CAN', 'Visit Cancelled'
@@ -30,7 +29,7 @@ class Visit(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     visit_category = EnumField(VisitCategoryEnum)
-    visit_status = EnumField(VisitStatusEnum)
+    visit_status = EnumField(VisitStatusEnum, editable=False)
     chief_complaint = models.TextField(blank=True)
     current_status_since = models.DateTimeField(auto_now_add=True)
 
@@ -39,6 +38,30 @@ class Visit(models.Model):
         on_delete=models.CASCADE,
         related_name='visits',
     )
+
+    def get_valid_transitions(self):
+        return {
+            self.VisitStatusEnum.AWAITING_PAYMENT: self.VisitStatusEnum.AWAITING_VITALS,
+            self.VisitStatusEnum.AWAITING_VITALS: self.VisitStatusEnum.AWAITING_CONSULTATION,
+            self.VisitStatusEnum.AWAITING_CONSULTATION: self.VisitStatusEnum.IN_CONSULTATION,
+            self.VisitStatusEnum.AWAITING_LAB_PAYMENT: self.VisitStatusEnum.AWAITING_LAB_SAMPLE,
+            self.VisitStatusEnum.AWAITING_LAB_SAMPLE: self.VisitStatusEnum.AWAITING_REVIEW,
+            self.VisitStatusEnum.AWAITING_REVIEW: self.VisitStatusEnum.COMPLETED,
+        }
+
+    def advance_status(self, new_status):
+        valid_transitions = self.get_valid_transitions()
+
+        if new_status == self.VisitStatusEnum.CANCELLED:
+             if self.visit_status != self.VisitStatusEnum.COMPLETED:
+                 self.visit_status = new_status
+        elif new_status == valid_transitions[self.visit_status]:
+            self.visit_status = new_status
+
+    def transition_to_next_status(self):
+        valid_transitions = self.get_valid_transitions()
+        if self.visit_status != self.VisitStatusEnum.COMPLETED:
+            self.visit_status = valid_transitions[self.visit_status]
 
     def __str__(self):
         return f"{self.patient.fullname} - {self.visit_status.label}"

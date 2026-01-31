@@ -20,11 +20,6 @@ class PhysicalExam(models.Model):
     miscellaneous = models.TextField(blank=True, help_text="Miscellaneous")
     is_active = models.BooleanField(default=True)
 
-    patient = models.ForeignKey(
-        Patient,
-        on_delete=models.CASCADE,
-        related_name="physical_exams",
-    )
     examined_by = models.ForeignKey(
         Staff,
         on_delete=models.PROTECT,
@@ -38,4 +33,4 @@ class PhysicalExam(models.Model):
     )
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} physical exam: {self.examined_by.username}"
+        return f"Patient {self.visit.patient.fullname} physical exam: {self.examined_by.username}"

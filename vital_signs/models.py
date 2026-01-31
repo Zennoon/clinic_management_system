@@ -41,9 +41,8 @@ class VitalSign(models.Model):
     notes = models.TextField(blank=True, help_text="Any distinct clinical observations or irregularities noted during measurement.")
     is_active = models.BooleanField(default=True)
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='vital_signs')
     recorded_by = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name='recorded_vital_signs')
     visit = models.ForeignKey(Visit, on_delete=models.PROTECT, related_name='vital_signs')
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} vital signs: Blood Pressure: {self.bp_systolic}/{self.bp_diastolic} mmhg | Pulse rate: {self.pulse_rate} bpm | Respiratory rate: {self.respiratory_rate} bpm | temperature: {self.temperature} {self.temperature_unit} | Weight: {self.weight} {self.weight_unit} | Height: {self.height} {self.height_unit}"
+        return f"Patient {self.visit.patient.fullname} vital signs: Blood Pressure: {self.bp_systolic}/{self.bp_diastolic} mmhg | Pulse rate: {self.pulse_rate} bpm | Respiratory rate: {self.respiratory_rate} bpm | temperature: {self.temperature} {self.temperature_unit} | Weight: {self.weight} {self.weight_unit} | Height: {self.height} {self.height_unit}"

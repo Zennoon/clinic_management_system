@@ -15,12 +15,11 @@ class Prescription(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT)
     visit = models.ForeignKey(Visit, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} prescription {self.id}: prescribed by: {self.prescribed_by.username}"
+        return f"Patient {self.visit.patient.fullname} prescription {self.id}: prescribed by: {self.prescribed_by.username}"
 
 class Medication(models.Model):
     class RouteEnum(models.TextChoices):
@@ -56,9 +55,8 @@ class Medication(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="medications")
     prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="prescribed_medications")
     prescription = models.ForeignKey(Prescription, on_delete=models.PROTECT, related_name="medications")
 
     def __str__(self):
-        return f"Patient {self.patient.fullname} medication {self.name}: prescribed by: {self.prescribed_by.username}"
+        return f"Patient {self.prescription.visit.patient.fullname} medication {self.name}: prescribed by: {self.prescribed_by.username}"
