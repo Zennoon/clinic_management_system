@@ -2,34 +2,40 @@ from django.db import models
 
 from patients.models import Patient
 from staff.models import Staff
+from visits.models import Visit
 
 
 # Create your models here.
 class PhysicalExam(models.Model):
-    heent = models.TextField(max_length=500, blank=True, null=True)
-    chest = models.TextField(max_length=500, blank=True, null=True)
-    cardiovascular = models.TextField(max_length=500, blank=True, null=True)
-    abdomen = models.TextField(max_length=500, blank=True, null=True)
-    musculoskeletal = models.TextField(max_length=500, blank=True, null=True)
-    genitourinary = models.TextField(max_length=500, blank=True, null=True)
-    cns = models.TextField(max_length=500, blank=True, null=True)
-    miscellaneous = models.TextField(max_length=500, blank=True, null=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    heent = models.TextField(blank=True, help_text="Head, Eye, Ear, Nose, and Throat")
+    chest = models.TextField(blank=True, help_text="Chest")
+    cardiovascular = models.TextField(blank=True, help_text="Cardiovascular")
+    abdomen = models.TextField(blank=True, help_text="Abdomen")
+    musculoskeletal = models.TextField(blank=True, help_text="Musculoskeletal")
+    genitourinary = models.TextField(blank=True, help_text="Genitourinary")
+    cns = models.TextField(blank=True, help_text="Central nervous system")
+    miscellaneous = models.TextField(blank=True, help_text="Miscellaneous")
+    is_active = models.BooleanField(default=True)
 
     patient = models.ForeignKey(
         Patient,
         on_delete=models.CASCADE,
-        related_name='physical_exams',
+        related_name="physical_exams",
     )
-
-    performed_by = models.ForeignKey(
+    examined_by = models.ForeignKey(
         Staff,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
+        related_name="physical_exams_examined",
+    )
+    visit = models.ForeignKey(
+        Visit,
+        on_delete=models.PROTECT,
         null=True,
-        related_name='performed_physical_exams',
+        related_name="physical_exams"
     )
 
     def __str__(self):
-        return f'Physical exam: {self.patient.fullname} performed by {self.performed_by.username} at {self.created_at}'
+        return f"Patient {self.patient.fullname} physical exam: {self.examined_by.username}"

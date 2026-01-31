@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-import os
+
 from pathlib import Path
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1d6&d1um80rltb53%z4^=^wx(lp%7h1n1+f(dfopfn3_nvkrx+'
+SECRET_KEY = 'django-insecure-gvuklo_*60enq*3kxt5j!(riiq9nqb(4y*656&qll7un0ho@$o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'lab_results.apps.LabResultsConfig',
     'prescriptions.apps.PrescriptionsConfig',
     'appointments.apps.AppointmentsConfig',
+    'visits.apps.VisitsConfig'
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,6 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 
 POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
 POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
@@ -141,5 +141,4 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Custom settings
 AUTH_USER_MODEL = 'staff.Staff'

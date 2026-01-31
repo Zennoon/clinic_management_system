@@ -1,46 +1,52 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django_enum import EnumField
 
 from patients.models import Patient
 from staff.models import Staff
+from visits.models import Visit
 
 
 # Create your models here.
 class Prescription(models.Model):
-    notes = models.TextField(blank=True, null=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="prescriptions")
-    prescribed_by = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="prescribed_prescriptions")
+    notes = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT)
+    visit = models.ForeignKey(Visit, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"Prescription: {self.patient.fullname} prescribed by: {self.prescribed_by.username} at {self.created_at}"
+        return f"Patient {self.patient.fullname} prescription {self.id}: prescribed by: {self.prescribed_by.username}"
 
 class Medication(models.Model):
     class RouteEnum(models.TextChoices):
-        ORAL = 'PO'
-        INTRAVENOUS = 'IV'
-        INTRAMUSCULAR = 'IM'
-        SUBCUTANEOUS = 'SUBCUTANEOUS'
-        TOPICAL = 'TOPICAL'
-        INHALATION = 'INHALATION'
-        OPHTHALMIC = 'OPH'
-        OTIC = 'OTIC'
-        RECTAL = 'RECTAL'
-        SUBLINGUAL = 'SUBLINGUAL'
-        OTHER = 'OTHER'
+        ORAL = 'PO', 'Orally'
+        INTRAVENOUS = 'IV', 'Intravenous'
+        INTRAMUSCULAR = 'IM', 'Intramuscular'
+        SUBCUTANEOUS = 'SUBC', 'Subcutaneous'
+        TOPICAL = 'TOP', 'Topical'
+        INHALATION = 'INHALATION', 'Inhalation'
+        OPHTHALMIC = 'OPH', 'Ophthalmic'
+        OTIC = 'OTIC', 'Otic'
+        RECTAL = 'RECTAL', 'Rectal'
+        SUBLINGUAL = 'SUBLINGUAL', 'Sublingual'
+        OTHER = 'OTHER', 'Other'
     class FrequencyEnum(models.TextChoices):
-        QD = 'QD'
-        BID = 'BID'
-        TID = 'TID'
-        QID = 'QID'
-        PRN = 'PRN'
-        STAT = 'STAT'
-        WEEKLY = 'WEEKLY'
-        BIWEEKLY = 'BIWEEKLY'
-        OTHER = 'OTHER'
+        QD = 'QD', 'Once per day'
+        BID = 'BID', 'Twice per day'
+        TID = 'TID', 'Three times per day'
+        QID = 'QID', 'Four times per day'
+        WEEKLY = 'WEEKLY', 'Once per week'
+        BIWEEKLY = 'BIWEEKLY', 'Twice per week'
+        PRN = 'PRN', 'As needed'
+        STAT = 'STAT', 'Immediately'
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=200)
     strength = models.CharField(max_length=200)
@@ -48,14 +54,11 @@ class Medication(models.Model):
     frequency = EnumField(FrequencyEnum)
     days = models.IntegerField()
     notes = models.TextField(blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="medications")
-    prescribed_by = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name="prescribed_medications")
-    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name="medications")
+    prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="prescribed_medications")
+    prescription = models.ForeignKey(Prescription, on_delete=models.PROTECT, related_name="medications")
 
     def __str__(self):
-        return f"Medication {self.name} {self.strength} {self.route} taken {self.frequency.name} for {self.days} days prescribed for {self.patient.fullname} by {self.prescribed_by.username} at {self.created_at}"
-
+        return f"Patient {self.patient.fullname} medication {self.name}: prescribed by: {self.prescribed_by.username}"
