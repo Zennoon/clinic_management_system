@@ -1,4 +1,8 @@
+from decimal import Decimal
+
 from django.db import models
+from django.db.models import Sum, Value, F
+from django.db.models.functions import Coalesce
 from django_enum import EnumField
 
 from patients.models import Patient
@@ -6,6 +10,14 @@ from staff.models import Staff
 
 
 # Create your models here.
+class VisitQuerySet(models.QuerySet):
+    def with_financials(self):
+        return self.annotate(
+            total_charged=Coalesce(Sum("charges__amount"), Value(Decimal("0.00"))),
+            total_paid=Coalesce(Sum("payments__amount"), Value(Decimal("0.00"))),
+        ).annotate(
+            balance=F("total_charged") - F("total_paid"),
+        )
 class Visit(models.Model):
     class VisitCategoryEnum(models.TextChoices):
         HISTORY_AND_PHYSICAL = 'HISTORY_AND_PHYSICAL', 'History and Physical'
@@ -38,6 +50,24 @@ class Visit(models.Model):
         on_delete=models.CASCADE,
         related_name='visits',
     )
+
+    objects = VisitQuerySet.as_manager()
+
+    @property
+    def total_charged(self):
+        return self.charges.aggregate(
+            total=Sum("amount")
+        )['total'] or Decimal("0.00")
+
+    @property
+    def total_paid(self):
+        return self.payments.aggregate(
+            total=Sum("amount")
+        )['total'] or Decimal("0.00")
+
+    @property
+    def balance(self):
+        return self.total_charged - self.total_paid
 
     def get_valid_transitions(self):
         return {
