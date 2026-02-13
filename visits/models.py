@@ -18,6 +18,7 @@ class VisitQuerySet(models.QuerySet):
         ).annotate(
             balance=F("total_charged") - F("total_paid"),
         )
+
 class Visit(models.Model):
     class VisitCategoryEnum(models.TextChoices):
         HISTORY_AND_PHYSICAL = 'HISTORY_AND_PHYSICAL', 'History and Physical'
@@ -73,7 +74,7 @@ class Visit(models.Model):
         return {
             self.VisitStatusEnum.AWAITING_PAYMENT: self.VisitStatusEnum.AWAITING_VITALS,
             self.VisitStatusEnum.AWAITING_VITALS: self.VisitStatusEnum.AWAITING_CONSULTATION,
-            self.VisitStatusEnum.AWAITING_CONSULTATION: self.VisitStatusEnum.IN_CONSULTATION,
+            self.VisitStatusEnum.AWAITING_CONSULTATION: self.VisitStatusEnum.AWAITING_LAB_PAYMENT,
             self.VisitStatusEnum.AWAITING_LAB_PAYMENT: self.VisitStatusEnum.AWAITING_LAB_SAMPLE,
             self.VisitStatusEnum.AWAITING_LAB_SAMPLE: self.VisitStatusEnum.AWAITING_REVIEW,
             self.VisitStatusEnum.AWAITING_REVIEW: self.VisitStatusEnum.COMPLETED,

@@ -1,14 +1,14 @@
 from django.db import models
 from django_enum import EnumField
 
-from lab_requests.models import LabRequest, Test
+from lab_requests.models import LabRequest, LabTest, LabObservation
 from patients.models import Patient
 from staff.models import Staff
 from visits.models import Visit
 
 
 # Create your models here.
-class LabResult(models.Model):
+class LabRequestResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -34,7 +34,26 @@ class LabResult(models.Model):
     def __str__(self):
         return f"Patient {self.visit.patient.fullname} lab result {self.id} for lab request {self.lab_request.id} reported by {self.reported_by.username}"
 
-class Result(models.Model):
+class LabTestResult(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    notes = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    lab_test = models.ForeignKey(
+        LabTest,
+        on_delete=models.PROTECT,
+    )
+    lab_request_result = models.ForeignKey(
+        LabRequestResult,
+        on_delete=models.PROTECT,
+    )
+
+    def __str__(self):
+        return f"Lab Test Result {self.lab_test.name}"
+
+class ObservationResult(models.Model):
     class CategoricalEnum(models.TextChoices):
         POSITIVE = "+", "Positive"
         NEGATIVE = "-", "Negative"
@@ -46,8 +65,8 @@ class Result(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    test = models.ForeignKey(
-        Test,
+    observation = models.ForeignKey(
+        LabObservation,
         on_delete=models.PROTECT,
         related_name="results"
     )
@@ -56,23 +75,23 @@ class Result(models.Model):
         on_delete=models.PROTECT,
         related_name="results_reported"
     )
-    lab_result = models.ForeignKey(
-        LabResult,
+    lab_test_result = models.ForeignKey(
+        LabTestResult,
         on_delete=models.PROTECT,
-        related_name="results"
+        related_name="observation_results"
     )
 
     @property
     def result_display(self):
-        if self.test.test_type == "NUMERIC":
-            return f"{self.value_numeric} {self.test.unit_of_measurement}"
+        if self.observation.result_type == "NUMERIC":
+            return f"{self.value_numeric} {self.observation.unit_of_measurement}"
         return self.value_categorical
 
     @property
     def is_abnormal(self):
-        if self.test.test_type == "NUMERIC":
-            return not (self.test.reference_min <= self.value_numeric <= self.test.reference_max)
-        return self.value_categorical == Result.CategoricalEnum.POSITIVE
+        if self.observation.result_type == "NUMERIC":
+            return not (self.observation.reference_min <= self.value_numeric <= self.observation.reference_max)
+        return self.value_categorical == ObservationResult.CategoricalEnum.POSITIVE
 
     def __str__(self):
-        return f"Patient {self.lab_result.visit.patient.fullname} test {self.test.name} result: {self.result_display} | Abnormal: {self.is_abnormal}"
+        return f"Patient {self.lab_result.visit.patient.fullname} test {self.observation.name} result: {self.result_display} | Abnormal: {self.is_abnormal}"

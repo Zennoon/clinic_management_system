@@ -1,6 +1,7 @@
 from django.db import models
 from django_enum import EnumField
 
+from staff.models import Staff
 from visits.models import Visit
 
 
@@ -29,3 +30,12 @@ class Charge(models.Model):
         on_delete=models.PROTECT,
         related_name='charges',
     )
+    
+    charged_by = models.ForeignKey(
+        Staff,
+        on_delete=models.PROTECT,
+        related_name="charges"
+    )
+    
+    def __str__(self):
+        return f"Charge: {self.pk} | Visit: {self.visit.id} | Patient: {self.visit.patient.fullname} | Amount: {self.amount} | Reason: {self.charge_type}"

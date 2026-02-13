@@ -21,6 +21,10 @@ class Payment(models.Model):
 
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = EnumField(PaymentMethodEnum, default=PaymentMethodEnum.CASH)
+    payment_status = EnumField(PaymentStatusEnum, default=PaymentStatusEnum.CONFIRMED)
 
     visit = models.ForeignKey(Visit, on_delete=models.PROTECT, related_name='payments')
     recorded_by = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name='recorded_payments')
+    
+    def __str__(self):
+        return f"Payment: {self.pk} | Visit: {self.visit.id} | Patient: {self.visit.patient.fullname} | Amount: {self.amount} | Payment Method: {self.payment_method}"

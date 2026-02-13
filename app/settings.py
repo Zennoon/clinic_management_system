@@ -51,7 +51,9 @@ INSTALLED_APPS = [
     'appointments.apps.AppointmentsConfig',
     'visits.apps.VisitsConfig',
     'charges.apps.ChargesConfig',
-    'payments.apps.PaymentsConfig'
+    'payments.apps.PaymentsConfig',
+    'django.contrib.humanize',
+    'django_seed'
 ]
 
 MIDDLEWARE = [
@@ -69,7 +71,7 @@ ROOT_URLCONF = 'app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,11 +95,11 @@ POSTGRES_DATABASE = os.getenv('POSTGRES_DATABASE', 'clinic_management_system')
 POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 DATABASES = {
-    'sqlite': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'default': {
+    'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': POSTGRES_DATABASE,
         'USER': POSTGRES_USER,
@@ -143,5 +145,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 AUTH_USER_MODEL = 'staff.Staff'
+LOGIN_URL = '/staff/login'

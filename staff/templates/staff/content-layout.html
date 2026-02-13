@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div>
+        <div class="relative flex w-full flex-row">
+            <a class="sr-only" href="#main-content">Skip to the main content</a>
+
+            <nav class="fixed left-0 z-50 flex h-svh w-24 sm:w-64 shrink-0 flex-col border-r border-outline bg-surface-alt p-4 transition-transform duration-300" x-bind:class="showSidebar ? 'translate-x-0' : '-translate-x-60'" aria-label="sidebar navigation">
+                <a href="#" class="text-2xl font-bold">
+                    <span class="sr-only">Home page</span>
+                    <img src="{% static 'images/logo.png' %}" alt="Clinic Management System Logo" class="w-14">
+                </a>
+
+                <div class="flex flex-col gap-3 overflow-y-auto pb-6 mt-4">
+                    {% block sidebar_links %}
+                    {% endblock sidebar_links %}
+                </div>
+            </nav>
+
+            <div class="flex-1 flex flex-col w-full ml-24 sm:ml-64">
+                <header class="h-14 w-full bg-base-100 shadow-sm flex justify-end items-center border-b p-8">
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="flex items-center p-2 rounded-md gap-3 hover:bg-gray-100">
+                            <span class="flex justify-center items-center rounded-full w-10 h-10 bg-indigo-600 text-white">{{request.user.username|slice:1}}</span>
+                            <div class="hidden sm:flex flex-col justify-center gap-1/2">
+                                <span class="font-medium text-md">{{ request.user.username }}</span>
+                                <span class="font-light text-xs">{{ request.user.role|title }}</span>
+                            </div>
+                        </div>
+                        <ul
+                            tabindex="-1"
+                            class="menu menu-sm dropdown-content bg-base-200 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                        >
+                            <li>
+                                <a href="#">Profile</a>
+                            </li>
+                            <li>
+                                <a href="#">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </header>
+                <div class="p-8 bg-gray-50">
+                    <div id="main_content">
+                        {% block main_content %}
+                        {% endblock main_content %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

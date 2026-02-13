@@ -1,0 +1,16 @@
+[project]
+name = "clinic-management-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=6.0.1",
+    "django-enum>=2.3.0",
+    "django-extensions>=4.1",
+    "django-seed>=0.3.1",
+    "pandas>=3.0.0",
+    "psycopg>=3.3.2",
+    "python-dateutil>=2.9.0.post0",
+    "python-dotenv>=1.2.1",
+]

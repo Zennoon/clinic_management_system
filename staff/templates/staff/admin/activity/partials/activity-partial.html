@@ -1,0 +1,273 @@
+<div class="flex flex-col gap-4">
+    <h2 class="text-2xl">Activity</h2>
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-6 bg-white p-8 border border-gray-300 rounded-xl shadow-lg">
+            <h3 class="text-2xl">Recent Visits</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center" id="recent-visits-filters">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g
+                                stroke-linejoin="round"
+                                stroke-linecap="round"
+                                stroke-width="2.5"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input
+                            type="search"
+                            id="visit_q"
+                            name="visit_q"
+                            placeholder="Search patient or visit"
+                            hx-get="{% url 'staff:admin_activity_recent_visits' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#recent-visits-table-container"
+                            hx-include="#visit_status"
+                        />
+                    </label>
+                    <select
+                        name="visit_status" 
+                        id="visit_status"
+                        class="select select-bordered"
+                        hx-get="{% url 'staff:admin_activity_recent_visits' %}"
+                        hx-target="#recent-visits-table-container"
+                        hx-include="#visit_q"
+                    >
+                        <option value="" selected disabled>Select a status</option>
+                        <option value="">All</option>
+                        {% for status in visit_statuses %}
+                            <option value="{{status|first}}">{{ status|last }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% include 'staff/admin/activity/partials/recent-visits-table-partial.html' %}
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 bg-white p-8 border border-gray-300 rounded-xl shadow-lg">
+            <h3 class="text-2xl">Recently Registered Patients</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center" id="recent-patients-filters">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g
+                                stroke-linejoin="round"
+                                stroke-linecap="round"
+                                stroke-width="2.5"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input
+                            type="search"
+                            id="patient_q"
+                            name="patient_q"
+                            placeholder="Search patient name, phone, or visit ID"
+                            hx-get="{% url 'staff:admin_activity_recent_patients' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#recent-patients-table-container"
+                            hx-include="#patient_sex, #patient_region"
+                        />
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-2 items-center">
+                        <select
+                            name="patient_sex" 
+                            id="patient_sex"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_patients' %}"
+                            hx-target="#recent-patients-table-container"
+                            hx-include="#patient_q, #patient_region"
+                        >
+                            <option value="" selected disabled>Select a sex</option>
+                            <option value="">All</option>
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                        </select>
+                        <select
+                            name="patient_region" 
+                            id="patient_region"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_patients' %}"
+                            hx-target="#recent-patients-table-container"
+                            hx-include="#patient_q, #patient_sex"
+                        >
+                            <option value="" selected disabled>Select a region</option>
+                            <option value="">All</option>
+                            {% for region in regions %}
+                                <option value="{{region|first}}">{{ region|last }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% include 'staff/admin/activity/partials/recent-patients-table-partial.html' %}
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 bg-white p-8 border border-gray-300 rounded-xl shadow-lg">
+            <h3 class="text-2xl">Recent Laboratory Requests</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center" id="recent-visits-filters">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g
+                                stroke-linejoin="round"
+                                stroke-linecap="round"
+                                stroke-width="2.5"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input
+                            type="search"
+                            id="lab_q"
+                            name="lab_q"
+                            placeholder="Search patient or visit"
+                            hx-get="{% url 'staff:admin_activity_recent_lab_requests' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#recent-lab-requests-table-container"
+                        />
+                    </label>
+                </div>
+                {% include 'staff/admin/activity/partials/recent-lab-requests-table-partial.html' %}
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 bg-white p-8 border border-gray-300 rounded-xl shadow-lg">
+            <h3 class="text-2xl">Recent Charges</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center" id="recent-charges-filters">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g
+                                stroke-linejoin="round"
+                                stroke-linecap="round"
+                                stroke-width="2.5"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input
+                            type="search"
+                            id="charge_q"
+                            name="charge_q"
+                            placeholder="Search charge id, visit id, or patient name"
+                            hx-get="{% url 'staff:admin_activity_recent_charges' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#recent-charges-table-container"
+                            hx-include="#charge_status, #charge_type"
+                        />
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-2 items-center">
+                        <select
+                            name="charge_status" 
+                            id="charge_status"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_charges' %}"
+                            hx-target="#recent-charges-table-container"
+                            hx-include="#charge_q, #charge_type"
+                        >
+                            <option value="" selected disabled>Select a status</option>
+                            <option value="">All</option>
+                            {% for status in charge_statuses %}
+                                <option value="{{status|first}}">{{ status|last }}</option>
+                            {% endfor %}  
+                        </select>
+                        <select
+                            name="charge_type" 
+                            id="charge_type"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_charges' %}"
+                            hx-target="#recent-charges-table-container"
+                            hx-include="#charge_q, #charge_status"
+                        >
+                            <option value="" selected disabled>Select a type</option>
+                            <option value="">All</option>
+                            
+                            {% for type in charge_types %}
+                                <option value="{{type|first}}">{{ type|last }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>      
+                {% include 'staff/admin/activity/partials/recent-charges-table-partial.html' %}
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 bg-white p-8 border border-gray-300 rounded-xl shadow-lg">
+            <h3 class="text-2xl">Recent Payments</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center" id="recent-payments-filters">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g
+                                stroke-linejoin="round"
+                                stroke-linecap="round"
+                                stroke-width="2.5"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                        </svg>
+                        <input
+                            type="search"
+                            id="payment_q"
+                            name="payment_q"
+                            placeholder="Search charge id, visit id, or patient name"
+                            hx-get="{% url 'staff:admin_activity_recent_payments' %}"
+                            hx-trigger="keyup delay:500ms"
+                            hx-target="#recent-payments-table-container"
+                            hx-include="#payment_method, #payment_status"
+                        />
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-2 items-center">
+                        <select
+                            name="payment_method" 
+                            id="payment_method"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_payments' %}"
+                            hx-target="#recent-payments-table-container"
+                            hx-include="#payment_q, #payment_status"
+                        >
+                            <option value="" selected disabled>Select a payment method</option>
+                            <option value="">All</option>
+                            {% for method in payment_methods %}
+                                <option value="{{method|first}}">{{ method|last }}</option>
+                            {% endfor %}  
+                        </select>
+                        <select
+                            name="payment_status" 
+                            id="payment_status"
+                            class="select select-bordered"
+                            hx-get="{% url 'staff:admin_activity_recent_payments' %}"
+                            hx-target="#recent-payments-table-container"
+                            hx-include="#payment_q, #payment_method"
+                        >
+                            <option value="" selected disabled>Select a payment status</option>
+                            <option value="">All</option>
+                            
+                            {% for status in payment_statuses %}
+                                <option value="{{status|first}}">{{ status|last }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>      
+                {% include 'staff/admin/activity/partials/recent-payments-table-partial.html' %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,339 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+
+{% block imports %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+{% endblock imports %}
+    
+{% block main_content %}
+    {% include 'staff/admin/dashboard/partials/dashboard-partial.html' %}
+{% endblock main_content %}
+
+{% block scripts %}
+    <script>
+        function transparentize(value, opacity) {
+            const alpha = opacity === undefined ? 0.5 : 1 - opacity;
+            return Color(value).alpha(alpha).rgbString();
+        }
+
+        function initVisitCountChart() {
+            const ctxElement = document.getElementById("visit-count-line-chart");
+            if (!ctxElement) {
+                console.error("Canvas element not found");
+                return;
+            }
+            
+            // Destroy existing chart first
+            if (window.visitCountChart) {
+                window.visitCountChart.destroy();
+                window.visitCountChart = null;
+            }
+            
+            // Reset canvas element to clear any previous drawing
+            const ctx = ctxElement.getContext("2d");
+            ctx.clearRect(0, 0, ctxElement.width, ctxElement.height);
+            
+            const dataPoints = window.visitHistoryChartData;
+            console.log(dataPoints);
+            if (!Array.isArray(dataPoints)) {
+                console.error("dataPoints is not an array");
+                return;
+            }
+
+            const labels = [];
+            const counts = [];
+
+            for (const point of dataPoints) {
+                labels.push(point["time"]);
+                counts.push(point["count"]);
+            }
+
+            window.visitCountChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Visits',
+                            data: counts,
+                            borderColor: 'oklch(51.1% 0.262 276.966)',
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM d',
+                                    hour: 'HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Visit Timeline'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initRevenueChargesChart() {
+            const ctxElement = document.getElementById("revenue-charges-line-chart");
+            if (!ctxElement) {
+                console.error("Canvas element not found");
+                return;
+            }
+
+            // Destroy existing chart first
+            if (window.revenueChargesChart) {
+                window.revenueChargesChart.destroy();
+                window.revenueChargesChart = null;
+            }
+
+            // Reset canvas element to clear any previous drawing
+            const ctx = ctxElement.getContext("2d");
+            ctx.clearRect(0, 0, ctxElement.width, ctxElement.height);
+
+            const dataPoints = window.visitHistoryChartData;
+            if (!Array.isArray(dataPoints)) {
+                console.error("dataPoints is not an array");
+                return;
+            }
+
+            const labels = [];
+            const revenue = [];
+            const charges = [];
+
+            for (const point of dataPoints) {
+                labels.push(point["time"]);
+                revenue.push(point["revenue"]);
+                charges.push(point["charges"]);
+            }
+
+            window.visitChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: revenue,
+                            borderColor: 'oklch(71.5% 0.143 215.221)',
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Charges',
+                            data: charges,
+                            borderColor: 'oklch(72.3% 0.219 149.579)',
+                            tension: 0.2
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM d',
+                                    hour: 'HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Visit Timeline'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initChargesBreakdownChart() {
+            const ctxElement = document.getElementById("charges-pie-chart");
+            if (!ctxElement) {
+                console.error("Canvas element not found");
+                return;
+            }
+            
+            // Destroy existing chart first
+            if (window.chargesChart) {
+                window.chargesChart.destroy();
+                window.chargesChart = null;
+            }
+            
+            // Reset canvas element to clear any previous drawing
+            const ctx = ctxElement.getContext("2d");
+            ctx.clearRect(0, 0, ctxElement.width, ctxElement.height);
+            
+            const dataPoints = window.chargesBreakdownChartData;
+            if (!dataPoints) {
+                console.error("dataPoints is not available");
+                return;
+            }
+
+            const labels = [];
+            const values = [];
+
+            for (const label in dataPoints) {
+                labels.push(label);
+                values.push(dataPoints[label])
+            }
+
+            window.chargesChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Amount: ',
+                        data: values,
+                        backgroundColor: [
+                            'oklch(50.1% 0.262 276.966)',
+                            'oklch(78.9% 0.154 211.53)',
+                            'oklch(76.5% 0.177 163.223)',
+                            'oklch(71.8% 0.202 349.761)',
+                            'oklch(60.6% 0.25 292.717)',
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Charges Breakdown'
+                        }
+                    }
+                }
+            });
+        }
+
+        function initTopTestsChart() {
+            const ctxElement = document.getElementById("top-tests-bar-chart");
+            if (!ctxElement) {
+                console.error("Canvas element not found");
+                return;
+            }
+            
+            // Destroy existing chart first
+            if (window.topTestsChart) {
+                window.topTestsChart.destroy();
+                window.topTestsChart = null;
+            }
+            
+            // Reset canvas element to clear any previous drawing
+            const ctx = ctxElement.getContext("2d");
+            ctx.clearRect(0, 0, ctxElement.width, ctxElement.height);
+            
+            const dataPoints = window.topTestsChartData;
+            if (!dataPoints) {
+                console.error("dataPoints is not available");
+                return;
+            }
+
+            const labels = [];
+            const values = [];
+
+            for (const item of dataPoints) {
+                labels.push(item["lab_test__name"]);
+                values.push(item["order_count"])
+            }
+
+            window.topTestsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Number of orders",
+                        data: values,
+                        backgroundColor: [
+                            'oklch(50.1% 0.262 276.966)',
+                            'oklch(78.9% 0.154 211.53)',
+                            'oklch(76.5% 0.177 163.223)',
+                            'oklch(71.8% 0.202 349.761)',
+                            'oklch(60.6% 0.25 292.717)',
+                        ]
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Charges Breakdown'
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initVisitCountChart();
+            initRevenueChargesChart();
+            initChargesBreakdownChart();
+            initTopTestsChart();
+        });
+        
+        document.addEventListener('htmx:beforeSwap', function(evt) {
+            if (evt.target.id) {
+                // Destroy charts before HTMX swaps the content
+                if (window.visitChart) {
+                    window.visitCountChart.destroy();
+                    window.visitCountChart = null;
+                }
+                if (window.visitChart) {
+                    window.revenueChargesChart.destroy();
+                    window.revenueChargesChart = null;
+                }
+                if (window.chargesChart) {
+                    window.chargesChart.destroy();
+                    window.chargesChart = null;
+                }
+                if (window.topTestsChart) {
+                    window.topTestsChart.destroy();
+                    window.topTestsChart = null;
+                }
+            }
+        });
+        
+        document.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.target.id) {
+                // Small delay to ensure DOM is fully ready
+                setTimeout(() => {
+                    initVisitCountChart();
+                    initRevenueChargesChart();
+                    initChargesBreakdownChart();
+                    initTopTestsChart();
+                }, 50);
+            }
+        });
+    </script>
+{% endblock scripts %}
+    

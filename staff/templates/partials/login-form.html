@@ -1,0 +1,49 @@
+{% load static %}
+<div id="login_form">
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img src="{% static 'images/logo.png' %}" alt="Clinic Management System Logo" class="mx-auto h-16 w-auto">
+        <h2 class="font-bold mt-10 text-center text-2xl tracking-tight text-gray-900 dark:text-white">Sign in to your account</h2>
+    </div>
+    <form
+        hx-post="{% url 'staff:attempt_login' %}"
+        hx-target="#login_form"
+        class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4"
+    >
+        {% csrf_token %}
+        <div class="form-control w-full">
+            <label for="id_username" class="label mb-2 dark:text-gray-100">
+                <span class="label-text text-black dark:text-gray-100">Username</span>
+            </label>
+            {{ form.username }}
+
+            
+            {% if form.username.errors %}
+                <label class="label text-error mt-2">
+                    {{ form.username.errors }}
+                </label>
+            {% endif %}
+        </div>
+
+        <div class="form-control w-full">
+            <label for="id_password" class="label mb-2">
+                <span class="label-text text-black dark:text-gray-100">Password</span>
+            </label>
+            {{ form.password }}
+
+            
+            {% if form.password.errors %}
+                <label class="label text-error mt-2">
+                    {{ form.password.errors }}
+                </label>
+            {% endif %}
+        </div>
+
+        {% if error %}
+            <p class="text-red-600 dark:text-red-400 text-center">{{ error }}</p>
+        {% endif %}            
+
+        <div>
+            <button type="submit" class="mt-4 btn btn-block bg-indigo-500 outline-none border-none dark:bg-indigo-600 text-white hover:bg-indigo-400 dark:hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:focus-visible:outline-indigo-600">Sign in</button>
+        </div>
+    </form>
+</div>

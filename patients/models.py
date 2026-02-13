@@ -35,9 +35,10 @@ class Patient(models.Model):
     sex = EnumField(SexEnum)
     weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Weight of the patient")
     height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Height of the patient")
+    phone = models.CharField(max_length=10, help_text="Patient's phone number", null=True, blank=True)
     region = EnumField(RegionEnum, help_text="Region where patient resides")
     city = models.CharField(max_length=100, help_text="City where the patient resides")
-    is_active = models.BooleanField(default=True, help_text="Whether the patient is active. Used for soft deletes ")
+    is_active = models.BooleanField(default=True, help_text="Whether the patient is active. Used for soft deletes")
 
     @property
     def fullname(self):
@@ -46,10 +47,16 @@ class Patient(models.Model):
     @property
     def age(self):
         return timezone.now().year - self.date_of_birth.year
+    
+    @property
+    def address(self):
+        return f"{self.city}, {self.region.label}"
 
     @property
     def bmi(self):
         if self.weight and self.height:
+            if self.height > 100:
+                self.height = self.height / 100
             return round(self.weight / (self.height * self.height), 2)
         return 0
 

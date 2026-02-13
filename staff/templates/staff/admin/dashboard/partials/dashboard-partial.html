@@ -1,0 +1,25 @@
+<div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-2">
+        <h2 class="text-2xl">Dashboard</h2>
+        <div class="flex flex-col gap-1">
+            <label for="timespans" class="block mb-2.5 text-sm font-medium text-heading">Select a time span</label>
+            <select
+                id="timespans"
+                name="timespans"
+                class="block w-40 rounded-md px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                hx-get="{% url 'staff:admin_dashboard_timespan' %}"
+                hx-target="#dashboard_content"
+            >
+                <option value="day" selected>Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3" id="dashboard_content">
+        {% include 'staff/admin/dashboard/partials/dashboard-content.html' %}
+    </div>
+</div>
