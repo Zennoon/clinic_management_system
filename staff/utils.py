@@ -36,13 +36,12 @@ def fill_missing(visit_data: dict) -> dict:
 def get_timespan_data(start_date, previous_date, history_start_date, trunc):
     # don't use with_financials() here — its joins can inflate aggregates
     # compute counts and money sums from source relations in separate queries to avoid join inflation
-    visit_count = Visit.objects.filter(created_at__gte=start_date).count()
-    previous_count = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).count()
-    revenue = Visit.objects.filter(created_at__gte=start_date).aggregate(value=Sum('payments__amount'))['value']
-    previous_revenue = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).aggregate(value=Sum('payments__amount'))['value']
-
-    charges = Visit.objects.filter(created_at__gte=start_date).aggregate(value=Sum('charges__amount'))['value']
-    previous_charges = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).aggregate(value=Sum('charges__amount'))['value']
+    visit_count = Visit.objects.filter(created_at__gte=start_date).distinct().count()
+    previous_count = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).distinct().count()
+    revenue = Visit.objects.distinct().filter(created_at__gte=start_date).distinct().aggregate(value=Sum('payments__amount'))['value']
+    previous_revenue = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).distinct().aggregate(value=Sum('payments__amount'))['value']
+    charges = Visit.objects.filter(created_at__gte=start_date).distinct().aggregate(value=Sum('charges__amount'))['value']
+    previous_charges = Visit.objects.filter(created_at__gte=previous_date, created_at__lt=start_date).distinct().aggregate(value=Sum('charges__amount'))['value']
 
     visit_data = {
         "count": visit_count,
@@ -54,7 +53,6 @@ def get_timespan_data(start_date, previous_date, history_start_date, trunc):
     }
     visit_data = fill_missing(visit_data)
 
-    # build history by computing counts, revenues and charges in separate queries
     counts_qs = (
         Visit.objects
         .filter(created_at__gte=history_start_date)
@@ -99,11 +97,11 @@ def get_timespan_data(start_date, previous_date, history_start_date, trunc):
         Visit.objects
         .filter(created_at__gte=start_date)
         .aggregate(
-            consultation=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.CONSULTATION)),
-            laboratory=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.LABORATORY)),
-            procedure=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.PROCEDURE)),
-            medication=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.MEDICATION)),
-            other=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.OTHER)),
+            consultation=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.CONSULTATION), distinct=True),
+            laboratory=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.LABORATORY), distinct=True),
+            procedure=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.PROCEDURE), distinct=True),
+            medication=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.MEDICATION), distinct=True),
+            other=Sum('charges__amount', filter=Q(charges__charge_type=Charge.ChargeTypeEnum.OTHER), distinct=True),
         )
     )
 
@@ -118,7 +116,8 @@ def get_timespan_data(start_date, previous_date, history_start_date, trunc):
         .filter(created_at__gte=start_date)
         .values('lab_test__id', 'lab_test__name')
         .annotate(order_count=Count('lab_test__id'))
-        .order_by('-order_count')[:5]
+        .order_by('-order_count')
+        .distinct()[:5]
     )
 
     return {

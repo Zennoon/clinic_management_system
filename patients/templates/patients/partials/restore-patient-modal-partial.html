@@ -1,0 +1,31 @@
+<dialog id="restore_patient_modal" class="bg-transparent w-4xl">
+    <div class="modal-box p-10 w-full">
+        {% if patient %}
+            <form
+                hx-post="{% url 'patients:restore_patient' patient.id %}"
+                hx-target="#patients-table-body"
+                hx-on:restore-patient-success="restore_patient_modal.close(); this.reset(); alert('Patient activated successfully!');"
+            >
+                {% csrf_token %}
+                <h3 class="font-bold text-lg mb-4">Restore Patient {{ patient.fullname }}'s records?</h3>
+                <p class="label text-xs">This action will reactivate the patient record, making it available for new actions.</p>
+                
+                <div class="flex items-center gap-2 w-full mt-4">
+                    <button
+                        type="button"
+                        class="btn btn-neutral text-white flex-1"
+                        onclick="delete_patient_modal.close();"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary text-white flex-1"
+                    >
+                        Restore
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

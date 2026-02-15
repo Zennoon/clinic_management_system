@@ -1,0 +1,116 @@
+<div class="flex flex-col gap-4">
+    <h2 class="text-2xl">Patients</h2>
+    <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+        <div class="flex justify-between items-center" id="patients-filters">
+            <label class="input input-bordered flex items-center gap-2">
+                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                </svg>
+                <input
+                    type="search"
+                    id="patient_q"
+                    name="patient_q"
+                    placeholder="Search patient"
+                    hx-get="{% url 'staff:admin_patients_filter' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#patients-table-container"
+                    hx-include="#patient_sex, #patient_region, #patient_order, #hide_deactivated"
+                />
+            </label>
+            <div class="flex items-center gap-2">
+                <select
+                    name="patient_sex"
+                    id="patient_sex"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_patients_filter' %}"
+                    hx-target="#patients-table-container"
+                    hx-include="#patient_q, #patient_region, #patient_order, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Select a sex</option>
+                    <option value="">All</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                </select>
+                <select
+                    name="patient_region"
+                    id="patient_region"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_patients_filter' %}"
+                    hx-target="#patients-table-container"
+                    hx-include="#patient_q, #patient_sex, #patient_order, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Select a region</option>
+                    <option value="">All</option>
+                    {% for region in regions %}
+                        <option value="{{region|first}}">{{ region|last }}</option>
+                    {% endfor %}
+                </select>
+                <select
+                    name="patient_order"
+                    id="patient_order"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_patients_filter' %}"
+                    hx-target="#patients-table-container"
+                    hx-include="#patient_q, #patient_sex, #patient_region, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Order by</option>
+                    <option value="">All</option>
+                    {% for key, val in order_options.items %}
+                        <option value="{{ key }}" class="flex gap-2 items-center text-black">
+                            Ascending
+                            {{ val }}
+                        </option>
+                        <option value="-{{ key }}" class="flex gap-2 items-center">
+                            Descending
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                            {{ val }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <input
+                    type="checkbox"
+                    name="hide_deactivated"
+                    id="hide_deactivated"
+                    class="toggle toggle-sm"
+                    hx-get="{% url 'staff:admin_patients_filter' %}"
+                    hx-target="#patients-table-container"
+                    hx-include="#patient_q, #patient_sex, #patient_region, #patient_order"
+
+                />
+                <label for="hide_deactivated">Hide deleted patients</label>
+            </div>
+            <button
+                class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                hx-get="{% url 'patients:new_patient_modal' %}"
+                hx-target="#new_patient_modal"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-on:htmx:after-on-load="document.getElementById('new_patient_modal').showModal();"
+            >
+                New Patient
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+            </button>
+        </div>
+        {% include 'patients/partials/restore-patient-modal-partial.html' %}
+        {% include 'patients/partials/delete-patient-modal-partial.html' %}
+        {% include 'patients/partials/update-patient-modal-partial.html' %}
+        {% include 'patients/partials/new-patient-modal-partial.html' %}
+        {% include 'staff/admin/patients/partials/patients-table-partial.html' %}
+    </div>
+</div>

@@ -363,3 +363,92 @@ def admin_activity_recent_payments(request: HttpRequest):
         recent_payments = paginator.page(paginator.num_pages if paginator.num_pages else 1)
     context = {"recent_payments": recent_payments}
     return render(request, "staff/admin/activity/partials/recent-payments-table-partial.html", context)
+
+@login_required
+@user_has_role(Staff.RoleEnum.ADMIN)
+def admin_patients(request: HttpRequest):
+    qs = Patient.objects.order_by("id").all()
+    paginator = Paginator(qs, per_page=50)
+    patients = paginator.get_page(1)
+    context = {
+        "patients": patients,
+        "regions": Patient.RegionEnum.choices,
+        "order_options": {
+            "id": "ID",
+            "first_name": "First name",
+            "last_name": "Last name",
+            "date_of_birth": "Age",
+            "weight": "Weight",
+            "height": "Height",
+            "created_at": "Registration date"
+        }
+    }
+
+    if request.headers.get("HX-Request"):
+        return render(
+            request,
+            "staff/admin/patients/partials/patients-partial.html",
+            context
+        )
+    else:
+        return render(
+            request,
+            "staff/admin/patients/page.html",
+            context
+        )
+
+@login_required
+@user_has_role(Staff.RoleEnum.ADMIN)
+def admin_patients_filter(request: HttpRequest):
+    page = request.GET.get("page", 1)
+    per_page = 50
+    
+    try:
+        page_number = int(page)
+    except (TypeError, ValueError):
+        page_number = 1
+    
+    q = request.GET.get("patient_q")
+    sex = request.GET.get("patient_sex")
+    region = request.GET.get("patient_region")
+    order_by = request.GET.get("patient_order")
+    hide_deactivated = request.GET.get("hide_deactivated")
+        
+    if order_by and order_by.endswith("date_of_birth"):
+        if order_by.startswith("-"):
+            order_by = order_by[1:]
+        elif order_by.startswith("date_of_birth"):
+            order_by = "-" + order_by
+    
+    qs = Patient.objects
+    
+    if hide_deactivated:
+        qs = qs.exclude(is_active=False)
+    
+    if q:
+        qs = qs.filter(
+            Q(id__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(phone__icontains=q) |
+            Q(city__icontains=q) |
+            Q(visits__id__icontains=q)
+        ).distinct()
+    if sex:
+        qs = qs.filter(sex=sex)
+    if region:
+        qs = qs.filter(region=region)
+    if order_by:
+        qs = qs.order_by(order_by)
+    else:
+        qs = qs.order_by("id")
+    
+    paginator = Paginator(qs, per_page)
+    try:
+        patients = paginator.page(page_number)
+    except (PageNotAnInteger, ValueError):
+        patients = paginator.page(1)
+    except EmptyPage:
+        patients = paginator.page(paginator.num_pages if paginator.num_pages else 1)
+    context = { "patients": patients }
+    return render(request, "staff/admin/patients/partials/patients-table-partial.html", context)

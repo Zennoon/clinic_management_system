@@ -35,7 +35,7 @@ class Patient(models.Model):
     sex = EnumField(SexEnum)
     weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Weight of the patient")
     height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Height of the patient")
-    phone = models.CharField(max_length=10, help_text="Patient's phone number", null=True, blank=True)
+    phone = models.CharField(max_length=20, help_text="Patient's phone number", null=True, blank=True)
     region = EnumField(RegionEnum, help_text="Region where patient resides")
     city = models.CharField(max_length=100, help_text="City where the patient resides")
     is_active = models.BooleanField(default=True, help_text="Whether the patient is active. Used for soft deletes")

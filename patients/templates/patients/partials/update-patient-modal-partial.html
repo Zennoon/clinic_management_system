@@ -1,0 +1,152 @@
+<dialog id="update_patient_modal" class="bg-transparent w-4xl">
+    <div class="modal-box p-10 w-full">
+        <h3 class="font-bold text-lg mb-4">Update patient information</h3>
+        <form
+            class="mb-4 space-y-4"
+            hx-post="{% url 'patients:update_patient' %}?id={{patient.id}}"
+            hx-target="#patients-table-body"
+            hx-on:update-patient-success="update_patient_modal.close(); this.reset(); alert('Patient updated successfully!');"
+        >
+            {% csrf_token %}
+            {% if form.non_field_errors  %}
+                {% for error in form.non_field_errors %}
+                    <div class="label text-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <div class="form-control w-full">
+                <label for="id" class="label">
+                    <span class="label-text">Patient ID</span>
+                </label>
+                {{ form.id }}
+
+                {% if form.id.errors %}
+                    <label class="label text-error">
+                        {{ form.id.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="first_name" class="label">
+                    <span class="label-text">First Name</span>
+                </label>
+                {{ form.first_name }}
+
+                {% if form.first_name.errors %}
+                    <label class="label text-error">
+                        {{ form.first_name.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="last_name" class="label">
+                    <span class="label-text">Last Name</span>
+                </label>
+                {{ form.last_name }}
+
+                {% if form.last_name.errors %}
+                    <label class="label text-error">
+                        {{ form.last_name.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="date_of_birth" class="label">
+                    <span class="label-text">Date of Birth (GC)</span>
+                </label>
+                {{ form.date_of_birth }}
+
+                {% if form.date_of_birth.errors %}
+                    <label class="label text-error">
+                        {{ form.date_of_birth.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="sex" class="label">
+                    <span class="label-text">Sex</span>
+                </label>
+                {{ form.sex }}
+
+                {% if form.sex.errors %}
+                    <label class="label text-error">
+                        {{ form.sex.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="weight" class="label">
+                    <span class="label-text">Weight</span>
+                </label>
+                {{ form.weight }}
+
+                {% if form.weight.errors %}
+                    <label class="label text-error">
+                        {{ form.weight.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="height" class="label">
+                    <span class="label-text">Height</span>
+                </label>
+                {{ form.height }}
+
+                {% if form.height.errors %}
+                    <label class="label text-error">
+                        {{ form.height.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="phone" class="label">
+                    <span class="label-text">Phone</span>
+                </label>
+                {{ form.phone }}
+
+                {% if form.phone.errors %}
+                    <label class="label text-error">
+                        {{ form.phone.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="region" class="label">
+                    <span class="label-text">Region</span>
+                </label>
+                {{ form.region }}
+
+                {% if form.region.errors %}
+                    <label class="label text-error">
+                        {{ form.region.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="city" class="label">
+                    <span class="label-text">City</span>
+                </label>
+                {{ form.city }}
+
+                {% if form.city.errors %}
+                    <label class="label text-error">
+                        {{ form.city.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-error text-white" onclick="update_patient_modal.close()">Cancel</button>
+                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Submit</button>
+            </div>
+        </form>
+    </div>
+</dialog>

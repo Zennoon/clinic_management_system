@@ -1,0 +1,23 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+
+{% block main_content %}
+    {% include 'staff/admin/patients/partials/patients-partial.html' %}
+{% endblock main_content %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("new-patient-fail", () => {
+                document.getElementById("new_patient_modal").showModal();
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("update-patient-fail", () => {
+                document.getElementById("update_patient_modal").showModal();
+            });
+        });
+    </script>
+{% endblock scripts %}
+    
