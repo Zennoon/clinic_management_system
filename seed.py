@@ -29,8 +29,9 @@ def _parse_decimal(value):
 
 @transaction.atomic
 def seed_db():
-    random.seed(42)
-
+    random.seed(69)
+    complaints = "Severe headache, Difficulty breathing, Fever and chills, Abdominal pain, Chest tightness, Dizziness and lightheadedness, Joint pain, Nausea and vomiting, Back pain, Fatigue and weakness".split(", ")
+    histories = "patient reports feeling tired all the time, patient has a history of migraines, patient experienced chest pain after exercise, patient reports frequent stomach aches, patient has a family history of heart disease".split(", ")
     # Create a few staff users used as creators/orderers
     def _ensure_staff(username, role, password='password'):
         user, created = Staff.objects.get_or_create(username=username, defaults={'role': role})
@@ -134,33 +135,30 @@ def seed_db():
             print(visit_time)
             i += 1
             visit = Visit.objects.create(
-                visit_category=Visit.VisitCategoryEnum.HISTORY_AND_PHYSICAL,
+                visit_category=random.choice(Visit.VisitCategoryEnum.values),
                 visit_status=Visit.VisitStatusEnum.AWAITING_PAYMENT,
                 patient=patient,
+                date=visit_time
             )
             # ensure DB timestamp is set to our chosen visit_time (bypass auto_now_add)
-            Visit.objects.filter(pk=visit.pk).update(created_at=visit_time, updated_at=visit_time)
             # keep the in-memory object in sync so later visit.save() doesn't overwrite our timestamp
-            visit.created_at = visit_time
-            visit.updated_at = visit_time
+
             charge = Charge.objects.create(
                 visit=visit,
                 charge_type=Charge.ChargeTypeEnum.CONSULTATION,
                 charge_status=Charge.ChargeStatusEnum.PENDING,
                 amount=300,
-                charged_by=reception
+                charged_by=reception,
+                date=visit_time+timedelta(minutes=1)
             )
-
-            Charge.objects.filter(pk=charge.pk).update(created_at=visit_time+timedelta(minutes=1), updated_at=visit_time+timedelta(minutes=1))
 
             if random.random() < 0.7 and visit.visit_status == Visit.VisitStatusEnum.AWAITING_PAYMENT:
                 payment = Payment.objects.create(
-                    visit=visit,
                     amount=(charge.amount * Decimal(random.triangular(0.0, 1.0, 1.0))),
-                    recorded_by=reception
+                    charge=charge,
+                    recorded_by=reception,
+                    date=visit_time + timedelta(minutes=2)
                 )
-                Payment.objects.filter(pk=charge.pk).update(created_at=visit_time + timedelta(minutes=2),
-                                                           updated_at=visit_time + timedelta(minutes=2))
                 visit.transition_to_next_status()
                 visit.save()
                 # ensure our custom created_at persists (save() may have written the instance value back)
@@ -185,13 +183,16 @@ def seed_db():
                     weight_unit=VitalSign.WeightUnitEnum.KG,
                     height=patient.height or _parse_decimal(random.choice(["165", "170", "180"])),
                     height_unit=VitalSign.HeightUnitEnum.CENTIMETER,
+                    date=vs_time
                 )
-                VitalSign.objects.filter(pk=vs.pk).update(created_at=vs_time, updated_at=vs_time)
                 visit.transition_to_next_status()
                 visit.save()
                 Visit.objects.filter(pk=visit.pk).update(created_at=visit_time)
                 visit.created_at = visit_time
 
+            visit.chief_complaint = random.choice(complaints)
+            visit.history = random.choice(histories)
+            visit.save()
             # optionally create a physical exam
             if random.random() < 0.7 and visit.visit_status == Visit.VisitStatusEnum.AWAITING_CONSULTATION:
                 pe_time = visit_time + timedelta(minutes=random.randint(5, 180))
@@ -217,7 +218,7 @@ def seed_db():
 
             # maybe create a lab request for some visits; ensure lab_request time is >= visit_time
             if random.random() < 0.6 and visit.visit_status == Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT:
-                lab_time = visit_time + timedelta(hours=random.randint(0, 72), seconds=random.randint(0, 3600))
+                lab_time = visit_time + timedelta(hours=random.randint(0, 2), seconds=random.randint(0, 3600))
                 if lab_time > now:
                     lab_time = now
                 lab_request = LabRequest.objects.create(
@@ -235,27 +236,25 @@ def seed_db():
                         lab_test=t,
                         lab_request=lab_request,
                         ordered_by=doctor,
+                        date=t_time
                     )
-                    LabTestRequest.objects.filter(pk=lrt.pk).update(created_at=t_time, updated_at=t_time)
 
                 charge = Charge.objects.create(
                     visit=visit,
                     charge_type=Charge.ChargeTypeEnum.LABORATORY,
                     charge_status=Charge.ChargeStatusEnum.PENDING,
                     amount=lab_request.price,
-                    charged_by=doctor
+                    charged_by=doctor,
+                    date=lab_time + timedelta(minutes=1)
                 )
 
-                Charge.objects.filter(pk=charge.pk).update(created_at=lab_time + timedelta(minutes=1),
-                                                           updated_at=lab_time + timedelta(minutes=1))
                 if random.random() < 0.9:
                     payment = Payment.objects.create(
-                        visit=visit,
                         amount=(charge.amount * Decimal(random.triangular(0.0, 1.0, 1.0))),
-                        recorded_by=reception
+                        charge=charge,
+                        recorded_by=reception,
+                        date=lab_time + timedelta(minutes=2)
                     )
-                    Payment.objects.filter(pk=charge.pk).update(created_at=lab_time + timedelta(minutes=2),
-                                                                updated_at=lab_time + timedelta(minutes=2))
                     visit.transition_to_next_status()
                     visit.save()
                     Visit.objects.filter(pk=visit.pk).update(created_at=visit_time)

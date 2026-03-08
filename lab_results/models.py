@@ -1,8 +1,8 @@
 from django.db import models
 from django_enum import EnumField
+from django.utils import timezone
 
 from lab_requests.models import LabRequest, LabTest, LabObservation
-from patients.models import Patient
 from staff.models import Staff
 from visits.models import Visit
 
@@ -12,6 +12,7 @@ class LabRequestResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
@@ -38,6 +39,7 @@ class LabTestResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
@@ -60,6 +62,7 @@ class ObservationResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     value_numeric = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_categorical = EnumField(CategoricalEnum)
     notes = models.TextField(blank=True, null=True)

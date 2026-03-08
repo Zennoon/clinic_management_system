@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.db.models import F, Q, Sum
 from django.utils import timezone
 
 from charges.models import Charge
@@ -118,23 +118,23 @@ def admin_dashboard_timespan(request: HttpRequest):
 @login_required
 @user_has_role(Staff.RoleEnum.ADMIN)
 def admin_activity(request: HttpRequest):
-    visit_qs = Visit.objects.order_by("-created_at")
+    visit_qs = Visit.objects.order_by("-date")
     visit_paginator = Paginator(visit_qs, 10)
     recent_visits = visit_paginator.get_page(1)
-    
-    patient_qs = Patient.objects.order_by("-created_at")
+
+    patient_qs = Patient.objects.order_by("-date")
     patient_paginator = Paginator(patient_qs, 10)
     recent_patients = patient_paginator.get_page(1)
     
-    lab_qs = LabRequest.objects.order_by("-created_at")
+    lab_qs = LabRequest.objects.order_by("-date")
     lab_request_paginator = Paginator(lab_qs, 10)
     recent_lab_requests = lab_request_paginator.get_page(1)
     
-    charge_qs = Charge.objects.order_by("-created_at")
+    charge_qs = Charge.objects.order_by("-date")
     charge_paginator = Paginator(charge_qs, 10)
     recent_charges = charge_paginator.get_page(1)
     
-    payment_qs = Payment.objects.order_by("-created_at")
+    payment_qs = Payment.objects.order_by("-date")
     payment_paginator = Paginator(payment_qs, 10)
     recent_payments = payment_paginator.get_page(1)
 
@@ -189,7 +189,7 @@ def admin_activity_recent_visits(request: HttpRequest):
     q = request.GET.get('visit_q', '').strip()
     status = request.GET.get('visit_status', '').strip()
 
-    qs = Visit.objects.order_by("-created_at")
+    qs = Visit.objects.order_by("-date")
 
     if q:
         qs = qs.filter(
@@ -300,7 +300,6 @@ def admin_activity_recent_charges(request: HttpRequest):
     qs = Charge.objects.order_by("-created_at")
 
     if q:
-        print(q)
         qs = qs.filter(
             Q(id__icontains=q) |
             Q(visit__id__icontains=q) |
@@ -452,3 +451,94 @@ def admin_patients_filter(request: HttpRequest):
         patients = paginator.page(paginator.num_pages if paginator.num_pages else 1)
     context = { "patients": patients }
     return render(request, "staff/admin/patients/partials/patients-table-partial.html", context)
+
+@login_required
+@user_has_role(Staff.RoleEnum.ADMIN)
+def admin_visits(request: HttpRequest):
+    qs = Visit.objects.order_by("id").all()
+    paginator = Paginator(qs, per_page=50)
+    visits = paginator.get_page(1)
+    context  = {
+        "visits": visits,
+        "visit_categories": Visit.VisitCategoryEnum.choices,
+        "visit_statuses": Visit.VisitStatusEnum.choices,
+        "order_options": {
+            "id": "ID",
+            "patient__first_name": "Patient First Name",
+            "patient__last_name": "Patient Last Name",
+            "total_charges": "Total Charges",
+            "total_payments": "Total Payments",
+            "total_balance": "Balance",
+            "date": "Date"
+        }
+    }
+    if request.headers.get("HX-Request"):
+        return render(
+            request,
+            "staff/admin/visits/partials/visits-partial.html",
+            context
+        )
+    else:
+        return render(
+            request,
+            "staff/admin/visits/page.html",
+            context
+        )
+
+@login_required
+@user_has_role(Staff.RoleEnum.ADMIN)
+def admin_visits_filter(request: HttpRequest):
+    page = request.GET.get("page", 1)
+    per_page = 50
+    
+    try:
+        page_number = int(page)
+    except (TypeError, ValueError):
+        page_number = 1
+    
+    q = request.GET.get("visit_q")
+    category = request.GET.get("visit_category")
+    status = request.GET.get("visit_status")
+    order_by = request.GET.get("visit_order")
+    hide_deactivated = request.GET.get("hide_deactivated")
+    
+    qs = Visit.objects
+    
+    if hide_deactivated:
+        qs = qs.exclude(is_active=False)
+    
+    if q:
+        qs = qs.filter(
+            Q(id__icontains=q) |
+            Q(patient__id__icontains=q) |
+            Q(patient__first_name__icontains=q) |
+            Q(patient__last_name__icontains=q) |
+            Q(patient__phone__icontains=q) |
+            Q(chief_complaint__icontains=q) |
+            Q(history__icontains=q)
+        ).distinct()
+    if category:
+        qs = qs.filter(visit_category=category)
+    if status:
+        qs = qs.filter(visit_status=status)
+    if order_by:
+        if "total" in order_by or "balance" in order_by:
+            qs = qs.annotate(
+                total_charges=Sum("charges__amount"),
+                total_payments=Sum("charges__payments__amount")
+            ).annotate(
+                total_balance=F("total_charges") - F("total_payments")
+            )
+        qs = qs.order_by(order_by)
+    else:
+        qs = qs.order_by("id")
+    
+    paginator = Paginator(qs, per_page)
+    try:
+        visits = paginator.page(page_number)
+    except (PageNotAnInteger, ValueError):
+        visits = paginator.page(1)
+    except EmptyPage:
+        visits = paginator.page(paginator.num_pages if paginator.num_pages else 1)
+    context = { "visits": visits }
+    return render(request, "staff/admin/visits/partials/visits-table-partial.html", context)

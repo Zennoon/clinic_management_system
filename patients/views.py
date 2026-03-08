@@ -4,19 +4,19 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from patients.models import Patient
-from .forms import NewPatientForm, UpdatePatientForm
+from .forms import PatientForm
 
 # Create your views here.
 @login_required
 def new_patient_modal(request: HttpRequest):
-    form = NewPatientForm()
+    form = PatientForm()
     context = { "form": form }
     return render(request, "patients/partials/new-patient-modal-partial.html", context)
 
 @login_required
 @require_POST
 def register_new_patient(request: HttpRequest):
-    form = NewPatientForm(request.POST)
+    form = PatientForm(request.POST)
     if form.is_valid():
         patient = form.save()
         response = render(request, "staff/admin/patients/partials/patients-table-row-partial.html", { "patient": patient })
@@ -32,16 +32,15 @@ def register_new_patient(request: HttpRequest):
 @login_required
 def update_patient_modal(request: HttpRequest, id):
     patient = get_object_or_404(Patient, pk=id)
-    form = UpdatePatientForm(instance=patient)
+    form = PatientForm(instance=patient)
     context = { "form": form, "patient": patient }
     return render(request, "patients/partials/update-patient-modal-partial.html", context)
 
 @login_required
 @require_POST
-def update_patient(request: HttpRequest):
-    id = request.POST.get("id")
+def update_patient(request: HttpRequest, id):
     patient = get_object_or_404(Patient, pk=id)
-    form = UpdatePatientForm(request.POST, instance=patient)
+    form = PatientForm(request.POST, instance=patient, initial={"id": patient.id})
     if form.is_valid():
         patient = form.save()
         response = render(request, "staff/admin/patients/partials/patients-table-row-partial.html", { "patient": patient })
@@ -50,7 +49,6 @@ def update_patient(request: HttpRequest):
         response["HX-Reswap"] = "outerHTML"
         return response
     else:
-        print(form.errors)
         response = render(request, "patients/partials/update-patient-modal-partial.html", { "form": form })
         response["HX-Retarget"] = "#update_patient_modal"
         response["HX-Reswap"] = "outerHTML"
@@ -82,6 +80,7 @@ def restore_patient_modal(request: HttpRequest, id):
     return render(request, "patients/partials/restore-patient-modal-partial.html", context)
 
 @login_required
+@require_POST
 def restore_patient(request: HttpRequest, id):
     patient = get_object_or_404(Patient, pk=id)
     patient.is_active = True

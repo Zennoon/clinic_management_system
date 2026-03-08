@@ -1,6 +1,6 @@
 from django.db import models
+from django.utils import timezone
 
-from patients.models import Patient
 from staff.models import Staff
 from visits.models import Visit
 
@@ -10,6 +10,7 @@ class PhysicalExam(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     heent = models.TextField(blank=True, help_text="Head, Eye, Ear, Nose, and Throat")
     chest = models.TextField(blank=True, help_text="Chest")
     cardiovascular = models.TextField(blank=True, help_text="Cardiovascular")

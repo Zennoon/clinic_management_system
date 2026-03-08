@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import Sum
 from django_enum import EnumField
+from django.utils import timezone
 
-from patients.models import Patient
 from staff.models import Staff
 from visits.models import Visit
 
@@ -63,6 +63,7 @@ class LabRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True, help_text="Is this request active?")
 
     ordered_by = models.ForeignKey(
@@ -88,6 +89,7 @@ class LabTestRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True, help_text="Is this request active?")
 
@@ -104,7 +106,6 @@ class LabTestRequest(models.Model):
             self.price = self.lab_test.price
         else:
             self.price = Decimal("0.00")
-        print("Saved successfully")
         super().save(*args, **kwargs)
 
     def __str_(self):

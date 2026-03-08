@@ -1,0 +1,22 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+{% block main_content %}
+    {% include 'staff/admin/visits/partials/visits-partial.html' %}
+{% endblock main_content %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("new-visit-fail", () => {
+                document.getElementById("new_visit_modal").showModal();
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("update-visit-fail", () => {
+                document.getElementById("update_visit_modal").showModal();
+            });
+        });
+    </script>
+{% endblock scripts %}
+    

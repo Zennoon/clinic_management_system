@@ -17,4 +17,6 @@ urlpatterns = [
     path("admin/activity/recent_payments", views.admin_activity_recent_payments, name="admin_activity_recent_payments"),
     path("admin/patients/", views.admin_patients, name="admin_patients"),
     path("admin/patients/filter", views.admin_patients_filter, name="admin_patients_filter"),
+    path("admin/visits/", views.admin_visits, name="admin_visits"),
+    path("admin/visits/filter", views.admin_visits_filter, name="admin_visits_filter"),
 ]

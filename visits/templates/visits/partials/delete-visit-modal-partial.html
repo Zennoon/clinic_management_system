@@ -1,0 +1,31 @@
+<dialog id="delete_visit_modal" class="bg-transparent w-4xl">
+    <div class="modal-box p-10 w-full">
+        {% if visit %}
+            <form
+                hx-post="{% url 'visits:delete_visit' visit.id %}"
+                hx-target="#visits-table-body"
+                hx-on:delete-visit-success="delete_visit_modal.close(); this.reset(); alert('Visit deactivated successfully!');"
+            >
+                {% csrf_token %}
+                <h3 class="font-bold text-lg mb-4">Delete Visit {{ visit.id }} of {{ visit.patient.fullname }}?</h3>
+                <p class="label text-xs">This action will not delete the visit off the database, it will deactivate the visit, and disallow staff from performing any actions on it.</p>
+                
+                <div class="flex items-center gap-2 w-full">
+                    <button
+                        type="button"
+                        class="btn btn-neutral text-white flex-1"
+                        onclick="delete_visit_modal.close();"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-error text-white flex-1"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

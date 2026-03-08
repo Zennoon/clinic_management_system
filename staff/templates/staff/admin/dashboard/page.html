@@ -35,7 +35,6 @@
             ctx.clearRect(0, 0, ctxElement.width, ctxElement.height);
             
             const dataPoints = window.visitHistoryChartData;
-            console.log(dataPoints);
             if (!Array.isArray(dataPoints)) {
                 console.error("dataPoints is not an array");
                 return;
@@ -86,6 +85,8 @@
                     }
                 }
             });
+
+            window.visitCountChart.resize();
         }
 
         function initRevenueChargesChart() {
@@ -121,7 +122,7 @@
                 charges.push(point["charges"]);
             }
 
-            window.visitChart = new Chart(ctx, {
+            window.revenueChargesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -304,11 +305,11 @@
         document.addEventListener('htmx:beforeSwap', function(evt) {
             if (evt.target.id) {
                 // Destroy charts before HTMX swaps the content
-                if (window.visitChart) {
+                if (window.visitCountChart) {
                     window.visitCountChart.destroy();
                     window.visitCountChart = null;
                 }
-                if (window.visitChart) {
+                if (window.revenueChargesChart) {
                     window.revenueChargesChart.destroy();
                     window.revenueChargesChart = null;
                 }

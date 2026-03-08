@@ -1,0 +1,117 @@
+<div class="flex flex-col gap-4">
+    <h2 class="text-2xl">Visits</h2>
+    <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+        <div class="flex justify-between items-center gap-2 overflow-clip" id="visits-filters">
+            <label class="input input-bordered flex items-center gap-2">
+                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                </svg>
+                <input
+                    type="search"
+                    id="visit_q"
+                    name="visit_q"
+                    placeholder="Search visit"
+                    hx-get="{% url 'staff:admin_visits_filter' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#visits-table-container"
+                    hx-include="#visit_category, #visit_status, #visit_order, #hide_deactivated"
+                />
+            </label>
+            <div class="flex items-center gap-2">
+                <select
+                    name="visit_category"
+                    id="visit_category"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_visits_filter' %}"
+                    hx-target="#visits-table-container"
+                    hx-include="#visit_q, #visit_status, #visit_order, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Select a category</option>
+                    <option value="">All</option>
+                    
+                    {% for category in visit_categories %}
+                        <option value="{{category|first}}">{{ category|last }}</option>
+                    {% endfor %}     
+                </select>
+                <select
+                    name="visit_status"
+                    id="visit_status"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_visits_filter' %}"
+                    hx-target="#visits-table-container"
+                    hx-include="#visit_q, #visit_category, #visit_order, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Select a status</option>
+                    <option value="">All</option>
+                    {% for status in visit_statuses %}
+                        <option value="{{status|first}}">{{ status|last }}</option>
+                    {% endfor %}
+                </select>
+                <select
+                    name="visit_order"
+                    id="visit_order"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_visits_filter' %}"
+                    hx-target="#visits-table-container"
+                    hx-include="#visit_q, #visit_category, #visit_status, #hide_deactivated"
+                >
+                    <option value="" selected disabled>Order by</option>
+                    {% for key, val in order_options.items %}
+                        <option value="{{ key }}" class="flex gap-2 items-center text-black">
+                            Ascending
+                            {{ val }}
+                        </option>
+                        <option value="-{{ key }}" class="flex gap-2 items-center">
+                            Descending
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                            {{ val }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <input
+                    type="checkbox"
+                    name="hide_deactivated"
+                    id="hide_deactivated"
+                    class="toggle toggle-sm"
+                    hx-get="{% url 'staff:admin_visits_filter' %}"
+                    hx-target="#visits-table-container"
+                    hx-include="#visit_q, #visit_sex, #visit_status, #visit_order"
+
+                />
+                <label for="hide_deactivated">Hide deleted visits</label>
+            </div>
+            <button
+                class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                hx-get="{% url 'visits:new_visit_modal' %}"
+                hx-target="#new_visit_modal"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-on:htmx:after-on-load="document.getElementById('new_visit_modal').showModal();"
+            >
+                New Visit
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+            </button>
+        </div>
+        {% include 'visits/partials/restore-visit-modal-partial.html' %}
+        {% include 'visits/partials/delete-visit-modal-partial.html' %}
+        {% include 'visits/partials/new-visit-modal-partial.html' %} 
+        {% include 'visits/partials/update-visit-modal-partial.html' %}
+        {% include 'staff/admin/visits/partials/visits-table-partial.html' %}
+    </div>
+</div>

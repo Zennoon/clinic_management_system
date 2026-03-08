@@ -1,5 +1,6 @@
 from django.db import models
 from django_enum import EnumField
+from django.utils import timezone
 
 from staff.models import Staff
 from visits.models import Visit
@@ -20,10 +21,11 @@ class Charge(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     charge_type = EnumField(ChargeTypeEnum)
     description = models.TextField(null=True, blank=True, help_text='Description of the charge')
     charge_status = EnumField(ChargeStatusEnum)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2) 
 
     visit = models.ForeignKey(
         Visit,

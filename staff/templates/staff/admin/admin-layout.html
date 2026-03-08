@@ -43,11 +43,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-contact-round-icon lucide-contact-round"><path d="M16 2v2"/><path d="M17.915 22a6 6 0 0 0-12 0"/><path d="M8 2v2"/><circle cx="12" cy="12" r="4"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
                 <span class="hidden sm:block">Patients</span>
             </a>
-            <a href="#" class="flex gap-3 items-center py-2 px-3 ml-2 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer">
+            <a class="flex gap-3 items-center py-2 px-3 ml-2 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer" hx-get="{% url 'staff:admin_visits' %}" hx-target="#main_content" hx-push-url="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check-icon lucide-calendar-check"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
                 <span class="hidden sm:block">Visits</span>
             </a>
-            <a href="#" class="flex gap-3 items-center py-2 px-3 ml-2 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer">
+            <a class="flex gap-3 items-center py-2 px-3 ml-2 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
                 <span class="hidden sm:block">Appointments</span>
             </a>

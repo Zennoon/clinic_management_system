@@ -160,7 +160,7 @@
                     <th>Total Charged</th>
                     <th>Total Paid</th>
                     <th>Balance</th>
-                    <th>Actions</th>
+                    <th>Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -177,7 +177,7 @@
                         <td>{{ visit.total_charged|floatformat:2|intcomma }}</td>
                         <td>{{ visit.total_paid|floatformat:2|intcomma }}</td>
                         <td>{{ visit.balance|floatformat:2|intcomma }}</td>
-                        <td>{{ visit.created_at|date:"M d, Y" }}</td>
+                        <td>{{ visit.date|date:"M d, Y" }}</td>
                     </tr>                    
                 {% endfor %}
             </tbody>

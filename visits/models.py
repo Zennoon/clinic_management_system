@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Sum, Value, F
 from django.db.models.functions import Coalesce
 from django_enum import EnumField
+from django.utils import timezone
 
 from patients.models import Patient
 from staff.models import Staff
@@ -14,7 +15,7 @@ class VisitQuerySet(models.QuerySet):
     def with_financials(self):
         return self.annotate(
             total_charged=Coalesce(Sum("charges__amount"), Value(Decimal("0.00"))),
-            total_paid=Coalesce(Sum("payments__amount"), Value(Decimal("0.00"))),
+            total_paid=Coalesce(Sum("charges__payments__amount"), Value(Decimal("0.00"))),
         ).annotate(
             balance=F("total_charged") - F("total_paid"),
         )
@@ -41,10 +42,13 @@ class Visit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     visit_category = EnumField(VisitCategoryEnum)
-    visit_status = EnumField(VisitStatusEnum, editable=False)
+    visit_status = EnumField(VisitStatusEnum)
     chief_complaint = models.TextField(blank=True)
+    history = models.CharField(blank=True)
     current_status_since = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
     patient = models.ForeignKey(
         Patient,
@@ -62,8 +66,8 @@ class Visit(models.Model):
 
     @property
     def total_paid(self):
-        return self.payments.aggregate(
-            total=Sum("amount")
+        return self.charges.aggregate(
+            total=Sum("payments__amount")
         )['total'] or Decimal("0.00")
 
     @property

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from patients.models import Patient
 from staff.models import Staff
@@ -10,6 +11,7 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     scheduled_for = models.DateTimeField()
     reason = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)

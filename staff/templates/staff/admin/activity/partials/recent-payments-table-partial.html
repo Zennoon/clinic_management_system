@@ -155,7 +155,8 @@
                 <tr>
                     <th>Payment ID</th>
                     <th>Patient Name</th>
-                    <th>Visit ID</th>
+                    <th>Charge ID</th>
+                    <th>Charge Reason</th>
                     <th>Payment Method</th>
                     <th>Status</th>
                     <th>Amount</th>
@@ -167,13 +168,14 @@
                 {% for payment in recent_payments %}
                     <tr>
                         <td>{{ payment.id }}</td>
-                        <td>{{ payment.visit.patient.fullname }}</td>
-                        <td>{{ payment.visit.id }}</td>
+                        <td>{{ payment.charge.visit.patient.fullname }}</td>
+                        <td>{{ payment.charge.id }}</td>
+                        <td>{{ payment.charge.charge_type.label }}</td>
                         <td>{{ payment.payment_method.label }}</td>
                         <td>{{ payment.payment_status.label }}</td>
                         <td>{{ payment.amount }}</td>
                         <td>{{ payment.recorded_by.username }}</td>
-                        <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                        <td>{{ payment.date|date:"M d, Y" }}</td>
                     </tr>                    
                 {% endfor %}
             </tbody>

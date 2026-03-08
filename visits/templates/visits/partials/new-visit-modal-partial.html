@@ -1,0 +1,101 @@
+<dialog id="new_visit_modal" class="bg-transparent w-4xl">
+    <div class="modal-box p-10 w-full">
+        <h3 class="font-bold text-lg mb-4">New visit information</h3>
+        <form
+            class="mb-4 space-y-4"
+            hx-post="{% url 'visits:register_new_visit' %}"
+            hx-target="#visits-table-body"
+            hx-swap="afterbegin"
+            hx-on:new-visit-success="new_visit_modal.close(); this.reset(); alert('Visit created successfully!');"
+        >
+            {% csrf_token %}
+            {% if form.non_field_errors  %}
+                {% for error in form.non_field_errors %}
+                    <div class="label text-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <div class="form-control w-full">
+                <label for="patient" class="label">
+                    <span class="label-text">Patient</span>
+                </label>
+                {{ form.patient }}
+
+                {% if form.patient.errors %}
+                    <label class="label text-error">
+                        {{ form.patient.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="date" class="label">
+                    <span class="label-text">Date</span>
+                </label>
+                {{ form.date }}
+
+                {% if form.date.errors %}
+                    <label class="label text-error">
+                        {{ form.date.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="visit_category" class="label">
+                    <span class="label-text">Category</span>
+                </label>
+                {{ form.visit_category }}
+
+                {% if form.visit_category.errors %}
+                    <label class="label text-error">
+                        {{ form.visit_category.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="visit_status" class="label">
+                    <span class="label-text">Status</span>
+                </label>
+                {{ form.visit_status }}
+
+                {% if form.visit_status.errors %}
+                    <label class="label text-error">
+                        {{ form.visit_status.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="chief_complaint" class="label">
+                    <span class="label-text">Chief_complaint</span>
+                </label>
+                {{ form.chief_complaint }}
+
+                {% if form.chief_complaint.errors %}
+                    <label class="label text-error">
+                        {{ form.chief_complaint.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control w-full">
+                <label for="history" class="label">
+                    <span class="label-text">History</span>
+                </label>
+                {{ form.history }}
+
+                {% if form.history.errors %}
+                    <label class="label text-error">
+                        {{ form.history.errors }}
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-error text-white" onclick="new_visit_modal.close()">Cancel</button>
+                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-500 text-white">Submit</button>
+            </div>
+        </form>
+    </div>
+</dialog>

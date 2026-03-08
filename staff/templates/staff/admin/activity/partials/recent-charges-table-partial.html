@@ -173,7 +173,7 @@
                         <td>{{ charge.charge_status.label }}</td>
                         <td>{{ charge.description }}</td>
                         <td>{{ charge.amount }}</td>
-                        <td>{{ charge.created_at|date:"M d, Y" }}</td>
+                        <td>{{ charge.date|date:"M d, Y" }}</td>
                     </tr>                    
                 {% endfor %}
             </tbody>

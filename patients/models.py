@@ -29,6 +29,7 @@ class Patient(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     first_name = models.CharField(max_length=100, help_text="First name of the patient")
     last_name = models.CharField(max_length=100, help_text="Last name of the patient")
     date_of_birth = models.DateField(help_text="Date of birth of the patient")
@@ -68,5 +69,5 @@ class Patient(models.Model):
         return True
 
     def __str__(self):
-        return f"Patient {self.id}: {self.fullname} | Age: {self.age} | Region: {self.region} | City: {self.city} | Weight: {self.weight} | Height: {self.height} | BMI: {self.bmi}"
+        return f"{self.fullname}: ID - {self.id}"
 

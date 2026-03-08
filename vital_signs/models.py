@@ -1,7 +1,7 @@
 from django.db import models
 from django_enum import EnumField
+from django.utils import timezone
 
-from patients.models import Patient
 from staff.models import Staff
 from visits.models import Visit
 
@@ -27,6 +27,7 @@ class VitalSign(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    date = models.DateTimeField(default=timezone.now)
     bp_systolic = models.IntegerField(blank=True, null=True, help_text="Systolic pressure in mmHg (the top number).")
     bp_diastolic = models.IntegerField(blank=True, null=True, help_text="Diastolic pressure in mmHg (the bottom number).")
     pulse_rate = models.IntegerField(blank=True, null=True, help_text="Heart rate in beats per minute (BPM).")
