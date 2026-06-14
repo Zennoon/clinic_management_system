@@ -288,7 +288,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Charges Breakdown'
+                            text: 'Most ordered lab requests'
                         }
                     }
                 }
@@ -296,10 +296,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initVisitCountChart();
-            initRevenueChargesChart();
-            initChargesBreakdownChart();
-            initTopTestsChart();
+            if (window.location.href.includes("dashboard")) {
+                initVisitCountChart();
+                initRevenueChargesChart();
+                initChargesBreakdownChart();
+                initTopTestsChart();
+            }
         });
         
         document.addEventListener('htmx:beforeSwap', function(evt) {
@@ -325,7 +327,7 @@
         });
         
         document.addEventListener('htmx:afterSwap', function(evt) {
-            if (evt.target.id) {
+            if (window.location.href.includes("dashboard") && evt.target.id) {
                 // Small delay to ensure DOM is fully ready
                 setTimeout(() => {
                     initVisitCountChart();

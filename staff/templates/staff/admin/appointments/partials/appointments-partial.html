@@ -1,0 +1,118 @@
+<div class="flex flex-col gap-4">
+    <h2 class="text-2xl">Appointments</h2>
+    <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+        <div class="flex justify-between items-center gap-2 overflow-clip" id="appointments-filters">
+            <label class="input input-bordered flex items-center gap-2">
+                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                </svg>
+                <input
+                    type="search"
+                    id="appointment_q"
+                    name="appointment_q"
+                    placeholder="Search appointment"
+                    hx-get="{% url 'staff:admin_appointments_filter' %}"
+                    hx-trigger="keyup delay:500ms"
+                    hx-target="#appointments-table-container"
+                    hx-include="#appointment_doctor, #appointment_order, #hide_deactivated, #show_only_today"
+                />
+            </label>
+            <div class="flex items-center gap-2">
+                <select
+                    name="appointment_doctor"
+                    id="appointment_doctor"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_appointments_filter' %}"
+                    hx-target="#appointments-table-container"
+                    hx-include="#appointment_q, #appointment_order, #hide_deactivated, #show_only_today"
+                >
+                    <option value="" selected disabled>Select a doctor</option>
+                    <option value="">All</option>
+                    
+                    {% for doctor in doctors %}
+                        <option value="{{doctor.id}}">Dr. {{ doctor.username }}</option>
+                    {% endfor %}     
+                </select>
+                
+                <select
+                    name="appointment_order"
+                    id="appointment_order"
+                    class="select select-bordered"
+                    hx-get="{% url 'staff:admin_appointments_filter' %}"
+                    hx-target="#appointments-table-container"
+                    hx-include="#appointment_q, #appointment_doctor, #appointment_status, #hide_deactivated, #show_only_today"
+                >
+                    <option value="" selected disabled>Order by</option>
+                    {% for key, val in order_options.items %}
+                        <option value="{{ key }}" class="flex gap-2 items-center text-black">
+                            Ascending
+                            {{ val }}
+                        </option>
+                        <option value="-{{ key }}" class="flex gap-2 items-center">
+                            Descending
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                            {{ val }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center gap-2">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        name="hide_deactivated"
+                        id="hide_deactivated"
+                        class="toggle toggle-sm"
+                        hx-get="{% url 'staff:admin_appointments_filter' %}"
+                        hx-target="#appointments-table-container"
+                        hx-include="#appointment_q, #appointment_doctor, #appointment_order, #show_only_today"
+
+                    />
+                    <label for="hide_deactivated">Hide archived appointments</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        name="show_only_today"
+                        id="show_only_today"
+                        class="toggle toggle-sm"
+                        hx-get="{% url 'staff:admin_appointments_filter' %}"
+                        hx-target="#appointments-table-container"
+                        hx-include="#appointment_q, #appointment_doctor, #appointment_order, #hide_deactivated"
+                    />
+                    <label for="show_only_today">Only show today's appointments</label>
+                </div>
+            </div>
+            <button
+                class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                hx-get="{% url 'appointments:new_appointment_modal' %}"
+                hx-target="#new_appointment_modal"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-on:htmx:after-on-load="document.getElementById('new_appointment_modal').showModal();"
+            >
+                New Appointment
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+            </button>
+        </div>
+        {% include 'staff/admin/appointments/partials/appointments-table-partial.html' %}
+        {% include 'appointments/partials/new-appointment-modal-partial.html' %} 
+        {% include 'appointments/partials/update-appointment-modal-partial.html' %} 
+        {% include 'appointments/partials/delete-appointment-modal-partial.html' %} 
+        {% include 'appointments/partials/restore-appointment-modal-partial.html' %} 
+    </div>
+</div>

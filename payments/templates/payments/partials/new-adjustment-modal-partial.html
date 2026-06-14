@@ -1,0 +1,43 @@
+<dialog id="new_adjustment_modal" class="bg-transparent">
+    {% if form and payment %}
+        <div class="modal-box p-10 w-full lg:min-w-[480px]">
+            <h3 class="font-bold text-lg mb-4">Make a new adjustment for Payment {{ payment.id|stringformat:"06d" }}</h3>
+            <form class="mb-4 space-y-4"
+                  hx-post="{% url 'payments:register_new_adjustment' payment.id %}?{{ request.GET.urlencode }}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+                {% endif %}
+                <div class="form-control w-full">
+                    <label for="id_amount" class="label">
+                        <span class="label-text">Adjustment Amount</span>
+                    </label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}<label class="label text-error">{{ form.amount.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="id_reason" class="label">
+                        <span class="label-text">Reason</span>
+                    </label>
+                    {{ form.reason }}
+                    {% if form.amount.errors %}<label class="label text-error">{{ form.reason.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="id_date" class="label">
+                        <span class="label-text">Date</span>
+                    </label>
+                    {{ form.date }}
+                    {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+                </div>
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-error text-white"
+                            onclick="document.getElementById('new_adjustment_modal').close()">Cancel</button>
+                    <button type="submit"
+                            class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                            {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</dialog>

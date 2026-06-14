@@ -1,0 +1,152 @@
+<title>Patients Registry | {{ user.role.label }} Interface | {{ app_title }}</title>
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+    <h2 class="text-2xl font-semibold">Patients</h2>
+    <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+            hx-get="{% url 'patients:new_patient_modal' %}"
+            hx-vals='{ "next_url": "{% url "staff:reception_patients_table_row" "__ID__" %}", "next_target": "patients-table-body", "next_swap": "afterbegin" }'
+            hx-swap="outerHTML"
+            hx-target="#new_patient_modal">
+      <svg class="lucide lucide-plus-icon lucide-plus"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14"></path>
+        <path d="M12 5v14"></path>
+      </svg>
+      New Patient
+    </button>
+  </div>
+  <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-6 shadow-lg">
+    <div class="space-y-2" id="patients-table-filters">
+      <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-2 overflow-x-auto">
+        <label class="input input-bordered flex items-center gap-2">
+          <svg class="h-[1em] opacity-50"
+               viewbox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input hx-get="{% url 'staff:reception_patients_filter' %}"
+                 hx-include="#patients-table-filters"
+                 hx-target="#patients-table-container"
+                 hx-trigger="keyup delay:500ms"
+                 id="q"
+                 name="q"
+                 placeholder="Search for patient"
+                 type="search"
+                 value="{{ request.GET.q|default:'' }}" />
+        </label>
+        <div class="flex flex-col md:flex-row items-center gap-2">
+          <label for="sex" class="sr-only">Select a sex</label>
+          <select class="select select-bordered"
+                  hx-get="{% url 'staff:reception_patients_filter' %}"
+                  hx-include="#patients-table-filters"
+                  hx-target="#patients-table-container"
+                  id="sex"
+                  name="sex">
+            <option value="" disabled {% if not request.GET.sex %}selected{% endif %}>Select a sex</option>
+            <option value="">All</option>
+            <option value="MALE" {% if request.GET.sex == "MALE" %}selected{% endif %}>Male</option>
+            <option value="FEMALE"
+                    {% if request.GET.sex == "FEMALE" %}selected{% endif %}>Female</option>
+          </select>
+          <label for="region" class="sr-only">Select a region</label>
+          <select class="select select-bordered"
+                  hx-get="{% url 'staff:reception_patients_filter' %}"
+                  hx-include="#patients-table-filters"
+                  hx-target="#patients-table-container"
+                  id="region"
+                  name="region">
+            <option value="" disabled {% if not request.GET.region %}selected{% endif %}>Select a region</option>
+            <option value="">All</option>
+            {% for region in regions %}
+              <option value="{{ region|first }}"
+                      {% if request.GET.region == region|first %}selected{% endif %}>{{ region|last }}</option>
+            {% endfor %}
+          </select>
+          <label for="sort" class="sr-only">Sort by</label>
+          <select class="select select-bordered"
+                  hx-get="{% url 'staff:reception_patients_filter' %}"
+                  hx-include="#patients-table-filters"
+                  hx-target="#patients-table-container"
+                  id="sort"
+                  name="sort">
+            <option disabled="" selected="" value="">Sort by</option>
+            {% for key, val in order_options.items %}
+              <option value="{{ key }}"
+                      {% if request.GET.sort == key %}selected{% endif %}
+                      class="flex gap-2 items-center text-black">
+                Ascending
+                {{ val }}
+              </option>
+              <option value="-{{ key }}"
+                      {% if request.GET.sort == '-'|add:key %}selected{% endif %}
+                      class="flex gap-2 items-center">
+                Descending
+                <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                     fill="none"
+                     height="24"
+                     stroke="currentColor"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     stroke-width="2"
+                     viewbox="0 0 24 24"
+                     width="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+                {{ val }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input type="checkbox"
+                 id="show_archived"
+                 name="show_archived"
+                 {% if request.GET.show_archived %}checked{% endif %}
+                 class="toggle toggle-sm"
+                 hx-get="{% url 'staff:reception_patients_filter' %}"
+                 hx-include="#patients-table-filters"
+                 hx-target="#patients-table-container" />
+          <label for="show_archived">Show archived patients</label>
+        </div>
+        <button class="btn self-end flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                hx-get="{% url 'visits:new_visit_modal' %}"
+                hx-swap="outerHTML"
+                hx-target="#new_visit_modal">
+          <svg class="lucide lucide-plus-icon lucide-plus"
+               fill="none"
+               height="24"
+               stroke="currentColor"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               stroke-width="2"
+               viewbox="0 0 24 24"
+               width="24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12h14"></path>
+            <path d="M12 5v14"></path>
+          </svg>
+          New Visit
+        </button>
+      </div>
+    </div>
+    {% include "staff/reception/patients/partials/patients-table-partial.html" %}
+  </div>
+</div>
+<div hx-swap-oob="true" id="page_modals_oob_container">
+  {% include "patients/partials/update-patient-modal-partial.html" %}
+  {% include "visits/partials/new-patient-visit-modal-partial.html" %}
+</div>

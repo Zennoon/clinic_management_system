@@ -1,0 +1,34 @@
+{% extends "staff/admin/admin-layout.html" %}
+{% load static %}
+
+{% block main_content %}
+{% include "staff/admin/revenue-reports/partials/revenue-reports-partial.html" %}
+{% endblock main_content %}
+
+{% block scripts %}
+    <script src="{% static 'scripts/daisy-multiselect.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            customElements.define('daisy-multiselect', DaisyMultiSelect);
+        })
+    </script>
+    <script>
+        document.getElementById("revenue_reports_columns").on("onSelectionChange", () => {
+            htmx.ajax("GET", "{% url 'staff:admin_revenue_reports_filter' %}", {
+                target: "#revenue-reports-table-container",
+                values: {
+                    revenue_reports_q: htmx.find('#revenue_reports_q').value,
+                    revenue_reports_method: htmx.find('#revenue_reports_method').value,
+                    revenue_reports_status: htmx.find('#revenue_reports_status').value,
+                    revenue_reports_acceptor: htmx.find('#revenue_reports_acceptor').value,
+                    revenue_reports_start_date: htmx.find('#revenue_reports_start_date').value,
+                    revenue_reports_end_date: htmx.find('#revenue_reports_end_date').value,
+                    hide_deactivated: htmx.find('#hide_deactivated').checked,
+                    revenue_reports_columns: htmx.find('#revenue_reports_columns').value,
+                    revenue_reports_order: htmx.find('#revenue_reports_order').value
+                }
+            });
+        })
+    </script>
+{% endblock scripts %}
+    

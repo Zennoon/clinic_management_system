@@ -1,0 +1,81 @@
+{% load humanize %}
+{% if charge %}
+  <tr class="{% if not charge.is_operational %}opacity-70 text-base-content/70{% endif %}">
+    <th>{{ charge.id|stringformat:'06d' }}</th>
+    <td>{{ charge.charge_type.label }}</td>
+    <td>
+      <div class="flex items-center gap-2 h-full py-2">
+        <span class="w-3 h-3 rounded-full {% if charge.is_settled %}    bg-green-400 ring ring-green-100    {% elif charge.is_overpaid %}    bg-amber-400 ring ring-amber-100    {% else %}    bg-red-400 ring ring-red-100    {% endif %}">
+        </span>
+        <span class="m-0">{{ charge.charge_status.label }}</span>
+      </div>
+    </td>
+    <td>{{ charge.amount|floatformat:2|intcomma }}</td>
+    <td>{{ charge.net_paid|floatformat:2|intcomma }}</td>
+    <td>{{ charge.net_balance|floatformat:2|intcomma }}</td>
+    <td>{{ charge.date|date:'M d, Y' }}</td>
+    <td class="flex justify-center items-center gap-2">
+      <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+              data-tip="View Details"
+              aria-label="View Details">
+        <svg class="lucide lucide-book-open-text-icon lucide-book-open-text"
+             fill="none"
+             height="24"
+             stroke="currentColor"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             stroke-width="2"
+             viewbox="0 0 24 24"
+             width="24"
+             xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 7v14"></path>
+          <path d="M16 12h2"></path>
+          <path d="M16 8h2"></path>
+          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z">
+          </path>
+          <path d="M6 12h2"></path>
+          <path d="M6 8h2"></path>
+        </svg>
+      </button>
+      <button class="w-10 h-10 p-3 bg-emerald-600 hover:bg-emerald-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+              data-tip="New Payment"
+              aria-label="New Payment">
+        <svg class="lucide lucide-plus-icon lucide-plus"
+             fill="none"
+             height="24"
+             stroke="currentColor"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             stroke-width="2"
+             viewbox="0 0 24 24"
+             width="24"
+             xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
+        </svg>
+      </button>
+      {% with patient_id=patient.id|stringformat:'s' %}
+        {% with target="patients-table-row-id-"|add:patient_id %}
+          <button class="w-10 h-10 p-3 bg-zinc-800 hover:bg-zinc-600 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                  data-tip="Edit Charge"
+                  aria-label="Edit Charge">
+            <svg class="lucide lucide-pencil-icon lucide-pencil"
+                 fill="none"
+                 height="24"
+                 stroke="currentColor"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 stroke-width="2"
+                 viewbox="0 0 24 24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
+              </path>
+              <path d="m15 5 4 4"></path>
+            </svg>
+          </button>
+        {% endwith %}
+      {% endwith %}
+    </td>
+  </tr>
+{% endif %}

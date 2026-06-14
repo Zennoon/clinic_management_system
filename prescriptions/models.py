@@ -19,31 +19,37 @@ class Prescription(models.Model):
     prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT)
     visit = models.ForeignKey(Visit, on_delete=models.PROTECT)
 
+    @property
+    def is_operational(self):
+        return self.is_active and self.visit.is_operational
+
     def __str__(self):
         return f"Patient {self.visit.patient.fullname} prescription {self.id}: prescribed by: {self.prescribed_by.username}"
 
+
 class Medication(models.Model):
     class RouteEnum(models.TextChoices):
-        ORAL = 'PO', 'Orally'
-        INTRAVENOUS = 'IV', 'Intravenous'
-        INTRAMUSCULAR = 'IM', 'Intramuscular'
-        SUBCUTANEOUS = 'SUBC', 'Subcutaneous'
-        TOPICAL = 'TOP', 'Topical'
-        INHALATION = 'INHALATION', 'Inhalation'
-        OPHTHALMIC = 'OPH', 'Ophthalmic'
-        OTIC = 'OTIC', 'Otic'
-        RECTAL = 'RECTAL', 'Rectal'
-        SUBLINGUAL = 'SUBLINGUAL', 'Sublingual'
-        OTHER = 'OTHER', 'Other'
+        ORAL = "PO", "Orally"
+        INTRAVENOUS = "IV", "Intravenous"
+        INTRAMUSCULAR = "IM", "Intramuscular"
+        SUBCUTANEOUS = "SUBC", "Subcutaneous"
+        TOPICAL = "TOP", "Topical"
+        INHALATION = "INHALATION", "Inhalation"
+        OPHTHALMIC = "OPH", "Ophthalmic"
+        OTIC = "OTIC", "Otic"
+        RECTAL = "RECTAL", "Rectal"
+        SUBLINGUAL = "SUBLINGUAL", "Sublingual"
+        OTHER = "OTHER", "Other"
+
     class FrequencyEnum(models.TextChoices):
-        QD = 'QD', 'Once per day'
-        BID = 'BID', 'Twice per day'
-        TID = 'TID', 'Three times per day'
-        QID = 'QID', 'Four times per day'
-        WEEKLY = 'WEEKLY', 'Once per week'
-        BIWEEKLY = 'BIWEEKLY', 'Twice per week'
-        PRN = 'PRN', 'As needed'
-        STAT = 'STAT', 'Immediately'
+        QD = "QD", "Once per day"
+        BID = "BID", "Twice per day"
+        TID = "TID", "Three times per day"
+        QID = "QID", "Four times per day"
+        WEEKLY = "WEEKLY", "Once per week"
+        BIWEEKLY = "BIWEEKLY", "Twice per week"
+        PRN = "PRN", "As needed"
+        STAT = "STAT", "Immediately"
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -56,8 +62,16 @@ class Medication(models.Model):
     notes = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
-    prescribed_by = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="prescribed_medications")
-    prescription = models.ForeignKey(Prescription, on_delete=models.PROTECT, related_name="medications")
+    prescribed_by = models.ForeignKey(
+        Staff, on_delete=models.PROTECT, related_name="prescribed_medications"
+    )
+    prescription = models.ForeignKey(
+        Prescription, on_delete=models.PROTECT, related_name="medications"
+    )
+
+    @property
+    def is_operational(self):
+        return self.is_active and self.prescription.is_operational
 
     def __str__(self):
         return f"Patient {self.prescription.visit.patient.fullname} medication {self.name}: prescribed by: {self.prescribed_by.username}"

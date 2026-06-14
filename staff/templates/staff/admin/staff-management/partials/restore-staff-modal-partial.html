@@ -1,0 +1,20 @@
+<dialog id="restore_staff_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    {% if staff %}
+      <form hx-post="document.getElementById('{% url 'staff:restore_staff' staff.id %}"
+            hx-target="#staff-table-row-id-{{ staff.id }}">
+        {% csrf_token %}
+        <h3 class="font-bold text-lg mb-4">Restore Staff {{ staff.username }}?</h3>
+        <p class="label text-xs">
+          This action will reactivate the staff record, allowing them to login and perform new actions.
+        </p>
+        <div class="flex items-center gap-2 w-full mt-4">
+          <button type="document.getElementById('button"
+                  class="btn btn-neutral text-white flex-1"
+                  onclick="restore_staff_modal').close();">Cancel</button>
+          <button type="submit" class="btn btn-primary text-white flex-1">Restore</button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</dialog>

@@ -1,0 +1,7 @@
+{% extends "staff/reception/reception-layout.html" %}
+{% block title %}
+  Charge Details: {{ charge.visit.patient.fullname }} at {{ charge.date|date:"M d, Y" }}
+{% endblock title %}
+{% block main_content %}
+  {% include "staff/reception/charges/partials/charge-details-partial.html" %}
+{% endblock main_content %}

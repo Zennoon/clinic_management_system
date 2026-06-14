@@ -1,0 +1,36 @@
+{% load humanize %}
+<tr id="staff-table-row-id-{{ staff.id }}">
+  <td>{{ staff.id }}</td>
+  <td>{{ staff.username }}</td>
+  <td>{{ staff.email|default:'Not registered' }}</td>
+  <td>{{ staff.role.label }}</td>
+  <td>{{ staff.phone|default:'Not registered' }}</td>
+  <td>{{ staff.date|date:'M d, Y' }}</td>
+  <td class="flex justify-center items-center gap-2">
+    <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors" hx-get="{% url 'staff:update_staff_modal' staff.id %}" hx-target="#update_staff_modal" hx-trigger="click" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('update_staff_modal').showModal();">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-icon lucide-pen">
+        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+      </svg>
+    </button>
+    {% if staff.is_active %}
+      <button class="w-10 h-10 p-3 bg-red-600 hover:bg-red-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors" hx-get="{% url 'staff:archive_staff_modal' staff.id %}" hx-target="#archive_staff_modal" hx-trigger="click" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('archive_staff_modal').showModal();" 
+      {% if staff.id == user.id %}
+        disabled
+      {% endif %}
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash">
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+      </button>
+    {% else %}
+      <button class="w-10 h-10 p-3 bg-indigo-600 hover:bg-indigo-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors" hx-get="{% url 'staff:restore_staff_modal' staff.id %}" hx-target="#restore_staff_modal" hx-trigger="click" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('restore_staff_modal').showModal();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2">
+          <path d="M9 14 4 9l5-5" />
+          <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
+        </svg>
+      </button>
+    {% endif %}
+  </td>
+</tr>

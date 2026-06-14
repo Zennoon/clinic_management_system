@@ -1,0 +1,138 @@
+<div class="flex flex-col gap-4">
+  <h2 class="text-2xl">Payments</h2>
+  <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-2 overflow-clip"
+         id="payments-filters">
+      <label class="input input-bordered flex items-center gap-2">
+        <svg class="h-[1em] opacity-50"
+             xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+          </g>
+        </svg>
+        <input type="search"
+               id="payment_q"
+               name="payment_q"
+               placeholder="Search payment"
+               hx-get="{% url 'staff:admin_payments_filter' %}"
+               hx-trigger="keyup delay:500ms"
+               hx-target="#payments-table-container"
+               hx-include="#payment_method, #payment_status, #payment_acceptor, #payment_order, #hide_deactivated, #show_only_today" />
+      </label>
+      <div class="flex flex-col md:flex-row items-center gap-2">
+        <select name="payment_method"
+                id="payment_method"
+                class="select select-bordered"
+                hx-get="{% url 'staff:admin_payments_filter' %}"
+                hx-target="#payments-table-container"
+                hx-include="#payment_q, #payment_status, #payment_acceptor, #payment_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select a method</option>
+          <option value="">All</option>
+          {% for method in payment_methods %}<option value="{{ method|first }}">{{ method|last }}</option>{% endfor %}
+        </select>
+        <select name="payment_status"
+                id="payment_status"
+                class="select select-bordered"
+                hx-get="{% url 'staff:admin_payments_filter' %}"
+                hx-target="#payments-table-container"
+                hx-include="#payment_q, #payment_method, #payment_acceptor, #payment_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select a status</option>
+          <option value="">All</option>
+          {% for status in payment_statuses %}<option value="{{ status|first }}">{{ status|last }}</option>{% endfor %}
+        </select>
+        <select name="payment_acceptor"
+                id="payment_acceptor"
+                class="select select-bordered"
+                hx-get="{% url 'staff:admin_payments_filter' %}"
+                hx-target="#payments-table-container"
+                hx-include="#payment_q, #payment_method, #payment_status, #payment_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select an acceptor</option>
+          <option value="">All</option>
+          {% for acceptor in acceptors %}<option value="{{ acceptor.id }}">{{ acceptor.username }}</option>{% endfor %}
+        </select>
+        <select name="payment_order"
+                id="payment_order"
+                class="select select-bordered"
+                hx-get="{% url 'staff:admin_payments_filter' %}"
+                hx-target="#payments-table-container"
+                hx-include="#payment_q, #payment_method, #payment_status, #payment_acceptor, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Order by</option>
+          {% for key, val in order_options.items %}
+            <option value="{{ key }}" class="flex gap-2 items-center text-black">
+              Ascending
+              {{ val }}
+            </option>
+            <option value="-{{ key }}" class="flex gap-2 items-center">
+              Descending
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   width="24"
+                   height="24"
+                   viewBox="0 0 24 24"
+                   fill="none"
+                   stroke="currentColor"
+                   stroke-width="2"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   class="lucide lucide-chevron-down-icon lucide-chevron-down">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+              {{ val }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+      <div class="flex flex-col md:flex-row items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input type="checkbox"
+                 name="hide_deactivated"
+                 id="hide_deactivated"
+                 class="toggle toggle-sm"
+                 hx-get="{% url 'staff:admin_payments_filter' %}"
+                 hx-target="#payments-table-container"
+                 hx-include="#payment_q, #payment_method, #payment_status, #payment_acceptor, #payment_order, #show_only_today" />
+          <label for="hide_deactivated">Hide archived payments</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox"
+                 name="show_only_today"
+                 id="show_only_today"
+                 class="toggle toggle-sm"
+                 hx-get="{% url 'staff:admin_payments_filter' %}"
+                 hx-target="#payments-table-container"
+                 hx-include="#payment_q, #payment_method, #payment_sex, #payment_status, #payment_acceptor, #payment_order, #hide_deactivated" />
+          <label for="show_only_today">Only show today's payments</label>
+        </div>
+      </div>
+      <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+              hx-get="{% url 'payments:new_payment_modal' %}"
+              hx-target="#new_payment_modal"
+              hx-trigger="click"
+              hx-swap="outerHTML"
+              hx-on:htmx:after-on-load="document.getElementById('new_payment_modal').showModal();">
+        New Payment
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="24"
+             height="24"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             class="lucide lucide-plus-icon lucide-plus">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+      </button>
+    </div>
+    {% include "payments/partials/new-payment-modal-partial.html" %}
+    {% include "staff/admin/payments/partials/payments-table-partial.html" %}
+    {% include "payments/partials/update-payment-modal-partial.html" %}
+    {% include "payments/partials/restore-payment-modal-partial.html" %}
+    {% include "payments/partials/delete-payment-modal-partial.html" %}
+  </div>
+</div>

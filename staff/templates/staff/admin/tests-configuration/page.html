@@ -1,0 +1,50 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+{% block main_content %}
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col md:flex-row justify-between gap-2">
+            <h3 class="text-2xl">Tests Configuration</h3>
+            <button
+                class="btn btn-primary flex gap-2 items-center"
+                hx-get="{% url 'lab_requests:new_lab_test_modal' %}"
+                hx-target="#new_lab_test_modal"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-on::after-on-load="document.getElementById('new_lab_test_modal').showModal();"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                New Test
+            </button>
+        </div>
+        {% include 'staff/admin/tests-configuration/partials/tests-configuration-partial.html' %}
+        {% include 'lab_requests/partials/new-lab-test-modal-partial.html' %}
+        {% include 'lab_requests/partials/new-lab-test-observation-modal-partial.html' %}
+        {% include 'lab_requests/partials/update-lab-test-modal-partial.html' %}
+        {% include 'lab_requests/partials/archive-lab-test-modal-partial.html' %}
+        {% include 'lab_requests/partials/restore-lab-test-modal-partial.html' %}
+        {% include 'lab_requests/partials/update-lab-test-observation-modal-partial.html' %}
+        {% include 'lab_requests/partials/archive-lab-test-observation-modal-partial.html' %}
+        {% include 'lab_requests/partials/restore-lab-test-observation-modal-partial.html' %}
+    </div>
+{% endblock main_content %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("new-lab-test-fail", () => {
+      document.getElementById("new_lab_test_modal").showModal();
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("update-lab-test-fail", () => {
+      document.getElementById("update_lab_test_modal").showModal();
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("new-lab-test-observation-fail", () => {
+      document.getElementById("new_lab_test_observation_modal").showModal();
+    });
+  });
+</script>
+{% endblock scripts %}

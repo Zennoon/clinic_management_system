@@ -1,0 +1,21 @@
+<dialog id="restore_lab_test_observation_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    {% if observation %}
+      <form hx-post="document.getElementById('{% url 'lab_requests:restore_lab_test_observation' observation.id %}"
+            hx-target="#tests-configuration-observation-{{ observation.id }}"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        <h3 class="font-bold text-lg mb-4">Restore {{ observation.name }}?</h3>
+        <p class="label text-xs">
+          This action will reactivate the lab observation record, making it available for new actions.
+        </p>
+        <div class="flex items-center gap-2 w-full mt-4">
+          <button type="document.getElementById('button"
+                  class="btn btn-neutral text-white flex-1"
+                  onclick="restore_lab_test_observation_modal').close();">Cancel</button>
+          <button type="submit" class="btn btn-primary text-white flex-1">Restore</button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</dialog>

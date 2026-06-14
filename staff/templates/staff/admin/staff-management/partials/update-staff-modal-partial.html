@@ -1,0 +1,74 @@
+{% load widget_tweaks %}
+<dialog id="update_staff_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    <h3 class="font-bold text-lg mb-4">Update staff information</h3>
+    {% if staff %}
+      <form class="mb-4 space-y-4"
+            hx-post="{% url 'staff:update_staff' staff.id %}"
+            hx-target="#staff-table-body"
+            hx-swap="afterbegin">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+        {% endif %}
+        <div class="form-control w-full">
+          <label for="email" class="label">
+            <span class="label-text">Email Address</span>
+          </label>
+          {{ form.email }}
+          {% if form.email.errors %}<label class="label text-error">{{ form.email.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="username" class="label">
+            <span class="label-text">Username</span>
+          </label>
+          {{ form.username }}
+          {% if form.username.errors %}<label class="label text-error">{{ form.username.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="password" class="label">
+            <span class="label-text">Password</span>
+          </label>
+          {{ form.password }}
+          {% if form.password.errors %}<label class="label text-error">{{ form.password.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="phone" class="label">
+            <span class="label-text">Phone</span>
+          </label>
+          {{ form.phone }}
+          {% if form.phone.errors %}<label class="label text-error">{{ form.phone.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="address" class="label">
+            <span class="label-text">Address</span>
+          </label>
+          {{ form.address }}
+          {% if form.address.errors %}<label class="label text-error">{{ form.address.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="role" class="label">
+            <span class="label-text">Role</span>
+          </label>
+          {{ form.role }}
+          {% if form.role.errors %}<label class="label text-error">{{ form.role.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="date" class="label">
+            <span class="label-text">Date</span>
+          </label>
+          {{ form.date }}
+          {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+        </div>
+        <div class="modal-action">
+          <button type="button"
+                  class="btn btn-error text-white"
+                  onclick="document.getElementById('update_staff_modal').close()">Cancel</button>
+          <button type="submit"
+                  class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                  {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</dialog>

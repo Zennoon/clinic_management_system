@@ -1,0 +1,22 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+{% block main_content %}
+{% include "staff/admin/payments/partials/payments-partial.html" %}
+{% endblock main_content %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("new-payment-fail", () => {
+      document.getElementById("new_payment_modal").showModal();
+    });
+  });
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("update-payment-fail", () => {
+      document.getElementById("update_payment_modal").showModal();
+    });
+  });
+</script>
+{% endblock scripts %}

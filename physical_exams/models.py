@@ -27,11 +27,12 @@ class PhysicalExam(models.Model):
         related_name="physical_exams_examined",
     )
     visit = models.ForeignKey(
-        Visit,
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="physical_exams"
+        Visit, on_delete=models.PROTECT, null=True, related_name="physical_exams"
     )
+
+    @property
+    def is_operational(self):
+        return self.is_active and self.visit.is_operational
 
     def __str__(self):
         return f"Patient {self.visit.patient.fullname} physical exam: {self.examined_by.username}"

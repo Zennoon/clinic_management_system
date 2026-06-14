@@ -1,0 +1,6 @@
+{% load humanize %}
+<tr>
+    {% for value in payment %}
+        <td>{{ value }}</td>
+    {% endfor %}     
+</tr>

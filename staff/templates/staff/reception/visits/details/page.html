@@ -1,0 +1,11 @@
+{% extends 'staff/reception/reception-layout.html' %}
+
+
+{% block title %}
+  Visit Summary: {{ visit.patient.fullname }} at {{ visit.date|date:"M d, Y" }}
+{% endblock title %}
+
+
+{% block main_content %}
+  {% include 'staff/reception/visits/partials/visit-details-partial.html' %}
+{% endblock %}

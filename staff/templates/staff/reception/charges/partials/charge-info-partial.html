@@ -1,0 +1,81 @@
+{% load humanize %}
+{% if charge %}
+  <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg text-sm flex flex-col md:flex-row md:justify-between sm:divide-x-2 divide-gray-300 gap-6">
+    <div class="flex flex-col justify-between gap-3">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Charge ID:</span>{{ charge.id|stringformat:'06d' }}
+      </div>
+      <div class="flex gap-2 items-center tooltip" data-tip="View Visit Details">
+        <span class="font-semibold tracking-wide">Visit ID:</span>
+        <div class="flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors cursor-pointer" hx-get="{% url 'staff:reception_visit_details' charge.visit.id %}" hx-push-url="true" hx-target="#main_content">
+          <span>{{ charge.visit.id|stringformat:"06d" }}</span>
+          <svg class="lucide lucide-chevron-right-icon lucide-chevron-right self-start" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="flex gap-2 items-center tooltip" data-tip="View Patient Details">
+        <span class="font-semibold tracking-wide">Patient Name:</span>
+        <div class="flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors cursor-pointer" hx-get="{% url 'staff:reception_patient_details' charge.visit.patient.id %}" hx-push-url="true" hx-target="#main_content">
+          <span>{{ charge.visit.patient.fullname }}</span>
+          <svg class="lucide lucide-chevron-right-icon lucide-chevron-right self-start" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col justify-between gap-3 px-4">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Type:</span>{{ charge.charge_type.label }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Date:</span>{{ charge.date|date:'M d, Y' }}
+      </div>
+      <div class="flex gap-4 items-center">
+        <span class="font-semibold tracking-wide">Status:</span>
+        <div class="flex items-center gap-2">
+          {% if charge.is_settled %}
+            <span class="w-3 h-3 block rounded-full bg-indigo-400 ring ring-indigo-100"></span>
+          {% elif charge.is_overpaid %}
+            <span class="w-3 h-3 block rounded-full bg-amber-400 ring ring-amber-100"></span>
+          {% else %}
+            <span class="w-3 h-3 block rounded-full bg-red-400 ring ring-red-100"></span>
+          {% endif %}
+          {{ charge.charge_status.label }}
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col justify-between gap-3 px-4">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Amount:</span>{{ charge.amount|floatformat:2|intcomma }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-1 items-center">
+          <span class="font-semibold tracking-wide">Net paid</span><span class="tooltip self-start font-bold" data-tip="Includes grace period coverage and fee waivers">
+            <svg class="lucide lucide-info-icon lucide-info" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 16v-4"></path>
+              <path d="M12 8h.01"></path>
+            </svg>
+          </span>:
+        </div>
+        {{ charge.net_paid|floatformat:2|intcomma }}
+      </div>
+      <div class="flex gap-4 items-center">
+        <span class="font-semibold tracking-wide">Balance:</span>
+        <div class="flex items-center gap-2">
+          {% with balance=charge.net_balance %}
+            {% if balance > 0 %}
+              <span class="w-3 h-3 block rounded-full bg-red-500 ring ring-red-200 tooltip" data-tip="Due"></span>
+            {% elif balance < 0 %}
+              <span class="w-3 h-3 block rounded-full bg-amber-500 ring ring-amber-200 tooltip" data-tip="Credit"></span>
+            {% else %}
+              <span class="w-3 h-3 block rounded-full bg-emerald-500 ring ring-emerald-200 tooltip" data-tip="Settled"></span>
+            {% endif %}
+            {{ balance|floatformat:2|intcomma }}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

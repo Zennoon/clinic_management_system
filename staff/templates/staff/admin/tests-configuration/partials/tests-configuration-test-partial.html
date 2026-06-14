@@ -1,0 +1,69 @@
+<div class="card bg-white border border-gray-300 rounded-xl p-6 shadow-lg flex flex-col gap-6" id="tests-configuration-test-{{ test.id }}">
+  <div class="flex flex-col md:flex-row justify-between gap-2">
+    <div class="flex flex-col gap-2">
+      <div class="flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical-icon lucide-flask-conical">
+          <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
+          <path d="M6.453 15h11.094" />
+          <path d="M8.5 2h7" />
+        </svg>
+        <h3 class="text-lg font-light">{{ test.name }}</h3>
+      </div>
+      <p class="text-2xl font-semibold">${{ test.price }}</p>
+    </div>
+    <div class="flex flex-col md:flex-row gap-2">
+      <button class="btn btn-primary flex gap-2 items-center" hx-get="{% url 'lab_requests:new_lab_test_observation_modal' test.id %}" hx-target="#new_lab_test_observation_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('new_lab_test_observation_modal').showModal();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>Add Observation
+      </button>
+      <button class="btn btn-neutral flex gap-2 items-center" hx-get="{% url 'lab_requests:update_lab_test_modal' test.id %}" hx-target="#update_lab_test_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('update_lab_test_modal').showModal();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
+          <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+          <path d="m15 5 4 4" />
+        </svg>Edit Test
+      </button>
+
+      {% if test.is_active %}
+        <button class="btn btn-error text-white flex gap-2 items-center" hx-get="{% url 'lab_requests:archive_lab_test_modal' test.id %}" hx-target="#archive_lab_test_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('archive_lab_test_modal').showModal();">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2">
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>Archive Test
+        </button>
+      {% else %}
+        <button class="btn bg-indigo-600 hover:bg-indigo-500 text-gray-200 flex gap-2 items-center" hx-get="{% url 'lab_requests:restore_lab_test_modal' test.id %}" hx-target="#restore_lab_test_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('restore_lab_test_modal').showModal();">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2">
+            <path d="M9 14 4 9l5-5" />
+            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
+          </svg>Restore Test
+        </button>
+      {% endif %}
+    </div>
+  </div>
+  <div class="flex flex-col gap-2">
+    <p>Observations</p>
+    <table class="table table-zebra table-pin-rows p-2 overflow-scroll" id="test-{{ test.id }}-observations-table">
+      <thead>
+        <tr>
+          <th>Observation ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Unit of Measurement</th>
+          <th>Reference Min</th>
+          <th>Reference Max</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for observation in test.observations.all %}
+          {% include 'staff/admin/tests-configuration/partials/tests-configuration-test-observation-partial.html' %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

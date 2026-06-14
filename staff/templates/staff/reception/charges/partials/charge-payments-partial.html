@@ -1,0 +1,85 @@
+{% if charge %}
+  <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg space-y-4">
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+        <h3 class="text-xl">Payments</h3>
+        <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                hx-get="{% url 'payments:new_charge_payment_modal' charge.id %}"
+                hx-target="#new_charge_payment_modal"
+                hx-swap="outerHTML">
+          <svg class="lucide lucide-plus-icon lucide-plus"
+               fill="none"
+               height="24"
+               stroke="currentColor"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               stroke-width="2"
+               viewbox="0 0 24 24"
+               width="24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12h14"></path>
+            <path d="M12 5v14"></path>
+          </svg>
+          New Payment
+        </button>
+      </div>
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-2"
+           id="charge-charges-table-filters">
+        <div class="flex items-center gap-6">
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_charge_payments_filter' charge.id %}"
+                   hx-include="#charge-payments-table-filters"
+                   hx-target="#charge-payments-table-container"
+                   id="hide_waivers"
+                   name="hide_waivers"
+                   type="checkbox" />
+            <label for="hide_waivers">Hide waivers</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_charge_payments_filter' charge.id %}"
+                   hx-include="#charge-payments-table-filters"
+                   hx-target="#charge-payments-table-container"
+                   id="show_archived"
+                   name="show_archived"
+                   type="checkbox" />
+            <label for="show_archived">Show archived payments</label>
+          </div>
+        </div>
+        <label for="sort" class="sr-only">Sort By</label>
+        <select class="select select-bordered"
+                hx-get="{% url 'staff:reception_charge_payments_filter' charge.id %}"
+                hx-include="#charge-payments-table-filters"
+                hx-target="#charge-payments-table-container"
+                id="sort"
+                name="sort">
+          <option disabled="" selected="" value="">Sort by</option>
+          {% for key, val in payment_order_options.items %}
+            <option class="flex gap-2 items-center text-black" value="{{ key }}">
+              Ascending
+              {{ val }}
+            </option>
+            <option class="flex gap-2 items-center" value="-{{ key }}">
+              Descending
+              <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                   fill="none"
+                   height="24"
+                   stroke="currentColor"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   stroke-width="2"
+                   viewbox="0 0 24 24"
+                   width="24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+              {{ val }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% include "staff/reception/charges/partials/charge-payments-table-partial.html" %}
+  </div>
+{% endif %}

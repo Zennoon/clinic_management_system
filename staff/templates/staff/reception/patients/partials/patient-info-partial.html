@@ -1,0 +1,69 @@
+{% load humanize %}
+{% if patient %}
+  <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg text-sm flex flex-col lg:flex-row lg:justify-between divide-y-2 lg:divide-y-0 lg:divide-x-2 divide-gray-300 gap-6">
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Full Name:</span>{{ patient.fullname }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">MRN/ID:</span>{{ patient.id|stringformat:'06d' }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Sex:</span>{{ patient.sex.label }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Age:</span>{{ patient.age }} (DOB: {{ patient.date_of_birth|date:'M d, Y' }})
+      </div>
+    </div>
+    <div class="flex flex-col gap-3 py-4 lg:px-4 lg:py-0">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Weight (kg):</span>{{ patient.weight|floatformat:1|default:'--' }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Height (cm):</span>{{ patient.height|floatformat:1|default:'--' }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">BMI:</span>{{ patient.bmi|floatformat:2|default:'--' }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Address:</span>{{ patient.address|default:'Not recorded' }}
+      </div>
+    </div>
+    <div class="flex flex-col gap-3 py-4 lg:px-4 lg:py-0">
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Phone:</span>{{ patient.phone|default:'Not recorded' }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="font-semibold tracking-wide">Registration Date:</span>{{ patient.date|date:'M d, Y' }}
+      </div>
+      <div class="flex gap-4 justify-between items-center">
+        <span class="font-semibold tracking-wide">Visit Status:</span>
+        {% if patient.current_visit %}
+          <div class="tooltip" data-tip="{{ patient.current_visit.derive_visit_status.label }}">
+            <span class="w-3 h-3 block rounded-full bg-emerald-400 ring ring-emerald-200"></span>
+          </div>
+        {% else %}
+          <div class="tooltip" data-tip="No active visit">
+            <span class="w-3 h-3 block rounded-full bg-indigo-400 ring ring-indigo-100"></span>
+          </div>
+        {% endif %}
+      </div>
+      <div class="flex gap-4 justify-between items-center">
+        <span class="font-semibold tracking-wide">Financial Health:</span>
+        {% if patient.net_balance > 0 %}
+          <div class="tooltip" data-tip="${{ patient.net_balance|floatformat:2|intcomma }} due">
+            <span class="w-3 h-3 block rounded-full bg-red-500 ring ring-red-200"></span>
+          </div>
+        {% elif patient.net_balance < 0 %}
+          <div class="tooltip" data-tip="${{ patient.net_balance|floatformat:2|intcomma }} credit">
+            <span class="w-3 h-3 block rounded-full bg-amber-500 ring ring-amber-200"></span>
+          </div>
+        {% else %}
+          <div class="tooltip" data-tip="Settled">
+            <span class="w-3 h-3 block rounded-full bg-emerald-500 ring ring-emerald-200"></span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endif %}

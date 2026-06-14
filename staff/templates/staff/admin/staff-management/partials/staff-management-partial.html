@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col justify-between gap-2">
+    <h3 class="text-2xl">Staff Management</h3>
+    <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+      <div class="flex justify-between items-center gap-2 overflow-clip" id="staff-management-filters">
+        <label class="input input-bordered flex items-center gap-2">
+          <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input type="search" id="staff_q" name="staff_q" placeholder="Search staff" hx-get="{% url 'staff:admin_staff_filter' %}" hx-trigger="keyup delay:500ms" hx-target="#staff-table-container" hx-include="#staff_role, #staff_order, #hide_deactivated" />
+        </label>
+        <div class="flex items-center gap-2">
+          <select name="staff_role" id="staff_role" class="select select-bordered" hx-get="{% url 'staff:admin_staff_filter' %}" hx-target="#staff-table-container" hx-include="#staff_q, #staff_order, #hide_deactivated">
+            <option value="" selected disabled>Select a role</option>
+            <option value="">All</option>
+
+            {% for role in staff_roles %}
+              <option value="{{ method|first }}">{{ role|last }}</option>
+            {% endfor %}
+          </select>
+          <select name="staff_order" id="staff_order" class="select select-bordered" hx-get="{% url 'staff:admin_staff_filter' %}" hx-target="#staff-table-container" hx-include="#staff_q, #staff_role, #hide_deactivated">
+            <option value="" selected disabled>Order by</option>
+            {% for key, val in order_options.items %}
+              <option value="{{ key }}" class="flex gap-2 items-center text-black">Ascending
+                {{ val }}</option>
+              <option value="-{{ key }}" class="flex gap-2 items-center">
+                Descending<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+                {{ val }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="hide_deactivated" id="hide_deactivated" class="toggle toggle-sm" hx-get="{% url 'staff:admin_payments_filter' %}" hx-target="#payments-table-container" hx-include="#payment_q, #payment_method, #payment_status, #payment_acceptor, #payment_order, #show_only_today" />
+          <label for="hide_deactivated">Hide archived payments</label>
+        </div>
+        <button class="btn btn-primary flex gap-2 items-center" hx-get="{% url 'staff:new_staff_modal' %}" hx-target="#new_staff_modal" hx-trigger="click" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('new_staff_modal').showModal();">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+          </svg>Add Staff
+        </button>
+      </div>
+
+      {% include 'staff/admin/staff-management/partials/staff-table-partial.html' %}
+      {% include 'staff/admin/staff-management/partials/new-staff-modal-partial.html' %}
+      {% include 'staff/admin/staff-management/partials/update-staff-modal-partial.html' %}
+      {% include 'staff/admin/staff-management/partials/archive-staff-modal-partial.html' %}
+      {% include 'staff/admin/staff-management/partials/restore-staff-modal-partial.html' %}
+    </div>
+  </div>
+</div>

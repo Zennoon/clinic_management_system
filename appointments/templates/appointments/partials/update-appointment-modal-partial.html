@@ -1,0 +1,69 @@
+{% load widget_tweaks %}
+<dialog id="update_appointment_modal" class="bg-transparent">
+    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+        <h3 class="font-bold text-lg mb-4">Update appointment information</h3>
+        {% if appointment %}
+            <form class="mb-4 space-y-4"
+                  hx-post="{% url 'appointments:update_appointment' appointment.id %}"
+                  hx-target="#appointments-table-body">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+                {% endif %}
+                <div class="form-control w-full">
+                    <label for="patient" class="label">
+                        <span class="label-text">Patient</span>
+                    </label>
+                    {% url 'appointments:get_patient_visits' as patient_visits_url %}
+                    {% render_field form.patient hx-get=patient_visits_url hx-target="#id_visit" hx-swap="innerHTML" %}
+                    {% if form.patient.errors %}<label class="label text-error">{{ form.patient.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="doctor" class="label">
+                        <span class="label-text">Doctor</span>
+                    </label>
+                    {{ form.doctor }}
+                    {% if form.doctor.errors %}<label class="label text-error">{{ form.doctor.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="visit" class="label">
+                        <span class="label-text">Associated Visit</span>
+                    </label>
+                    {% render_field form.visit class="input input-bordered w-full" placeholder="Select a visit" %}
+                    {% if form.visit.errors %}<label class="label text-error">{{ form.visit.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="reason" class="label">
+                        <span class="label-text">Reason for appointment</span>
+                    </label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}<label class="label text-error">{{ form.reason.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="appointment_date" class="label">
+                        <span class="label-text">Appointment Date</span>
+                    </label>
+                    {{ form.appointment_date }}
+                    {% if form.appointment_date.errors %}
+                        <label class="label text-error">{{ form.appointment_date.errors }}</label>
+                    {% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="date" class="label">
+                        <span class="label-text">Date</span>
+                    </label>
+                    {{ form.date }}
+                    {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+                </div>
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-error text-white"
+                            onclick="document.getElementById('update_appointment_modal').close()">Cancel</button>
+                    <button type="submit"
+                            class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                            {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

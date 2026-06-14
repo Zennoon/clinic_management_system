@@ -1,0 +1,201 @@
+<div class="flex flex-col gap-4">
+  <h2 class="text-2xl">Revenue Reports</h2>
+  <div
+    class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg"
+  >
+    <div class="flex flex-col gap-4" id="revenue-reports-filters">
+      <div
+        class="flex flex-col md:flex-row justify-between items-center gap-2 overflow-clip"
+      >
+        <label class="input input-bordered flex items-center gap-2">
+          <svg
+            class="h-[1em] opacity-50"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <g
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2.5"
+              fill="none"
+              stroke="currentColor"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input
+            type="search"
+            id="revenue_reports_q"
+            name="revenue_reports_q"
+            placeholder="Search Payments"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-trigger="keyup delay:500ms"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_end_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          />
+        </label>
+        <div class="flex flex-col md:flex-row items-center gap-2">
+          <select
+            name="revenue_reports_method"
+            id="revenue_reports_method"
+            class="select select-bordered"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_end_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          >
+            <option value="" selected disabled>Select a method</option>
+            <option value="">All</option>
+
+            {% for method in revenue_reports_methods %}
+            <option value="{{method|first}}">{{ method|last }}</option>
+            {% endfor %}
+          </select>
+          <select
+            name="revenue_reports_status"
+            id="revenue_reports_status"
+            class="select select-bordered"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_end_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          >
+            <option value="" selected disabled>Select a status</option>
+            <option value="">All</option>
+            {% for status in revenue_reports_statuses %}
+            <option value="{{status|first}}">{{ status|last }}</option>
+            {% endfor %}
+          </select>
+          <select
+            name="revenue_reports_acceptor"
+            id="revenue_reports_acceptor"
+            class="select select-bordered"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_start_date, #revenue_reports_end_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          >
+            <option value="" selected disabled>Select an acceptor</option>
+            <option value="">All</option>
+            {% for acceptor in acceptors %}
+            <option value="{{acceptor.id}}">{{ acceptor.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <div class="flex flex-col md:flex-row items-center gap-2">
+          <label for="revenue_reports_start_date">Starting From:</label>
+          <input
+            type="date"
+            name="revenue_reports_start_date"
+            id="revenue_reports_start_date"
+            class="input input-bordered"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_end_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          />
+        </div>
+        <div class="flex flex-col md:flex-row items-center gap-2">
+          <label for="revenue_reports_end_date">Ending At:</label>
+          <input
+            type="date"
+            name="revenue_reports_end_date"
+            id="revenue_reports_end_date"
+            class="input input-bordered"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_order, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="hide_deactivated"
+            id="hide_deactivated"
+            class="toggle toggle-sm"
+            hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+            hx-target="#revenue-reports-table-container"
+            hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_order, #show_only_today"
+          />
+          <label for="hide_deactivated">Hide archived payments</label>
+        </div>
+        <select
+          name="revenue_reports_order"
+          id="revenue_reports_order"
+          class="select select-bordered"
+          hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+          hx-target="#revenue-reports-table-container"
+          hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_end_date, #hide_deactivated, #revenue_reports_columns"
+        >
+          <option value="" selected disabled>Order by</option>
+          {% for key, val in order_options.items %}
+          <option value="{{ key }}" class="flex gap-2 items-center text-black">
+            Ascending {{ val }}
+          </option>
+          <option value="-{{ key }}" class="flex gap-2 items-center">
+            Descending
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-chevron-down-icon lucide-chevron-down"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+            {{ val }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col md:flex-row items-center justify-between gap-2">
+        <daisy-multiselect
+          id="revenue_reports_columns"
+          name="revenue_reports_columns"
+          placeholder="Select the columns to include"
+          checked-color="#6856f3"
+          hx-get="{% url 'staff:admin_revenue_reports_filter' %}"
+          hx-target="#revenue-reports-table-container"
+          hx-include="#revenue_reports_q, #revenue_reports_method, #revenue_reports_status, #revenue_reports_acceptor, #revenue_reports_start_date, #revenue_reports_end_date, #hide_deactivated, #revenue_reports_columns, #revenue_reports_order"
+        >
+          {% for key, value in column_options.items %}
+          <option value="{{key}}" {% if key in columns %}selected{% endif %}>
+            {{value}}
+          </option>
+          {% endfor %}
+        </daisy-multiselect>
+        <button
+          class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+          onclick="document.getElementById('export_revenue_reports_modal').showModal();"
+        >
+          Export
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-download-icon lucide-download"
+          >
+            <path d="M12 15V3" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    {% include 'staff/admin/revenue-reports/partials/revenue-reports-table-partial.html' %}
+    {% include 'staff/admin/revenue-reports/partials/export-revenue-reports-modal-partial.html' %}
+  </div>
+</div>

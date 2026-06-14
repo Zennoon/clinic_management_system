@@ -1,0 +1,233 @@
+{% extends "staff/content-layout.html" %}
+{% block sidebar_links %}
+  <div class="h-full flex flex-col gap-2 text-neutral-600 transition-colors">
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="{% url 'staff:reception_dashboard' %}"
+       hx-get="{% url 'staff:reception_dashboard' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
+      <svg class="lucide lucide-layout-dashboard-icon lucide-layout-dashboard shrink-0"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <rect height="9" rx="1" width="7" x="3" y="3"></rect>
+        <rect height="5" rx="1" width="7" x="14" y="3"></rect>
+        <rect height="9" rx="1" width="7" x="14" y="12"></rect>
+        <rect height="5" rx="1" width="7" x="3" y="16"></rect>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Dashboard</span>
+    </a>
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="{% url 'staff:reception_patients' %}"
+       hx-get="{% url 'staff:reception_patients' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
+      <svg class="lucide lucide-contact-icon lucide-contact shrink-0"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 2v2"></path>
+        <path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path>
+        <path d="M8 2v2"></path>
+        <circle cx="12" cy="11" r="3"></circle>
+        <rect height="18" rx="2" width="18" x="3" y="4"></rect>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Patients</span>
+    </a>
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="{% url 'staff:reception_visits' %}"
+       hx-get="{% url 'staff:reception_visits' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
+      <svg class="lucide lucide-calendar-check-icon lucide-calendar-check shrink-0"
+           fill="none"
+           height="20"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="20"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 2v4"></path>
+        <path d="M16 2v4"></path>
+        <rect height="18" rx="2" width="18" x="3" y="4"></rect>
+        <path d="M3 10h18"></path>
+        <path d="m9 16 2 2 4-4"></path>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Visits</span>
+    </a>
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="{% url 'staff:reception_charges' %}"
+       hx-get="{% url 'staff:reception_charges' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
+      <svg class="lucide lucide-badge-dollar-sign-icon lucide-badge-dollar-sign shrink-0"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z">
+        </path>
+        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+        <path d="M12 18V6"></path>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Charges</span>
+    </a>
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="{% url 'staff:reception_payments' %}"
+       hx-get="{% url 'staff:reception_payments' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
+      <svg class="lucide lucide-banknote-icon lucide-banknote shrink-0"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <rect height="12" rx="2" width="20" x="2" y="6"></rect>
+        <circle cx="12" cy="12" r="2"></circle>
+        <path d="M6 12h.01M18 12h.01"></path>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Payments</span>
+    </a>
+    <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
+       href="#">
+      <svg class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock shrink-0"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 14v2.2l1.6 1"></path>
+        <path d="M16 4h2a2 2 0 0 1 2 2v.832"></path>
+        <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"></path>
+        <circle cx="16" cy="16" r="6"></circle>
+        <rect height="4" rx="1" width="8" x="8" y="2"></rect>
+      </svg>
+      <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Appointments</span>
+    </a>
+    <div class="dropdown dropdown-top dropdown-center dropdown-hover mt-auto"
+         id="quick_actions_dropdown">
+      <div class="px-3 py-2 flex justify-start items-center rounded-md gap-3 hover:bg-gray-100 transition-colors p-2"
+           role="button"
+           tabindex="0">
+        <svg class="lucide lucide-zap-icon lucide-zap shrink-0"
+             fill="none"
+             height="24"
+             stroke="currentColor"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             stroke-width="2"
+             viewbox="0 0 24 24"
+             width="24"
+             xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z">
+          </path>
+        </svg>
+        <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Quick Actions</span>
+      </div>
+      <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 p-4 shadow-xl border flex flex-col items-start gap-4">
+        <li class="w-full">
+          <button class="w-full flex items-center gap-2 bg-transparent hover:bg-gray-200! focus:bg-gray-200! active:bg-gray-300! active:text-inherit! focus:outline-none focus:ring-0"
+                  hx-get="{% url 'patients:new_patient_modal' %}"
+                  hx-swap="outerHTML"
+                  hx-target="#new_patient_modal"
+                  type="button">
+            <svg class="lucide lucide-user-plus-icon lucide-user-plus shrink-0"
+                 fill="none"
+                 height="24"
+                 stroke="currentColor"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 stroke-width="2"
+                 viewbox="0 0 24 24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" x2="19" y1="8" y2="14"></line>
+              <line x1="22" x2="16" y1="11" y2="11"></line>
+            </svg>
+            <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">New Patient</span>
+          </button>
+        </li>
+        <li class="w-full">
+          <button class="w-full flex items-center gap-2 bg-transparent hover:bg-gray-200! focus:bg-gray-200! active:bg-gray-300! active:text-inherit! focus:outline-none focus:ring-0"
+                  hx-get="{% url 'visits:new_visit_modal' %}"
+                  hx-swap="outerHTML"
+                  hx-target="#new_visit_modal"
+                  type="button">
+            <svg class="lucide lucide-clipboard-plus-icon lucide-clipboard-plus shrink-0"
+                 fill="none"
+                 height="24"
+                 stroke="currentColor"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 stroke-width="2"
+                 viewbox="0 0 24 24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <rect height="4" rx="1" ry="1" width="8" x="8" y="2"></rect>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <path d="M9 14h6"></path>
+              <path d="M12 17v-6"></path>
+            </svg>
+            <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">New visit</span>
+          </button>
+        </li>
+        <li class="w-full">
+          <div class="flex items-center gap-2 w-full">
+            <svg class="lucide lucide-calendar-plus2-icon lucide-calendar-plus-2 shrink-0"
+                 fill="none"
+                 height="24"
+                 stroke="currentColor"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 stroke-width="2"
+                 viewbox="0 0 24 24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 2v4"></path>
+              <path d="M16 2v4"></path>
+              <rect height="18" rx="2" width="18" x="3" y="4"></rect>
+              <path d="M3 10h18"></path>
+              <path d="M10 16h4"></path>
+              <path d="M12 14v4"></path>
+            </svg>
+            <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Schedule Appointment</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endblock sidebar_links %}
+{% block modals %}
+  {% include "patients/partials/new-patient-modal-partial.html" %}
+  {% include "visits/partials/new-visit-modal-partial.html" %}
+{% endblock modals %}

@@ -1,0 +1,146 @@
+<title>Recorded Payments | {{ user.role.label }} Interface | {{ app_title }}</title>
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+    <h2 class="text-2xl font-semibold">Payments</h2>
+    <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+            hx-get="{% url 'payments:new_payment_modal' %}?template={{ 'staff/reception/payments/partials/payments-table-row-partial.html'|urlencode }}&amp;target={{ 'payments-table-body'|urlencode }}&amp;swap=afterbegin"
+            hx-swap="outerHTML"
+            hx-target="#new_payment_modal">
+      <svg class="lucide lucide-plus-icon lucide-plus"
+           fill="none"
+           height="24"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewbox="0 0 24 24"
+           width="24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14"></path>
+        <path d="M12 5v14"></path>
+      </svg>
+      New Payment
+    </button>
+  </div>
+  <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-6 shadow-lg">
+    <div class="space-y-6 overflow-x-auto" id="payments-table-filters">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <label class="input input-bordered flex items-center gap-2">
+          <svg class="h-[1em] opacity-50"
+               viewbox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input hx-get="{% url 'staff:reception_payments_filter' %}"
+                 hx-include="#payments-table-filters"
+                 hx-target="#payments-table-container"
+                 hx-trigger="keyup delay:500ms"
+                 id="q"
+                 name="q"
+                 placeholder="Search for payment"
+                 type="search"
+                 value="{{ request.GET.q|default:'' }}" />
+        </label>
+        <div class="flex flex-col md:flex-row items-center gap-2">
+          <label for="method" class="sr-only">Select a method</label>
+          <select class="select select-bordered"
+                  hx-get="{% url 'staff:reception_payments_filter' %}"
+                  hx-include="#payments-table-filters"
+                  hx-target="#payments-table-container"
+                  id="method"
+                  name="method">
+            <option value="" disabled {% if not request.GET.type %}selected{% endif %}>Select a method</option>
+            <option value="">All</option>
+            {% for method in payment_methods %}
+              <option value="{{ method|first }}"
+                      {% if request.GET.method == method|first %}selected{% endif %}>{{ method|last }}</option>
+            {% endfor %}
+          </select>
+          <label for="sort" class="sr-only">Sort by</label>
+          <select class="select select-bordered"
+                  hx-get="{% url 'staff:reception_payments_filter' %}"
+                  hx-include="#payments-table-filters"
+                  hx-target="#payments-table-container"
+                  id="sort"
+                  name="sort">
+            <option disabled="" selected="" value="">Sort by</option>
+            {% for key, val in order_options.items %}
+              <option value="{{ key }}"
+                      {% if request.GET.sort == key %}selected{% endif %}
+                      class="flex gap-2 items-center text-black">Ascending {{ val }}</option>
+              <option value="-{{ key }}"
+                      {% if request.GET.sort == '-'|add:key %}selected{% endif %}
+                      class="flex gap-2 items-center">
+                Descending
+                <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                     fill="none"
+                     height="24"
+                     stroke="currentColor"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     stroke-width="2"
+                     viewbox="0 0 24 24"
+                     width="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+                {{ val }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 whitespace-nowrap">
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <div class="flex items-center gap-2">
+            <input type="checkbox"
+                   id="include_past"
+                   name="include_past"
+                   {% if request.GET.include_past %}checked{% endif %}
+                   class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_payments_filter' %}"
+                   hx-include="#payments-table-filters"
+                   hx-target="#payments-table-container" />
+            <div class="tooltip" data-tip="Include payments from earlier dates">
+              <label for="include_past">Include past payments</label>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox"
+                   id="hide_waivers"
+                   name="hide_waivers"
+                   {% if request.GET.hide_waivers %}checked{% endif %}
+                   class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_payments_filter' %}"
+                   hx-include="#payments-table-filters"
+                   hx-target="#payments-table-container" />
+            <div class="tooltip"
+                 data-tip="Display payments with a net balance of zero (fully paid)">
+              <label for="hide_waivers">Hide waivers</label>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox"
+                   id="show_archived"
+                   name="show_archived"
+                   {% if request.GET.show_archived %}checked{% endif %}
+                   class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_payments_filter' %}"
+                   hx-include="#payments-table-filters"
+                   hx-target="#payments-table-container" />
+            <label for="show_archived">Show archived payments</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include "staff/reception/payments/partials/payments-table-partial.html" %}
+  </div>
+</div>
+<div hx-swap-oob="true" id="page_modals_oob_container">
+  {% include "payments/partials/update-payment-modal-partial.html" %}
+  {% include "payments/partials/new-payment-modal-partial.html" %}
+  {% include "payments/partials/new-adjustment-modal-partial.html" %}
+</div>

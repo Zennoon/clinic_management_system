@@ -1,0 +1,89 @@
+{% load humanize %}
+{% if patient %}
+  <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg space-y-4">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+        <h3 class="text-xl">Visits</h3>
+        <div {% if not is_operational %}class="tooltip" data-tip="Patient is archived"{% endif %}>
+          <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                  {% if is_operational %} hx-get="{% url 'visits:new_patient_visit_modal' patient.id %}" hx-vals='{ "next_url": "{% url "staff:reception_patient_details" patient.id %}", "next_target": "main_content", "next_swap": "innerHTML" }' hx-swap="outerHTML" hx-target="#new_patient_visit_modal" {% else %} disabled {% endif %}>
+            <svg class="lucide lucide-plus-icon lucide-plus"
+                 fill="none"
+                 height="24"
+                 stroke="currentColor"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 stroke-width="2"
+                 viewbox="0 0 24 24"
+                 width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
+            </svg>
+            New Visit
+          </button>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center overflow-x-auto whitespace-nowrap gap-6"
+           id="patient-visits-table-filters">
+        <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_patient_visits_filter' patient.id %}"
+                   hx-include="#patient-visits-table-filters"
+                   hx-target="#patient-visits-table-container"
+                   id="hide_inactive"
+                   name="hide_inactive"
+                   type="checkbox" />
+            <div class="tooltip"
+                 data-tip="Hide completed, cancelled, and stale visits">
+              <label for="hide_inactive">Hide non-active visits</label>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_patient_visits_filter' patient.id %}"
+                   hx-include="#patient-visits-table-filters"
+                   hx-target="#patient-visits-table-container"
+                   id="show_archived_visits"
+                   name="show_archived"
+                   type="checkbox" />
+            <label for="show_archived_visits">Show archived visits</label>
+          </div>
+        </div>
+        <label for="sort" class="sr-only">Sort by</label>
+        <select class="select select-bordered"
+                hx-get="{% url 'staff:reception_patient_visits_filter' patient.id %}"
+                hx-include="#patient-visits-table-filters"
+                hx-target="#patient-visits-table-container"
+                id="sort"
+                name="sort">
+          <option disabled="" selected="" value="">Sort by</option>
+          {% for key, val in visit_order_options.items %}
+            <option class="flex gap-2 items-center text-black" value="{{ key }}">
+              Ascending
+              {{ val }}
+            </option>
+            <option class="flex gap-2 items-center" value="-{{ key }}">
+              Descending
+              <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                   fill="none"
+                   height="24"
+                   stroke="currentColor"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   stroke-width="2"
+                   viewbox="0 0 24 24"
+                   width="24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+              {{ val }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% include "staff/reception/patients/partials/patient-visits-table-partial.html" %}
+  </div>
+{% endif %}

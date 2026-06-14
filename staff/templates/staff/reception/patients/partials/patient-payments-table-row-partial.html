@@ -1,0 +1,79 @@
+{% load humanize %}
+{% if payment %}
+  {% with is_operational=payment.is_operational net_paid=payment.net_paid %}
+    <tr class="{% if not is_operational %} opacity-70 text-base-content/70 {% endif %}">
+      <th>{{ payment.id|stringformat:'06d' }}</th>
+      <td class="cursor-pointer hover:text-blue-600 transition-colors"
+          hx-get="{% url 'staff:reception_charge_details' payment.charge.id %}"
+          hx-push-url="true">{{ payment.charge.id|stringformat:'06d' }}</td>
+      <td>{{ payment.payment_method.label }}</td>
+      <td>{{ payment.amount|floatformat:2|intcomma }}</td>
+      <td>{{ payment.total_adjusted|floatformat:2|intcomma }}</td>
+      <td>{{ net_paid|floatformat:2|intcomma }}</td>
+      <td>{{ payment.date|date:'M d, Y' }}</td>
+      <td class="flex justify-center items-center gap-2">
+        <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                data-tip="View Details"
+                aria-label="View Details"
+                hx-get="{% url 'staff:reception_payment_details' payment.id %}"
+                hx-push-url="true"
+                hx-target="#main_content">
+          <svg class="lucide lucide-book-open-text-icon lucide-book-open-text"
+               fill="none"
+               height="24"
+               stroke="currentColor"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               stroke-width="2"
+               viewbox="0 0 24 24"
+               width="24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7v14"></path>
+            <path d="M16 12h2"></path>
+            <path d="M16 8h2"></path>
+            <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z">
+            </path>
+            <path d="M6 12h2"></path>
+            <path d="M6 8h2"></path>
+          </svg>
+        </button>
+        <button class="w-10 h-10 p-3 bg-red-600 disabled:bg-gray-500 hover:bg-red-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                {% if is_operational and net_paid %} data-tip="Adjust Payment" {% else %} disabled data-tip=" {% if not is_operational %} Payment is archived {% elif net_paid <= 0 %} Payment has already been adjusted to 0 {% endif %}
+                "
+                {% endif %}
+                aria-label="Adjust Payment">
+          <svg class="lucide lucide-undo2-icon lucide-undo-2"
+               fill="none"
+               height="24"
+               stroke="currentColor"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               stroke-width="2"
+               viewbox="0 0 24 24"
+               width="24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 14 4 9l5-5"></path>
+            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"></path>
+          </svg>
+        </button>
+        <button class="w-10 h-10 p-3 z-50 bg-gray-900 disabled:bg-gray-500 hover:bg-gray-700 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                {% if is_operational %} hx-get="{% url 'payments:update_payment_modal' payment.id %}" hx-vals='{ "next_url": "{% url "staff:reception_patient_details" payment.charge.visit.patient.id %}" }' hx-target="#update_payment_modal" hx-swap="outerHTML" data-tip="Edit Payment" {% else %} disabled data-tip="Payment is archived" {% endif %}>
+          <svg class="lucide lucide-pencil-icon lucide-pencil"
+               fill="none"
+               height="24"
+               stroke="currentColor"
+               stroke-linecap="round"
+               stroke-linejoin="round"
+               stroke-width="2"
+               viewbox="0 0 24 24"
+               width="24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z">
+            </path>
+            <path d="m15 5 4 4"></path>
+          </svg>
+        </button>
+      </td>
+    </tr>
+  {% endwith %}
+{% endif %}

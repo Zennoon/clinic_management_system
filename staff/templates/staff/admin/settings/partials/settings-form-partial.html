@@ -1,0 +1,101 @@
+{% if form %}
+  <form class="w-full mb-4 space-y-4"
+        hx-post="{% url 'staff:admin_settings_update' %}"
+        hx-swap="none"
+        hx-on:update-settings-success="alert('Settings updated successfully!')"
+        id="system_settings_form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+    {% endif %}
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="app_title" class="label flex flex-col items-start gap-2">
+          <span class="label-text font-semibold text-lg">App Title</span>
+          <span class="font-light text-sm">{{ form.app_title.help_text }}</span>
+        </label>
+        {{ form.app_title }}
+      </div>
+      {% if form.app_title.errors %}<label class="label text-error">{{ form.app_title.errors }}</label>{% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border-0">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="strict_mode" class="label flex flex-col items-start gap-2">
+          <span class="label-text font-semibold text-lg">Strict Mode</span>
+          <span class="font-light text-sm">{{ form.strict_mode.help_text }}</span>
+        </label>
+        {{ form.strict_mode }}
+      </div>
+      {% if form.strict_mode.errors %}<label class="label text-error">{{ form.strict_mode.errors }}</label>{% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border-0">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="consultation_fee" class="label flex flex-col items-start gap-2">
+          <span class="label-text text-lg font-semibold">Consultation Fee</span>
+          <span class="font-light text-sm">{{ form.consultation_fee.help_text }}</span>
+        </label>
+        {{ form.consultation_fee }}
+      </div>
+      {% if form.consultation_fee.errors %}
+        <label class="label text-error">{{ form.consultation_fee.errors }}</label>
+      {% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border-0">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="grace_period" class="label flex flex-col items-start gap-2">
+          <span class="label-text text-lg font-semibold">Grace Period (in days)</span>
+          <span class="font-light text-sm">{{ form.grace_period.help_text }}</span>
+        </label>
+        {{ form.grace_period }}
+      </div>
+      {% if form.grace_period.errors %}<label class="label text-error">{{ form.grace_period.errors }}</label>{% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="allow_charge_bypass" class="label flex flex-col items-start gap-2">
+          <span class="label-text text-lg font-semibold">Allow Charge Bypass</span>
+          <span class="font-light text-sm">{{ form.allow_charge_bypass.help_text }}</span>
+        </label>
+        {{ form.allow_charge_bypass }}
+      </div>
+      {% if form.allow_charge_bypass.errors %}
+        <label class="label text-error">{{ form.allow_charge_bypass.errors }}</label>
+      {% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="require_partial_payment" class="label flex flex-col items-start gap-2">
+          <span class="label-text text-lg font-semibold">Require Partial Payment</span>
+          <span class="font-light text-sm">{{ form.require_partial_payment.help_text }}</span>
+        </label>
+        {{ form.require_partial_payment }}
+      </div>
+      {% if form.require_partial_payment.errors %}
+        <label class="label text-error">{{ form.require_partial_payment.errors }}</label>
+      {% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border">
+    <div class="form-control w-full">
+      <div class="w-full flex justify-between items-center gap-2">
+        <label for="partial_payment_percent" class="label flex flex-col items-start gap-2">
+          <span class="label-text text-lg font-semibold">Partial Payment Percentage</span>
+          <span class="font-light text-sm">{{ form.partial_payment_percent.help_text }}</span>
+        </label>
+        {{ form.partial_payment_percent }}
+      </div>
+      {% if form.partial_payment_percent.errors %}
+        <label class="label text-error">{{ form.partial_payment_percent.errors }}</label>
+      {% endif %}
+    </div>
+    <hr class="h-px my-8 bg-gray-200 border">
+    <div class="modal-action">
+      <button type="submit"
+              class="btn bg-indigo-600 hover:bg-indigo-500 text-white w-full">Save</button>
+    </div>
+  </form>
+{% endif %}

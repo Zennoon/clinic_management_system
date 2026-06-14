@@ -5,12 +5,23 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "black>=26.3.1",
     "django>=6.0.1",
+    "django-constance[database]>=4.3.5",
     "django-enum>=2.3.0",
     "django-extensions>=4.1",
+    "django-forms-dynamic>=1.0.0",
     "django-seed>=0.3.1",
+    "django-widget-tweaks>=1.5.1",
+    "djlint>=1.36.4",
+    "matplotlib>=3.10.8",
+    "openpyxl>=3.1.5",
     "pandas>=3.0.0",
+    "pandas-stubs~=3.0.0",
     "psycopg>=3.3.2",
+    "pymemcache>=4.0.0",
     "python-dateutil>=2.9.0.post0",
     "python-dotenv>=1.2.1",
+    "reportlab>=4.4.10",
+    "weasyprint>=68.1",
 ]

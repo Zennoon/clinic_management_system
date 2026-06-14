@@ -1,0 +1,36 @@
+<dialog id="new_lab_test_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    <h3 class="font-bold text-lg mb-4">New Lab Test</h3>
+    <form class="mb-4 space-y-4"
+          hx-post="{% url 'lab_requests:register_new_lab_test' %}"
+          hx-target="#tests_configuration_content"
+          hx-swap="afterbegin">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+      {% endif %}
+      <div class="form-control w-full">
+        <label for="name" class="label">
+          <span class="label-text">Name</span>
+        </label>
+        {{ form.name }}
+        {% if form.name.errors %}<label class="label text-error">{{ form.name.errors }}</label>{% endif %}
+      </div>
+      <div class="form-control w-full">
+        <label for="price" class="label">
+          <span class="label-text">Price</span>
+        </label>
+        {{ form.price }}
+        {% if form.price.errors %}<label class="label text-error">{{ form.price.errors }}</label>{% endif %}
+      </div>
+      <div class="modal-action">
+        <button type="button"
+                class="btn btn-error text-white"
+                onclick="document.getElementById('new_lab_test_modal').close();">Cancel</button>
+        <button type="submit"
+                class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+      </div>
+    </form>
+  </div>
+</dialog>

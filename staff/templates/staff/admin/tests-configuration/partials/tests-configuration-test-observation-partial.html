@@ -1,0 +1,39 @@
+<tr id="tests-configuration-observation-{{ observation.id }}">
+  <td>{{ observation.id }}</td>
+  <td>{{ observation.name }}</td>
+  <td>{{ observation.result_type.label }}</td>
+  <td>{{ observation.unit_of_measurement }}</td>
+  <td>{{ observation.reference_min|default:'-' }}</td>
+  <td>{{ observation.reference_max|default:'-' }}</td>
+  <td class="flex justify-center items-center gap-2">
+    <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors" hx-get="{% url 'lab_requests:update_lab_test_observation_modal' observation.id %}" hx-target="#update_lab_test_observation_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('update_lab_test_observation_modal').showModal();">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-icon lucide-pen">
+        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+      </svg>
+    </button>
+
+    {% if observation.is_active %}
+      <button class="w-10 h-10 p-3 bg-red-600 hover:bg-red-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors" hx-get="{% url 'lab_requests:archive_lab_test_observation_modal' observation.id %}" hx-target="#archive_lab_test_observation_modal" hx-swap="outerHTML" hx-on::after-on-load="document.getElementById('archive_lab_test_observation_modal').showModal();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash">
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+      </button>
+    {% else %}
+      <button class="w-10 h-10 p-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 text-gray-200 flex justify-center items-center rounded-lg transition-colors"
+        {% if not observation.lab_test.is_active %}
+          disabled
+        {% endif %}
+        hx-get="{% url 'lab_requests:restore_lab_test_observation_modal' observation.id %}"
+        hx-target="#restore_lab_test_observation_modal"
+        hx-swap="outerHTML"
+        hx-on::after-on-load="document.getElementById('restore_lab_test_observation_modal').showModal();">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2">
+          <path d="M9 14 4 9l5-5" />
+          <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
+        </svg>
+      </button>
+    {% endif %}
+  </td>
+</tr>

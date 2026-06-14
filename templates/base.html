@@ -1,61 +1,180 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock title %} | Clinic Management System</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">    
+<html lang="en" data-theme="light"  class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+          content="{{ user.role.label }} Interface | {{ app_title }}" />
+    <meta name="keywords"
+          content="clinic, management, {{ user.role.label|lower }}, {{ app_title|lower }}" />
+    <title>
+      {% block title %}
+      {% endblock title %}
+      | {{ user.role.label }} Interface | {{ app_title }}
+    </title>
+    <link rel="icon"
+          type="image/x-icon"
+          href="{% static 'images/favicon.ico' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css"
+          rel="stylesheet"
+          type="text/css" />
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="{% static 'scripts/index.js' %}" defer></script>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-        }
+      body {
+        font-family: 'Comic Neue', sans-serif;
+      }
+      
+      /* Smooth animation base */
+      #main_content {
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        will-change: opacity, transform;
+      }
+      
+      /* While request is in-flight (slight dim) */
+      .animate-swap.htmx-request {
+        opacity: 0.6;
+      }
+      
+      /* Animate old content out */
+      .animate-swap.htmx-swapping {
+        opacity: 0;
+        transform: translateY(6px) scale(0.98);
+      }
+      
+      /* New content initial state */
+      .animate-swap.htmx-settling {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+      }
+      
+      /* Final visible state */
+      .animate-swap.htmx-settled {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
 
-        /* Smooth animation base */
-        #main_content {
-            transition: 
-                opacity 0.25s ease,
-                transform 0.25s ease;
-            will-change: opacity, transform;
-        }
+      .toast-slide-in {
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
 
-        /* While request is in-flight (slight dim) */
-        #main_content.htmx-request {
-            opacity: 0.6;
-        }
+/* Initial state: Hidden to the right */
+.toast-hidden {
+  transform: translateX(120%);
+  opacity: 0;
+}
 
-        /* Animate old content out */
-        #main_content.htmx-swapping {
-            opacity: 0;
-            transform: translateY(6px) scale(0.98);
-        }
+/* Active state: Visible in position */
+.toast-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
 
-        /* New content initial state */
-        #main_content.htmx-settling {
-            opacity: 0;
-            transform: translateY(-6px) scale(0.98);
-        }
-
-        /* Final visible state */
-        #main_content.htmx-settled {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
     </style>
-    
     {% block imports %}
-        
     {% endblock imports %}
-        
-</head>
-<body class="h-full w-full bg-gray-50">
-    {% block content %}{% endblock content %}
-    {% block scripts %}{% endblock scripts %}
-</body>
+  </head>
+  <body class="h-full overflow-hidden w-full bg-gray-50 relative"
+        hx-swap="innerHTML swap:200ms settle:200ms">
+    <div id="htmx-progress-indicator"
+         class="w-full h-1 bg-indigo-500 transform origin-left scale-x-0 transition-all duration-200 ease-out"></div>
+    <div>
+      {% block content %}
+      {% endblock content %}
+      {% block modals %}
+      {% endblock modals %}
+    </div>
+    <div id="page_modals_oob_container"></div>
+    {% block scripts %}
+    {% endblock scripts %}
+    <div id="error-alert-toast"
+         class="toast toast-end toast-bottom mb-6 mr-8 z-50 p-0 toast-slide-in toast-hidden">
+      <div class="flex items-center min-w-[350px] bg-error/90 backdrop-blur-md text-error-content rounded-xl shadow-2xl overflow-hidden border border-white/20">
+        <div class="bg-error px-4 py-6 flex items-center justify-center border-r border-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="28"
+               height="28"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="3"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+          </svg>
+        </div>
+        <div class="px-5 py-3">
+          <p class="font-black text-xs tracking-widest uppercase opacity-80 mb-1">Attention Required</p>
+          <p class="font-semibold leading-tight toast-content">Action failed. Please verify your connection.</p>
+          <button class="toast-button text-zinc-200 hover:text-zinc-50 underline underline-offset-2 hidden"
+                  hx-target="#main_content"
+                  hx-swap="innerHTML"
+                  hx-push-url="true">View Details</button>
+        </div>
+      </div>
+    </div>
+    <div id="success-alert-toast"
+         class="toast toast-end toast-bottom mb-6 mr-8 z-50 p-0 toast-slide-in toast-hidden">
+      <div class="flex min-w-[350px] bg-emerald-600/90 backdrop-blur-md text-white rounded-xl shadow-2xl shadow-emerald-700 overflow-hidden">
+        <div class="bg-emerald-400 px-4 py-6 flex items-center justify-center border-r border-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="28"
+               height="28"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="3"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+        </div>
+        <div class="px-5 py-3">
+          <p class="font-black text-xs tracking-widest uppercase opacity-80 mb-1">Success</p>
+          <p class="font-semibold leading-tight toast-content">Patient record updated successfully.</p>
+          <button class="toast-button text-zinc-200 hover:text-zinc-50 underline underline-offset-2 hidden"
+                  hx-target="#main_content"
+                  hx-swap="innerHTML"
+                  hx-push-url="true">View Details</button>
+        </div>
+      </div>
+    </div>
+    <div id="info-alert-toast"
+         class="toast toast-end toast-bottom mb-6 mr-8 z-50 p-0 toast-slide-in toast-hidden">
+      <div class="flex items-center min-w-[350px] bg-info/90 backdrop-blur-md text-info-content rounded-xl shadow-2xl overflow-hidden border border-white/20">
+        <div class="bg-info px-4 py-6 flex items-center justify-center border-r border-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="28"
+               height="28"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="3"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </div>
+        <div class="px-5 py-3">
+          <p class="font-black text-xs tracking-widest uppercase opacity-80 mb-1">Information</p>
+          <p class="font-semibold leading-tight toast-content">New update available for this patient.</p>
+          <button class="toast-button text-zinc-200 hover:text-zinc-50 underline underline-offset-2 hidden"
+                  hx-target="#main_content"
+                  hx-swap="innerHTML"
+                  hx-push-url="true">View Details</button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

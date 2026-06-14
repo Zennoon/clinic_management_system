@@ -20,8 +20,15 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name="index"),
+    path('staff/patients/<int:id>/', views.patient_details, name="patient_details"),
+    path('staff/visits/<int:id>/', views.visit_details, name="visit_details"),
+    path('staff/charges/<int:id>/', views.charge_details, name="charge_details"),
     path('admin/', admin.site.urls),
     path('staff/', include('staff.urls')),
     path('patients/', include("patients.urls")),
     path('visits/', include("visits.urls")),
+    path('appointments/', include("appointments.urls")),
+    path('charges/', include("charges.urls")),
+    path('payments/', include("payments.urls")),
+    path('lab_requests/', include("lab_requests.urls")),
 ]

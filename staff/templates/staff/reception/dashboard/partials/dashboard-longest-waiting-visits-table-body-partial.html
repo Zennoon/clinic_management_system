@@ -1,0 +1,17 @@
+{% if longest_waiting_visits %}
+  {% for visit in longest_waiting_visits %}
+    <tr>
+      <td>{{ visit.patient.id }}</td>
+      <td>{{ visit.patient.fullname }}</td>
+      <td>{{ visit.id }}</td>
+      <td>{{ visit.visit_status.label }}</td>
+      <td>{{ visit.current_status_since }}</td>
+      <td>{{ visit.formatted_waiting_time }}</td>
+      <td></td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td class="text-center p-4" colspan="7">No visits available.</td>
+  </tr>
+{% endif %}

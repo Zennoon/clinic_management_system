@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from decimal import Decimal
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gvuklo_*60enq*3kxt5j!(riiq9nqb(4y*656&qll7un0ho@$o'
+SECRET_KEY = "django-insecure-gvuklo_*60enq*3kxt5j!(riiq9nqb(4y*656&qll7un0ho@$o"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -34,78 +35,88 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'staff.apps.StaffConfig',
-    'patients.apps.PatientsConfig',
-    'vital_signs.apps.VitalSignsConfig',
-    'physical_exams.apps.PhysicalExamsConfig',
-    'lab_requests.apps.LabRequestsConfig',
-    'lab_results.apps.LabResultsConfig',
-    'prescriptions.apps.PrescriptionsConfig',
-    'appointments.apps.AppointmentsConfig',
-    'visits.apps.VisitsConfig',
-    'charges.apps.ChargesConfig',
-    'payments.apps.PaymentsConfig',
-    'django.contrib.humanize',
-    'django_seed'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_extensions",
+    "constance",
+    'app',
+    "staff.apps.StaffConfig",
+    "patients.apps.PatientsConfig",
+    "vital_signs.apps.VitalSignsConfig",
+    "physical_exams.apps.PhysicalExamsConfig",
+    "lab_requests.apps.LabRequestsConfig",
+    "lab_results.apps.LabResultsConfig",
+    "prescriptions.apps.PrescriptionsConfig",
+    "appointments.apps.AppointmentsConfig",
+    "visits.apps.VisitsConfig",
+    "charges.apps.ChargesConfig",
+    "payments.apps.PaymentsConfig",
+    "django.contrib.humanize",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'app.urls'
+ROOT_URLCONF = "app.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "app.context_processors.shared_variables",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'app.wsgi.application'
+WSGI_APPLICATION = "app.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'localhost')
-POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
-POSTGRES_DATABASE = os.getenv('POSTGRES_DATABASE', 'clinic_management_system')
-POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE", "clinic_management_system")
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     },
-    'postgres': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': POSTGRES_DATABASE,
-        'USER': POSTGRES_USER,
-        'PASSWORD': POSTGRES_PASSWORD,
-        'HOST': POSTGRES_HOST,
-        'PORT': POSTGRES_PORT,
+    "postgres": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": POSTGRES_DATABASE,
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
+        "HOST": POSTGRES_HOST,
+        "PORT": POSTGRES_PORT,
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "127.0.0.1:11211",
     }
 }
 
@@ -115,16 +126,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -132,9 +143,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -144,10 +155,46 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / "static",
 ]
 
-AUTH_USER_MODEL = 'staff.Staff'
-LOGIN_URL = '/staff/login'
+AUTH_USER_MODEL = "staff.Staff"
+LOGIN_URL = "/staff/login"
+
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+CONSTANCE_CONFIG = {
+    "APP_TITLE": (
+        "Mina Clinic System",
+        "Name of the clinic to display in page titles, and reports",
+        str,
+    ),
+    "STRICT_MODE": (
+        True,
+        "Strict mode enforces role based authorization, so users can only perform actions under their role",
+        bool,
+    ),
+    "CONSULTATION_FEE": (300, "The base price paid by patients for visits", Decimal),
+    "FOLLOW_UP_GRACE_DAYS": (
+        15,
+        "The number of days after a visit where patients don't have to repay the consultation fee",
+        int,
+    ),
+    "ALLOW_CHARGE_BYPASS": (
+        False,
+        "Allow charges to be bypassed, and the associated visit to proceed without completing the payment",
+        bool,
+    ),
+    "REQUIRE_PARTIAL_PAYMENT": (
+        True,
+        "This rule dictates that in order to create a new visit for a payment, all past consultation fees must be at least partially paid",
+        bool,
+    ),
+    "PARTIAL_PAYMENT_PERCENT": (
+        50,
+        "If partial payment is required, what percentage of the amount has to be paid to be considered partially paid",
+        int,
+    ),
+}
+CONSTANCE_DATABASE_CACHE_BACKEND = "default"

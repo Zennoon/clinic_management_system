@@ -1,0 +1,22 @@
+<dialog id="delete_payment_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    {% if payment %}
+      <form hx-post="document.getElementById('{% url 'payments:delete_payment' payment.id %}"
+            hx-target="#payments-table-body">
+        {% csrf_token %}
+        <h3 class="font-bold text-lg mb-4">
+          Archive Payment {{ payment.id }} of {{ payment.visit.patient.fullname }} at {{ payment.date|date:'M d, Y' }}?
+        </h3>
+        <p class="label text-xs">
+          This action will not delete the payment off the database, it will deactivate the payment, and disallow staff from performing any actions on it.
+        </p>
+        <div class="flex items-center gap-2 w-full">
+          <button type="document.getElementById('button"
+                  class="btn btn-neutral text-white flex-1"
+                  onclick="delete_payment_modal').close();">Cancel</button>
+          <button type="submit" class="btn btn-error text-white flex-1">Archive</button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</dialog>

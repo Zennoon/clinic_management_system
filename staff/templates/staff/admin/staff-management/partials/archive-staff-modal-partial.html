@@ -1,0 +1,21 @@
+<dialog id="archive_staff_modal" class="bg-transparent">
+  <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    {% if staff %}
+      <form hx-post="document.getElementById('{% url 'staff:archive_staff' staff.id %}"
+            hx-target="#staff-table-row-id-{{ staff.id }}"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        <h3 class="font-bold text-lg mb-4">Archive {{ staff.username }}?</h3>
+        <p class="label text-xs">
+          This action will not delete the staff off the database, it will deactivate the staff, and disallow them from logging in or accessing resources
+        </p>
+        <div class="flex items-center gap-2 w-full">
+          <button type="document.getElementById('button"
+                  class="btn btn-neutral text-white flex-1"
+                  onclick="archive_staff_modal').close();">Cancel</button>
+          <button type="submit" class="btn btn-error text-white flex-1">Archive</button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</dialog>

@@ -1,0 +1,20 @@
+<dialog id="restore_appointment_modal" class="bg-transparent">
+    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+        {% if appointment %}
+            <form hx-post="{% url 'appointments:restore_appointment' appointment.id %}"
+                  hx-target="#appointments-table-body">
+                {% csrf_token %}
+                <h3 class="font-bold text-lg mb-4">
+                    Restore Appointment {{ appointment.appointment_date|date:"M d, Y" }} of {{ appointment.patient.fullname }}?
+                </h3>
+                <p class="label text-xs">This action will reactivate the appointment record, making it available for new actions.</p>
+                <div class="flex items-center gap-2 w-full mt-4">
+                    <button type="button"
+                            class="btn btn-neutral text-white flex-1"
+                            onclick="document.getElementById('delete_appointment_modal').close();">Cancel</button>
+                    <button type="submit" class="btn btn-primary text-white flex-1">Restore</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

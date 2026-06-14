@@ -1,0 +1,21 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+{% block main_content %}
+{% include 'staff/admin/staff-management/partials/staff-management-partial.html' %}
+{% endblock main_content %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("new-staff-fail", () => {
+      document.getElementById("new_staff_modal").showModal();
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("update-staff-fail", () => {
+      document.getElementById("update_staff_modal").showModal();
+    });
+  });
+</script>
+{% endblock scripts %}

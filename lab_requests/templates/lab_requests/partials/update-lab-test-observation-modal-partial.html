@@ -1,0 +1,101 @@
+<dialog id="update_lab_test_observation_modal" class="bg-transparent">
+  {% if observation %}
+    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+      <h3 class="font-bold text-lg mb-4">Edit {{ observation.name }}</h3>
+      <form class="mb-4 space-y-4"
+            hx-post="{% url 'lab_requests:update_lab_test_observation' observation.id %}"
+            hx-target="#tests_configuration_content"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+        {% endif %}
+        <div class="form-control w-full">
+          <label for="name" class="label">
+            <span class="label-text">Name</span>
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}<label class="label text-error">{{ form.name.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="lab_test" class="label">
+            <span class="label-text">Lab_test</span>
+          </label>
+          {{ form.lab_test }}
+          {% if form.lab_test.errors %}<label class="label text-error">{{ form.lab_test.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="result_type" class="label">
+            <span class="label-text">Result Type</span>
+          </label>
+          {{ form.result_type }}
+          {% if form.result_type.errors %}<label class="label text-error">{{ form.result_type.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="unit_of_measurement" class="label">
+            <span class="label-text">Unit of measurement</span>
+          </label>
+          {{ form.unit_of_measurement }}
+          {% if form.unit_of_measurement.errors %}
+            <label class="label text-error">{{ form.unit_of_measurement.errors }}</label>
+          {% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="reference_min" class="label">
+            <span class="label-text">Reference Min</span>
+          </label>
+          {{ form.reference_min }}
+          {% if form.reference_min.errors %}<label class="label text-error">{{ form.reference_min.errors }}</label>{% endif %}
+        </div>
+        <div class="form-control w-full">
+          <label for="reference_max" class="label">
+            <span class="label-text">Reference Max</span>
+          </label>
+          {{ form.reference_max }}
+          {% if form.reference_max.errors %}<label class="label text-error">{{ form.reference_max.errors }}</label>{% endif %}
+        </div>
+        <div class="modal-action">
+          <button type="button"
+                  class="btn btn-error text-white"
+                  onclick="document.getElementById('new_lab_test_observation_modal').close();">Cancel</button>
+          <button type="submit"
+                  class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                  {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+  {% if form %}
+    <script>
+      function once(fn) {
+        let called = false
+        return function (...args) {
+          if (!called) {
+            called = true
+            fn.apply(this, args)
+          }
+        }
+      }
+      
+      once(() => {
+        let result_type = document.getElementById('id_result_type')
+        let reference_min = document.getElementById('id_reference_min')
+        let reference_max = document.getElementById('id_reference_max')
+      
+        if (result_type && result_type.value == 'C') {
+          reference_min.disabled = true
+          reference_max.disabled = true
+        }
+        result_type?.addEventListener('change', function () {
+          if (this.value == 'C') {
+            reference_min.disabled = true
+            reference_max.disabled = true
+          } else {
+            reference_min.disabled = false
+            reference_max.disabled = false
+          }
+        })
+      })()
+    </script>
+  {% endif %}
+</dialog>

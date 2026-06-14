@@ -1,0 +1,65 @@
+{% load widget_tweaks %}
+<dialog id="new_payment_modal" class="bg-transparent">
+    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+        <h3 class="font-bold text-lg mb-4">Record A New Payment</h3>
+        <form class="mb-4 space-y-4"
+              hx-post="{% url 'payments:register_new_payment' %}?{{ request.GET.urlencode }}">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+            {% endif %}
+            <div class="form-control w-full">
+                <label for="id_patient" class="label">
+                    <span class="label-text">Patient</span>
+                </label>
+                {% url 'payments:get_patient_visits' as patient_visits_url %}
+                {% render_field form.patient class='input input-bordered w-full' placeholder='Select a patient' hx-get=patient_visits_url hx-target='#id_visit' hx-swap='innerHTML' hx-on::after-swap='console.log(`Hello world`); console.log(document.getElementById(`id_visit`)); document.getElementById(`id_visit`).dispatchEvent(new Event(`change`))' %}
+                {% if form.patient.errors %}<label class="label text-error">{{ form.patient.errors }}</label>{% endif %}
+            </div>
+            <div class="form-control w-full">
+                <label for="id_visit" class="label">
+                    <span class="label-text">Visit</span>
+                </label>
+                {% url 'payments:get_visit_charges' as visit_charges_url %}
+                {% render_field form.visit class='input input-bordered w-full' placeholder='Select a visit' hx-get=visit_charges_url hx-target='#id_charge' hx-swap='innerHTML' %}
+                {% if form.visit.errors %}<label class="label text-error">{{ form.visit.errors }}</label>{% endif %}
+            </div>
+            <div class="form-control w-full">
+                <label for="id_charge" class="label">
+                    <span class="label-text">Charge</span>
+                </label>
+                {% render_field form.charge class="input input-bordered w-full" placeholder="Select a charge" %}
+                {% if form.charge.errors %}<label class="label text-error">{{ form.charge.errors }}</label>{% endif %}
+            </div>
+            <div class="form-control w-full">
+                <label for="id_payment_method" class="label">
+                    <span class="label-text">Method</span>
+                </label>
+                {{ form.payment_method }}
+                {% if form.payment_method.errors %}<label class="label text-error">{{ form.payment_method.errors }}</label>{% endif %}
+            </div>
+            <div class="form-control w-full">
+                <label for="id_amount" class="label">
+                    <span class="label-text">Amount</span>
+                </label>
+                {{ form.amount }}
+                {% if form.amount.errors %}<label class="label text-error">{{ form.amount.errors }}</label>{% endif %}
+            </div>
+            <div class="form-control w-full">
+                <label for="id_date" class="label">
+                    <span class="label-text">Date</span>
+                </label>
+                {{ form.date }}
+                {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+            </div>
+            <div class="modal-action">
+                <button type="button"
+                        class="btn btn-error text-white"
+                        onclick="document.getElementById('new_payment_modal').close()">Cancel</button>
+                <button type="submit"
+                        class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                        {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+            </div>
+        </form>
+    </div>
+</dialog>

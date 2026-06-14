@@ -1,0 +1,20 @@
+<dialog id="restore_payment_modal" class="bg-transparent">
+    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+        {% if payment %}
+            <form hx-post="{% url 'payments:restore_payment' payment.id %}"
+                  hx-target="#payments-table-body">
+                {% csrf_token %}
+                <h3 class="font-bold text-lg mb-4">
+                    Restore Payment {{ payment.id }} of {{ payment.visit.patient.fullname }} at {{ payment.date|date:"M d, Y" }}?
+                </h3>
+                <p class="label text-xs">This action will reactivate the payment record, making it available for new actions.</p>
+                <div class="flex items-center gap-2 w-full mt-4">
+                    <button type="button"
+                            class="btn btn-neutral text-white flex-1"
+                            onclick="document.getElementById('delete_payment_modal').close();">Cancel</button>
+                    <button type="submit" class="btn btn-primary text-white flex-1">Restore</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

@@ -1,0 +1,46 @@
+{% load widget_tweaks %}
+<dialog id="new_charge_payment_modal" class="bg-transparent">
+    {% if form and charge %}
+        <div class="modal-box p-10 w-full lg:min-w-[480px]">
+            <h3 class="font-bold text-lg mb-4">
+                Record payment for charge {{ charge.id }} during visit {{ charge.visit.id }} at {{ charge.visit.date|date:"M d, Y" }} of {{ charge.visit.patient.fullname }}
+            </h3>
+            <form class="mb-4 space-y-4"
+                  hx-post="{% url 'payments:register_new_charge_payment' charge.id %}?{{ request.GET.urlencode }}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+                {% endif %}
+                <div class="form-control w-full">
+                    <label for="payment_method" class="label">
+                        <span class="label-text">Method</span>
+                    </label>
+                    {{ form.payment_method }}
+                    {% if form.payment_method.errors %}<label class="label text-error">{{ form.payment_method.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="amount" class="label">
+                        <span class="label-text">Amount</span>
+                    </label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}<label class="label text-error">{{ form.amount.errors }}</label>{% endif %}
+                </div>
+                <div class="form-control w-full">
+                    <label for="date" class="label">
+                        <span class="label-text">Date</span>
+                    </label>
+                    {{ form.date }}
+                    {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+                </div>
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-error text-white"
+                            onclick="document.getElementById('new_charge_payment_modal').close()">Cancel</button>
+                    <button type="submit"
+                            class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                            {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</dialog>

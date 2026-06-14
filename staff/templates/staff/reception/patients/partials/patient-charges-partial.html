@@ -1,0 +1,70 @@
+{% if patient %}
+  <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg space-y-4">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+        <h3 class="text-xl">Charges</h3>
+        <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                {% if patient.is_operational %} hx-get="{% url 'charges:new_patient_charge_modal' visit.id %}" hx-vals='{ "next_url": "{% url "staff:reception_patient_details" patient.id %}" }' hx-target="#new_patient_charge_modal" hx-swap="outerHTML" {% else %} disabled {% endif %}>
+          Add Miscelaneous Charge
+        </button>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center overflow-x-auto whitespace-nowrap gap-4"
+           id="patient-charges-table-filters">
+        <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_patient_charges_filter' patient.id %}"
+                   hx-include="#patient-charges-table-filters"
+                   hx-target="#patient-charges-table-container"
+                   id="show_settled"
+                   name="show_settled"
+                   type="checkbox" />
+            <label for="show_settled">Show settled and overpaid charges</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <input class="toggle toggle-sm"
+                   hx-get="{% url 'staff:reception_patient_charges_filter' patient.id %}"
+                   hx-include="#patient-charges-table-filters"
+                   hx-target="#patient-charges-table-container"
+                   id="show_archived_charges"
+                   name="show_archived"
+                   type="checkbox" />
+            <label for="show_archived_charges">Show archived charges</label>
+          </div>
+        </div>
+        <label for="sort" class="sr-only">Sort by</label>
+        <select class="select select-bordered"
+                hx-get="{% url 'staff:reception_patient_charges_filter' patient.id %}"
+                hx-include="#patient-charges-table-filters"
+                hx-target="#patient-charges-table-container"
+                id="sort"
+                name="sort">
+          <option disabled="" selected="" value="">Sort by</option>
+          {% for key, val in charge_order_options.items %}
+            <option class="flex gap-2 items-center text-black" value="{{ key }}">
+              Ascending
+              {{ val }}
+            </option>
+            <option class="flex gap-2 items-center" value="-{{ key }}">
+              Descending
+              <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                   fill="none"
+                   height="24"
+                   stroke="currentColor"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   stroke-width="2"
+                   viewbox="0 0 24 24"
+                   width="24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+              {{ val }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% include "staff/reception/patients/partials/patient-charges-table-partial.html" %}
+  </div>
+{% endif %}

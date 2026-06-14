@@ -1,0 +1,81 @@
+<div class="flex flex-col gap-4">
+  <h2 class="text-2xl">Charges</h2>
+  <div class="flex flex-col gap-4 bg-white border-gray-300 rounded-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center gap-2 overflow-clip" id="charges-filters">
+      <label class="input input-bordered flex items-center gap-2">
+        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </g>
+        </svg>
+        <input type="search" id="charge_q" name="charge_q" placeholder="Search charge" hx-get="{% url 'staff:admin_charges_filter' %}" hx-trigger="keyup delay:500ms" hx-target="#charges-table-container" hx-include="#charge_type, #charge_status, #charge_issuer, #charge_order, #hide_deactivated, #show_only_today" />
+      </label>
+      <div class="flex items-center gap-2">
+        <select name="charge_type" id="charge_type" class="select select-bordered" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_status, #charge_issuer, #charge_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select a type</option>
+          <option value="">All</option>
+
+          {% for type in charge_types %}
+            <option value="{{ type|first }}">{{ type|last }}</option>
+          {% endfor %}
+        </select>
+        <select name="charge_status" id="charge_status" class="select select-bordered" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_type, #charge_issuer, #charge_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select a status</option>
+          <option value="">All</option>
+          {% for status in charge_statuses %}
+            <option value="{{ status|first }}">{{ status|last }}</option>
+          {% endfor %}
+        </select>
+        <select name="charge_issuer" id="charge_issuer" class="select select-bordered" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_type, #charge_status, #charge_order, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Select an issuer</option>
+          <option value="">All</option>
+          {% for issuer in issuers %}
+            <option value="{{ issuer.id }}">{{ issuer.username }}</option>
+          {% endfor %}
+        </select>
+        <select name="charge_order" id="charge_order" class="select select-bordered" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_type, #charge_status, #charge_issuer, #hide_deactivated, #show_only_today">
+          <option value="" selected disabled>Order by</option>
+          {% for key, val in order_options.items %}
+            <option value="{{ key }}" class="flex gap-2 items-center text-black">Ascending
+              {{ val }}</option>
+            <option value="-{{ key }}" class="flex gap-2 items-center">
+              Descending<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+              {{ val }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center gap-2">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="hide_deactivated" id="hide_deactivated" class="toggle toggle-sm" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_type, #charge_sex, #charge_status, #charge_issuer, #charge_order, #show_only_today" />
+          <label for="hide_deactivated">Hide archived charges</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="show_only_today" id="show_only_today" class="toggle toggle-sm" hx-get="{% url 'staff:admin_charges_filter' %}" hx-target="#charges-table-container" hx-include="#charge_q, #charge_type, #charge_status, #charge_issuer, #charge_order, #hide_deactivated" />
+          <label for="show_only_today">Only show today's charges</label>
+        </div>
+      </div>
+      <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500" hx-get="{% url 'charges:new_charge_modal' %}" hx-target="#new_charge_modal" hx-trigger="click" hx-swap="outerHTML" hx-on:htmx:after-on-load="document.getElementById('new_charge_modal').showModal();">
+        New Charge<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+      </button>
+    </div>
+
+    {% comment %}
+
+    {% endcomment %}
+    {% include 'charges/partials/restore-charge-modal-partial.html' %}
+    {% include 'charges/partials/delete-charge-modal-partial.html' %}
+    {% include 'charges/partials/update-charge-modal-partial.html' %}
+    {% include 'charges/partials/new-charge-modal-partial.html' %}
+    {% include 'staff/admin/charges/partials/charges-table-partial.html' %}
+  </div>
+</div>

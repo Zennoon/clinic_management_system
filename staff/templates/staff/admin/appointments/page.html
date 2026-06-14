@@ -1,0 +1,22 @@
+{% extends "staff/admin/admin-layout.html" %}
+
+{% block main_content %}
+    {% include 'staff/admin/appointments/partials/appointments-partial.html' %}
+{% endblock main_content %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("new-appointment-fail", () => {
+                document.getElementById("new_appointment_modal").showModal();
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener("update-appointment-fail", () => {
+                document.getElementById("update_appointment_modal").showModal();
+            });
+        });
+    </script>
+{% endblock scripts %}
+    
