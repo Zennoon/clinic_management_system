@@ -660,7 +660,7 @@ class DaisyMultiSelect extends HTMLElement {
             
             <!-- Display Input -->
             <div class="multiselect-container flex flex-row items-center">
-              <button type="button" class="multiselect-trigger input input-bordered w-full text-left cursor-pointer !h-auto ${this._getMinHeightClass()} flex ${this._chipStyle ? 'flex-wrap gap-x-2 !p-1.5' : 'justify-between'} ${this._getInputColorClass()} ${this._getSizeClass()} ${this._disabled ? 'input-disabled cursor-not-allowed opacity-60' : ''}" ${this._disabled ? 'disabled' : ''} aria-haspopup="listbox" aria-expanded="false" aria-label="${this._placeholder}" role="combobox">
+              <button type="button" class="multiselect-trigger input input-bordered w-full text-left cursor-pointer !h-auto ${this._getMinHeightClass()} flex ${this._chipStyle ? 'flex-wrap gap-x-2 !p-2' : 'justify-between'} ${this._getInputColorClass()} ${this._getSizeClass()} ${this._disabled ? 'input-disabled cursor-not-allowed opacity-60' : ''}" ${this._disabled ? 'disabled' : ''} aria-haspopup="listbox" aria-expanded="false" aria-label="${this._placeholder}" role="combobox">
                 <span class="multiselect-display ${this._chipStyle ? 'flex-1 min-w-0' : 'flex-1 mr-2 py-1'}">${this._placeholder}</span>
                 <div class="flex items-center gap-2 flex-shrink-0">
                   ${this._showClear ? `
@@ -814,7 +814,7 @@ class DaisyMultiSelect extends HTMLElement {
         
         // Add chip-style specific classes
         if (this._chipStyle) {
-          internalClasses.push('flex-wrap', 'gap-x-2', '!p-1.5');
+          internalClasses.push('flex-wrap', 'gap-x-2', '!p-2');
         } else {
           internalClasses.push('justify-between');
         }

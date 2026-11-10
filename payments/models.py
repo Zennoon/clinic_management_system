@@ -115,6 +115,8 @@ class Payment(models.Model):
                 payment=self,
                 created_by=staff,
             )
+            
+            self.charge.visit.transition_status()
             return adjustment
 
     @property

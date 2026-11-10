@@ -1,0 +1,363 @@
+{% load humanize %}
+<title>Dashboard | {{ user.role.label }} Interface | {{ app_title }}</title>
+<div class="space-y-8"
+     hx-get="{% url 'staff:nurse_dashboard' %}"
+     hx-trigger="every 60s"
+     hx-swap="outerHTML transition:none">
+    <h2 class="text-2xl font-semibold">Dashboard</h2>
+    <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-8 shadow-lg">
+        <h3 class="text-xl">Pulse</h3>
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="rounded-xl p-4 text-black bg-green-100">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-heart-pulse-icon lucide-heart-pulse">
+                        <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                        <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" />
+                    </svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Patients Awaiting Vital Signs</span>
+                    <span class="text-4xl font-semibold">{{ awaiting_vital_signs.count }}</span>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="bg-gray-200 rounded-xl p-4 text-black">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-calendar-heart-icon lucide-calendar-heart">
+                        <path d="M12.127 22H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.125" />
+                        <path d="M14.62 18.8A2.25 2.25 0 1 1 18 15.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a.998.998 0 0 1-1.507 0z" />
+                        <path d="M16 2v4" />
+                        <path d="M3 10h18" />
+                        <path d="M8 2v4" />
+                    </svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Total Vital Signs Measured Today</span>
+                    <span class="text-4xl font-semibold">{{ total_vital_signs_today }}</span>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="rounded-xl p-4 text-black bg-green-100">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-syringe-icon lucide-syringe">
+                        <path d="m18 2 4 4" />
+                        <path d="m17 7 3-3" />
+                        <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
+                        <path d="m9 11 4 4" />
+                        <path d="m5 19-3 3" />
+                        <path d="m14 4 6 6" />
+                    </svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Patients Awaiting Treatments</span>
+                    <span class="text-4xl font-semibold">{{ total_awaiting_treatments }}</span>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="bg-gray-200 rounded-xl p-4 text-black">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-calendar-check-icon lucide-calendar-check">
+                        <path d="M8 2v4" />
+                        <path d="M16 2v4" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <path d="M3 10h18" />
+                        <path d="m9 16 2 2 4-4" />
+                    </svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Total Treatment Requests Today</span>
+                    <span class="text-4xl font-semibold">{{ total_treatment_requests_today }}</span>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="rounded-xl p-4 text-black bg-green-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-dollar-sign-icon lucide-badge-dollar-sign"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Treatment Requests Awaiting Payment</span>
+                    <span class="text-4xl font-semibold">{{ total_awaiting_treatment_payment }}</span>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 items-start shadow-lg">
+                <div class="bg-gray-200 rounded-xl p-4 text-black">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-calendar-check-icon lucide-calendar-check">
+                        <path d="M8 2v4" />
+                        <path d="M16 2v4" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <path d="M3 10h18" />
+                        <path d="m9 16 2 2 4-4" />
+                    </svg>
+                </div>
+                <div class="w-full flex flex-col gap-2">
+                    <span class="text-sm text-gray-800">Total Treatment Requests Handled Today</span>
+                    <span class="text-4xl font-semibold">{{ total_treatment_requests_handled_today }}</span>
+                    <p class="text-sm font-light italic"><span class="text-xl font-semibold">{{ total_treatment_requests_from_today_handled_today }}</span> request{{ total_treatment_requests_from_today_handled_today|pluralize }} from today</p>
+                    <p class="text-sm font-light italic"><span class="text-xl font-semibold">{{ total_earlier_treatment_requests_handled_today }}</span> request{{ total_earlier_treatment_requests_handled_today|pluralize }} from earlier dates</p>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-gray-300 rounded-xl p-6 space-y-6 col-span-full lg:col-span-1 shadow-lg">
+                <h3 class="text-xl">Most Requested Treatment Services</h3>
+                <div class="p-4 space-y-4">
+                    {% if most_requested_treatment_services %}
+                        <canvas id="most-requested-treatment-services-bar-chart"></canvas>
+                    {% else %}
+                        <div class="flex p-4 justify-center items-center">No treatment services were found.</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 space-y-6 col-span-full lg:col-span-1 shadow-lg">
+                <h3 class="text-xl">Most Requested Treatments</h3>
+                <div class="p-4 space-y-4">
+                    {% if most_requested_treatments %}
+                        <canvas id="most-requested-treatments-bar-chart"></canvas>
+                    {% else %}
+                        <div class="flex p-4 justify-center items-center">No treatment services were found.</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="bg-white border border-gray-300 rounded-xl p-6 space-y-6 col-span-1 shadow-lg">
+                <h3 class="text-xl">Requested Treatments Type Breakdown</h3>
+                <div class="p-4 space-y-4">
+                    {% if treatment_requests_type_breakdown %}
+                        <canvas id="treatment-requests-type-breakdown-pie-chart"></canvas>
+                    {% else %}
+                        <div class="flex p-4 justify-center items-center">No treatments were found.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-8 shadow-lg"
+             data-scroll-async>
+            <h3 class="text-xl">Vital Signs Queue</h3>
+            <span class="scroll-indicator cursor-pointer self-end w-8 h-8 rounded-full tooltip tooltip-left bg-indigo-600 text-white flex justify-center items-center p-2 transition-transform duration-700 animate-pulse hover:animate-none"
+                  data-tip="Drag this icon or scroll table to check for more columns.">
+                <svg class="lucide lucide-unfold-horizontal-icon lucide-unfold-horizontal"
+                     fill="none"
+                     height="24"
+                     stroke="currentColor"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     stroke-width="2"
+                     viewbox="0 0 24 24"
+                     width="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 12h6"></path>
+                    <path d="M8 12H2"></path>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 8v2"></path>
+                    <path d="M12 14v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m19 15 3-3-3-3"></path>
+                    <path d="m5 9-3 3 3 3"></path>
+                </svg>
+            </span>
+            <div class="overflow-x-auto table-wrapper">
+                <table class="table table-zebra table-pin-rows p-2 whitespace-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Visit ID</th>
+                            <th>Last Vital Signs Recordings</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody hx-get="{% url 'staff:nurse_dashboard_vital_signs_queue' %}"
+                           hx-trigger="every 5s"
+                           hx-swap="innerHTML transition:none"
+                           hx-vals='{"noAnimate": "true", "poll": 5000}'>
+                        
+                        {% include "staff/nurse/dashboard/partials/dashboard-vital-signs-queue-table-body-partial.html" %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-8 shadow-lg"
+             data-scroll-async>
+            <h3 class="text-xl">Treatment Requests Queue</h3>
+            <span class="scroll-indicator cursor-pointer self-end w-8 h-8 rounded-full tooltip tooltip-left bg-indigo-600 text-white flex justify-center items-center p-2 transition-transform duration-700 animate-pulse hover:animate-none"
+                  data-tip="Drag this icon or scroll table to check for more columns.">
+                <svg class="lucide lucide-unfold-horizontal-icon lucide-unfold-horizontal"
+                     fill="none"
+                     height="24"
+                     stroke="currentColor"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     stroke-width="2"
+                     viewbox="0 0 24 24"
+                     width="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 12h6"></path>
+                    <path d="M8 12H2"></path>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 8v2"></path>
+                    <path d="M12 14v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m19 15 3-3-3-3"></path>
+                    <path d="m5 9-3 3 3 3"></path>
+                </svg>
+            </span>
+            <div class="overflow-x-auto table-wrapper">
+                <table class="table table-zebra table-pin-rows p-2 whitespace-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Request ID</th>
+                            <th>Visit ID</th>
+                            <th>Last Treatment Request</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody hx-get="{% url 'staff:nurse_dashboard_treatment_requests_queue' %}"
+                           hx-trigger="every 5s"
+                           hx-swap="innerHTML transition:none"
+                           hx-vals='{"noAnimate": "true", "poll": 5000}'>
+                        
+                        {% include "staff/nurse/dashboard/partials/dashboard-treatment-requests-queue-table-body-partial.html" %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        function initMostRequestedTreatmentServicesBarChart(){
+            const ctx = document.getElementById("most-requested-treatment-services-bar-chart");
+            const mostRequestedTreatmentServicesData = {{ most_requested_treatment_services_json|safe }};
+            const data = [];
+            const labels = [];
+
+            for (let treatmentService of mostRequestedTreatmentServicesData) {
+                labels.push(treatmentService.name);
+                data.push(treatmentService.amount);
+            }
+
+            if (ctx) {
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels,
+                        datasets: [{
+                            indexAxis: "y",
+                            label: "Frequency",
+                            data,
+                            backgroundColor: ["#929eff"],
+                            borderRadius: 5,
+                            borderColor: ["#605cff"],
+                            borderWidth: 1,
+                            minBarLength: 5,
+                        }],
+                        
+                    }
+
+                })
+            }
+        }
+
+        function initMostRequestedTreatmentsBarChart(){
+            const ctx = document.getElementById("most-requested-treatments-bar-chart");
+            const mostRequestedTreatmentsData = {{ most_requested_treatments_json|safe }};
+            const data = [];
+            const labels = [];
+
+            for (let treatment of mostRequestedTreatmentsData) {
+                labels.push(treatment.name);
+                data.push(treatment.amount);
+            }
+
+            if (ctx) {
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels,
+                        datasets: [{
+                            indexAxis: "y",
+                            label: "Frequency",
+                            data,
+                            backgroundColor: ["#929eff"],
+                            borderRadius: 5,
+                            borderColor: ["#605cff"],
+                            borderWidth: 1,
+                            minBarLength: 5,
+                        }],
+                        
+                    }
+
+                })
+            }
+        }
+
+        function initTreatmentRequestsTypeBreakdownPieChart() {
+            const ctx = document.getElementById("treatment-requests-type-breakdown-pie-chart")
+            const treatmentRequestsTypeBreakdownData = {{ treatment_requests_type_breakdown_json|safe }};
+            const data = [];
+            const labels = [];
+
+            for (let type of treatmentRequestsTypeBreakdownData) {
+                labels.push(type.name);
+                data.push(type.count);
+            }
+            if (ctx) {
+                new Chart(ctx, {
+                    type: "pie",
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "Frequency",
+                            data,
+                            hoverOffset: 4,
+                        }]
+                    }
+                })
+            }
+            
+        }
+
+        initMostRequestedTreatmentServicesBarChart();
+        initMostRequestedTreatmentsBarChart();
+        initTreatmentRequestsTypeBreakdownPieChart();
+    </script>
+</div>

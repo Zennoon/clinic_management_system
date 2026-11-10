@@ -16,6 +16,7 @@ from django.db.models import (
     Subquery,
     When,
 )
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.functions import Coalesce
 from constance import config
 
@@ -226,7 +227,7 @@ class Patient(models.Model):
     def current_visit(self):
         current_visit = (
             self.visits.exclude(
-                visit_status__in=[
+                visit_status_annotated__in=[
                     "COMPLETED",
                     "CANCELLED",
                 ]
@@ -356,12 +357,7 @@ class Patient(models.Model):
         if hasattr(self, "has_overpaid_annotated"):
             return self.has_overpaid_annotated
         return self.net_balance < Decimal("0.00")
-
-    @property
-    def all_charges(self):
-        Charge = apps.get_model("charges", "Charge")
-
-        return Charge.objects.filter(visit__patient=self)
+    
 
     @property
     def payments(self):
@@ -374,9 +370,42 @@ class Patient(models.Model):
         Charge = apps.get_model("charges", "Charge")
 
         return Charge.objects.filter(visit__patient=self)
+    
+    @property
+    def vital_signs(self):
+        VitalSign = apps.get_model("vital_signs", "VitalSign")
+
+        return VitalSign.objects.filter(visit__patient=self)
+    
+    @property
+    def treatment_requests(self):
+        TreatmentRequest = apps.get_model("treatments", "TreatmentRequest")
+
+        return TreatmentRequest.objects.filter(visit__patient=self)
+    
+    @property
+    def can_create_new_visit(self):
+        from charges.models import Charge
+        
+        require_partial_payment = config.REQUIRE_PARTIAL_PAYMENT
+        
+        if not require_partial_payment:
+            return True
+        
+        partial_payment_percent = (Decimal(config.PARTIAL_PAYMENT_PERCENT or 50)) / 100
+        
+        return not (
+            Charge.objects.with_financials()
+            .filter(
+                visit__patient=self,
+                net_paid_annotated__lt=F("amount") * partial_payment_percent
+            )
+            .exists()
+        )
+
 
     @property
-    def unpaid_consultation_fee_charge(self):
+    def unpaid_consultation_fee_charge(self):   
         from charges.models import Charge
 
         partial_payment_percent = Decimal(config.PARTIAL_PAYMENT_PERCENT or 50) / 100

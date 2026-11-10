@@ -4,12 +4,10 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.shortcuts import render
 
 from charges.forms import (
     ChargeForm,
     PatientChargeForm,
-    UpdateChargeForm,
     VisitChargeForm,
 )
 from charges.models import Charge
@@ -47,7 +45,7 @@ def register_new_charge(request: HttpRequest):
         charge = form.save(commit=False)
         charge.issuer = request.user
         charge.save()
-        charge.visit.update_status()
+        charge.visit.transition_status()
         response = HttpResponse()
         details_url = charge_details(request, charge.id)
         response["HX-Trigger"] = json.dumps(
@@ -115,7 +113,7 @@ def register_new_visit_charge(request: HttpRequest, id):
         charge.visit = visit
         charge.issuer = request.user
         charge.save()
-        charge.visit.update_status()
+        charge.visit.transition_status()
         response = HttpResponse()
         details_url = charge_details(request, charge.id)
         response["HX-Trigger"] = json.dumps(
@@ -184,7 +182,7 @@ def register_new_patient_charge(request: HttpRequest, id):
         charge = form.save(commit=False)
         charge.issuer = request.user
         charge.save()
-        charge.visit.update_status()
+        charge.visit.transition_status()
         response = HttpResponse()
         details_url = charge_details(request, charge.id)
         response["HX-Trigger"] = json.dumps(
@@ -227,7 +225,7 @@ def register_new_patient_charge(request: HttpRequest, id):
 @login_required
 def update_charge_modal(request: HttpRequest, id: int):
     charge = get_object_or_404(Charge, pk=id)
-    form = UpdateChargeForm(
+    form = ChargeForm(
         instance=charge,
         user=request.user,
     )
@@ -246,7 +244,7 @@ def update_charge_modal(request: HttpRequest, id: int):
 @require_POST
 def update_charge(request: HttpRequest, id: int):
     charge = get_object_or_404(Charge, pk=id)
-    form = UpdateChargeForm(request.POST, instance=charge, user=request.user)
+    form = ChargeForm(request.POST, instance=charge, user=request.user)
     next_url = request.GET.get("next_url")
     next_target = request.GET.get("next_target", "main_content")
 

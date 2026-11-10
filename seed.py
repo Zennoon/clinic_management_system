@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta
 import random
+import secrets
 
 import pandas as pd
 from django.utils import timezone
@@ -13,6 +14,13 @@ from patients.models import Patient
 from payments.models import Payment
 from staff.models import Staff
 from lab_requests.models import LabObservation, LabGroup, LabRequest, LabService
+from treatments.models import (
+    Treatment,
+    TreatmentRequest,
+    TreatmentRequestResult,
+    TreatmentResult,
+    TreatmentService,
+)
 from visits.models import Consultation, Review, Visit
 from vital_signs.models import VitalSign
 from physical_exams.models import PhysicalExam
@@ -66,7 +74,9 @@ prices = [
 
 @transaction.atomic
 def seed_db():
-    random.seed(69)
+    r = secrets.randbelow(100)
+    print(r)
+    random.seed(r)
     complaints = "Severe headache, Difficulty breathing, Fever and chills, Abdominal pain, Chest tightness, Dizziness and lightheadedness, Joint pain, Nausea and vomiting, Back pain, Fatigue and weakness".split(
         ", "
     )
@@ -88,6 +98,7 @@ def seed_db():
     doctor = _ensure_staff("dr_jane", Staff.RoleEnum.DOCTOR)
     labtech = _ensure_staff("lab_tech", Staff.RoleEnum.LABORATORY)
     reception = _ensure_staff("Sami", Staff.RoleEnum.RECEPTION)
+    nurse = _ensure_staff("nurse", Staff.RoleEnum.NURSE)
 
     # Seed test groups
     groups_df = pd.read_csv("seed_data/mock-test-groups.csv")
@@ -151,8 +162,6 @@ def seed_db():
 
     lab_services = []
     for g in groups:
-        print(f"Group: {g}")
-        print(g.lab_observations.all())
         observation_options = list(g.lab_observations.all())
         for j in range(min(random.randint(1, 4), g.lab_observations.count())):
 
@@ -168,9 +177,8 @@ def seed_db():
             for obs in observations:
                 if obs in observation_options:
                     observation_options.remove(obs)
-            starting_index = (len(prices) // 4) * (len(observations) - 1)
-            ending_index = min(starting_index + len(prices) // 4, len(prices))
-            price = random.choice(prices[starting_index:ending_index])["price"]
+
+            price = random.choice(prices)["price"]
             lab_service = LabService.objects.create(
                 name=f"Lab Service {j} of {g.name}",
                 price=price,
@@ -182,10 +190,42 @@ def seed_db():
             lab_service.full_clean()
             lab_service.save()
             lab_services.append(lab_service)
-            print(lab_service)
+
+    # Seed treatments
+    treatments_df = pd.read_csv("seed_data/mock-treatments.csv")
+    treatments = []
+    for _, row in treatments_df.iterrows():
+        treatment_type = (row.get("type") or "").strip().upper()
+        treatment = Treatment.objects.create(
+            name=row.get("name") or "Unnamed treatment",
+            type=treatment_type,
+            created_by=admin,
+        )
+        treatments.append(treatment)
+
+    treatment_services = []
+    treatment_service_selections = [[]]
+    for i in range(len(treatments)):
+        treatment_options = []
+        while treatment_options in treatment_service_selections:
+            treatment_options = random.choices(treatments, k=random.randint(1, 3))
+        treatment_service_selections.append(treatment_options)
+        rand_int = random.randint(100, 5000)
+        price = (rand_int // 50) * 50
+        treatment_service = TreatmentService.objects.create(
+            name=f"Treatment Service {i}",
+            price=price,
+            created_by=admin,
+        )
+
+        treatment_service.treatments.set(treatment_options)
+        treatment_service.full_clean()
+        treatment_service.save()
+        treatment_services.append(treatment_service)
 
     # Seed patients
     patients_df = pd.read_csv("seed_data/mock-patients.csv")
+    patients_df = patients_df[:100]
     sex_map = {"MALE": Patient.SexEnum.MALE, "FEMALE": Patient.SexEnum.FEMALE}
     created_patients = []
 
@@ -229,13 +269,13 @@ def seed_db():
             # pick a visit time within the past year
 
             visit_time = now - timedelta(
-                days=random.randint(0, 60), seconds=random.randint(0, 86400)
+                days=random.randint(0, 10), seconds=random.randint(0, 86400)
             )
             while Visit.objects.filter(
                 Q(patient=patient) & Q(date__date=visit_time.date())
             ).exists():
                 visit_time = now - timedelta(
-                    days=random.randint(0, 60), seconds=random.randint(0, 86400)
+                    days=random.randint(0, 60), seconds=random.randint(0, 3600)
                 )
             i += 1
             visit = Visit.objects.create(
@@ -245,6 +285,7 @@ def seed_db():
                 created_by=reception,
                 is_active=(random.random() > 0.1),
             )
+            visit.transition_status()
             consultation_charge = visit.create_consultation_charge(reception)
             if random.random() < 0.1:
                 consultation_charge.is_active = False
@@ -291,9 +332,6 @@ def seed_db():
                 randnum = random.random()
 
                 if randnum < 0.25:
-                    print("ADJUSTMENT INCOMING...")
-                    print(randnum)
-                    print(payment.id)
                     payment.create_adjustment(
                         amount=payment.amount * randnum,
                         reason="Seeding purposes",
@@ -310,7 +348,7 @@ def seed_db():
                     vs_time = now
                 VitalSign.objects.create(
                     visit=visit,
-                    recorded_by=random.choice([doctor, labtech, admin]),
+                    recorded_by=nurse,
                     bp_systolic=random.randint(90, 140),
                     bp_diastolic=random.randint(60, 95),
                     pulse_rate=random.randint(55, 110),
@@ -319,13 +357,13 @@ def seed_db():
                     temperature_unit=VitalSign.TemperatureUnitEnum.CELSIUS,
                     weight=patient.weight
                     or _parse_decimal(random.choice(["70", "65", "80"])),
-                    weight_unit=VitalSign.WeightUnitEnum.KG,
+                    weight_unit=VitalSign.WeightUnitEnum.KILOGRAMS,
                     height=patient.height
                     or _parse_decimal(random.choice(["165", "170", "180"])),
-                    height_unit=VitalSign.HeightUnitEnum.CENTIMETER,
+                    height_unit=VitalSign.HeightUnitEnum.CENTIMETERS,
                     date=vs_time,
                 )
-                visit.update_status()
+                visit.transition_status()
 
             # optionally create a physical exam
             if (
@@ -357,8 +395,7 @@ def seed_db():
                     assessment=random.choice(histories),
                     date=pe_time,
                 )
-
-                visit.update_status()
+                visit.transition_status()
 
                 if random.random() < 0.6:
                     lab_time = visit_time + timedelta(
@@ -380,7 +417,6 @@ def seed_db():
 
                         lab_request.lab_services.add(s)
                     lab_request.save()
-
                     lab_charge = visit.create_lab_request_charge(lab_request, doctor)
 
                     if random.random() < 0.75:
@@ -452,14 +488,101 @@ def seed_db():
                             lab_result=lab_result,
                             reported_by=labtech,
                         )
-                visit.update_status()
+                    visit.transition_status()
 
             if (
                 random.random() <= 0.7
                 and visit.visit_status is Visit.VisitStatusEnum.AWAITING_REVIEW
             ):
                 review = Review.objects.create(visit=visit, reviewed_by=doctor)
-                visit.update_status()
+                visit.transition_status()
+                if random.random() > 0.2:
+                    treatment_time = visit_time + timedelta(
+                        hours=random.randint(1, 3), seconds=random.randint(0, 3600)
+                    )
+
+                    treatment_request = TreatmentRequest.objects.create(
+                        visit=visit, ordered_by=doctor, date=treatment_time
+                    )
+                    services = random.sample(
+                        treatment_services,
+                        k=min(len(treatment_services), random.randint(1, 3)),
+                    )
+                    treatment_request.treatment_services.set(services)
+                    treatment_request.save()
+
+                    treatment_charge = visit.create_treatment_request_charge(
+                        treatment_request, doctor
+                    )
+
+                    if random.random() < 0.75:
+                        rand = random.random()
+
+                        if rand < 0.75:
+                            visit.pay_charge(
+                                charge=treatment_charge,
+                                amount=treatment_charge.amount,
+                                method=random.choice(
+                                    [
+                                        Payment.PaymentMethodEnum.CARD,
+                                        Payment.PaymentMethodEnum.CASH,
+                                        Payment.PaymentMethodEnum.MOBILE,
+                                    ]
+                                ),
+                                staff=reception,
+                            )
+                        else:
+                            waived = random.triangular(
+                                0, float(treatment_charge.amount), 0
+                            )
+                            visit.pay_charge(
+                                charge=treatment_charge,
+                                amount=float(treatment_charge.amount) - waived,
+                                method=random.choice(
+                                    [
+                                        Payment.PaymentMethodEnum.CARD,
+                                        Payment.PaymentMethodEnum.CASH,
+                                        Payment.PaymentMethodEnum.MOBILE,
+                                    ]
+                                ),
+                                staff=reception,
+                            )
+
+                            if random.random() < 0.5:
+                                visit.pay_charge(
+                                    charge=treatment_charge,
+                                    amount=waived,
+                                    method=Payment.PaymentMethodEnum.WAIVER,
+                                    staff=reception,
+                                )
+
+                    if (
+                        random.random() <= 0.5
+                        and visit.visit_status
+                        is Visit.VisitStatusEnum.AWAITING_TREATMENT
+                    ):
+                        treatment_requests = visit.treatment_requests.filter(
+                            treatment_request_results__isnull=True
+                        ).all()
+                        for request in treatment_requests:
+                            treatment_request_result = (
+                                TreatmentRequestResult.objects.create(
+                                    outcome_type=random.choice(
+                                        TreatmentRequestResult.OutcomeTypeEnum.choices
+                                    )[0],
+                                    treatment_request=request,
+                                    administered_by=nurse,
+                                )
+                            )
+                            for treatment in request.treatments:
+                                TreatmentResult.objects.create(
+                                    treatment_request_result=treatment_request_result,
+                                    treatment=treatment,
+                                    administered_by=nurse,
+                                    date=treatment_time + timedelta(hours=1),
+                                )
+                            treatment_request_result.update_request_status()
+                        visit.transition_status()
 
             if (
                 random.random() < 0.25
@@ -471,6 +594,7 @@ def seed_db():
                     doctor=doctor,
                     visit=visit,
                 )
+                visit.transition_status()
             print(visit.visit_status)
 
     print("Seeding complete:")

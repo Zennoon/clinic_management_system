@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django import template
@@ -71,3 +72,14 @@ def div(num1, num2):
         return Decimal(num1) / Decimal(num2)
     except (ZeroDivisionError, TypeError, ValueError):
         return num1
+
+
+@register.filter(name="getlist")
+def get_list(request, key):
+    return request.getlist(key) if request else []
+
+@register.filter
+def total_minutes(td):
+    if not isinstance(td, timedelta):
+        return ''
+    return round(td.total_seconds() / 60)

@@ -1,20 +1,19 @@
-import json
 from decimal import Decimal
 
-from django.http import HttpRequest
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.urls import path, reverse
 from django.utils import timezone
-from ..utils import format_timedelta, user_has_role
 
 from appointments.models import Appointment
 from charges.models import Charge
 from payments.models import Payment
 from staff.models import Staff
 from visits.models import Visit
+from ..utils import format_timedelta, user_has_role
 
 
 @login_required
@@ -31,23 +30,24 @@ def reception_dashboard(request: HttpRequest):
     total_visits_today_count = Visit.objects.filter(date__date=today).count()
     total_in_clinic_count = Visit.objects.filter(
         Q(date__date=today)
-        & ~Q(visit_status=Visit.VisitStatusEnum.COMPLETED)
-        & ~Q(visit_status=Visit.VisitStatusEnum.CANCELLED)
-        & ~Q(visit_status=Visit.VisitStatusEnum.STALE)
+        & ~Q(visit_status_annotated=Visit.VisitStatusEnum.COMPLETED)
+        & ~Q(visit_status_annotated=Visit.VisitStatusEnum.CANCELLED)
+        & ~Q(visit_status_annotated=Visit.VisitStatusEnum.STALE)
     ).count()
     awaiting_consultation_payment_count = Visit.objects.filter(
         Q(date__date=today)
-        & Q(visit_status=Visit.VisitStatusEnum.AWAITING_CONSULTATION_PAYMENT)
+        & Q(visit_status_annotated=Visit.VisitStatusEnum.AWAITING_CONSULTATION_PAYMENT)
     ).count()
     awaiting_lab_payment_count = Visit.objects.filter(
-        Q(date__date=today) & Q(visit_status=Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT)
+        Q(date__date=today) & Q(visit_status_annotated=Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT)
     ).count()
     awaiting_consultation_count = Visit.objects.filter(
         Q(date__date=today)
-        & Q(visit_status=Visit.VisitStatusEnum.AWAITING_CONSULTATION)
+        & Q(visit_status_annotated=Visit.VisitStatusEnum.AWAITING_CONSULTATION)
     ).count()
-    todays_appointments_count = Appointment.objects.filter(
-        Q(appointment_date__date=today) & Q(checked_in=False)
+    today_appointments_count = Appointment.objects.filter(
+        Q(appointment_date__date=today)
+        & Q(appointment_status=Appointment.AppointmentStatus.SCHEDULED)
     ).count()
 
     # Finance
@@ -126,9 +126,9 @@ def reception_dashboard(request: HttpRequest):
     longest_waiting_visits = (
         Visit.objects.filter(
             Q(date__date=today)
-            & ~Q(visit_status=Visit.VisitStatusEnum.COMPLETED)
-            & ~Q(visit_status=Visit.VisitStatusEnum.CANCELLED)
-            & ~Q(visit_status=Visit.VisitStatusEnum.STALE)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.COMPLETED)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.CANCELLED)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.STALE)
         )
         .annotate(waiting_time=timezone.now() - F("current_status_since"))
         .order_by("-waiting_time")[:5]
@@ -143,7 +143,7 @@ def reception_dashboard(request: HttpRequest):
         "awaiting_consultation_payment_count": awaiting_consultation_payment_count,
         "awaiting_lab_payment_count": awaiting_lab_payment_count,
         "awaiting_consultation_count": awaiting_consultation_count,
-        "todays_appointments_count": todays_appointments_count,
+        "today_appointments_count": today_appointments_count,
         "total_services_charged_today": total_services_charged_today,
         "total_money_collected": total_money_collected,
         "todays_charges_money_collected": todays_charges_money_collected,
@@ -171,9 +171,9 @@ def reception_dashboard_longest_waiting_visits(request: HttpRequest):
     longest_waiting_visits = (
         Visit.objects.filter(
             Q(date__date=timezone.now().date())
-            & ~Q(visit_status=Visit.VisitStatusEnum.COMPLETED)
-            & ~Q(visit_status=Visit.VisitStatusEnum.CANCELLED)
-            & ~Q(visit_status=Visit.VisitStatusEnum.STALE)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.COMPLETED)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.CANCELLED)
+            & ~Q(visit_status_annotated=Visit.VisitStatusEnum.STALE)
         )
         .annotate(waiting_time=timezone.now() - F("current_status_since"))
         .order_by("-waiting_time")[:5]
@@ -186,6 +186,7 @@ def reception_dashboard_longest_waiting_visits(request: HttpRequest):
         "staff/reception/dashboard/partials/dashboard-longest-waiting-visits-table-body-partial.html",
         {"longest_waiting_visits": longest_waiting_visits},
     )
+
 
 reception_dashboard_urlpatterns = [
     path("reception/", reception, name="reception"),

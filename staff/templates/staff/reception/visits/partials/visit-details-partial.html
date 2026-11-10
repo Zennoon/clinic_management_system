@@ -1,6 +1,6 @@
 {% load humanize %}
 {% if visit %}
-  <title>Visit Record: {{ visit.patient.fullname }} at {{ visit.date|date:'M d, Y' }} | {{ user.role.label }} Interface | {{ app_title }}</title>
+  <title>Visit Summary: {{ visit.patient.fullname }} at {{ visit.date|date:'M d, Y' }} | {{ user.role.label }} Interface | {{ app_title }}</title>
   <div class="space-y-8 bg-white border border-gray-300 rounded-xl p-8 shadow-lg">
     <div class="flex flex-col md:flex-row justify-between gap-2 items-center">
       <div class="flex gap-2 items-center">

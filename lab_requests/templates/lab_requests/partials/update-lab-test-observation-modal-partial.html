@@ -10,6 +10,8 @@
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
         {% endif %}
+        {% if form.name %}
+        {% if form.name %}
         <div class="form-control w-full">
           <label for="name" class="label">
             <span class="label-text">Name</span>
@@ -17,6 +19,10 @@
           {{ form.name }}
           {% if form.name.errors %}<label class="label text-error">{{ form.name.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.lab_test %}
+        {% if form.lab_test %}
         <div class="form-control w-full">
           <label for="lab_test" class="label">
             <span class="label-text">Lab_test</span>
@@ -24,6 +30,10 @@
           {{ form.lab_test }}
           {% if form.lab_test.errors %}<label class="label text-error">{{ form.lab_test.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.result_type %}
+        {% if form.result_type %}
         <div class="form-control w-full">
           <label for="result_type" class="label">
             <span class="label-text">Result Type</span>
@@ -31,6 +41,10 @@
           {{ form.result_type }}
           {% if form.result_type.errors %}<label class="label text-error">{{ form.result_type.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.unit_of_measurement %}
+        {% if form.unit_of_measurement %}
         <div class="form-control w-full">
           <label for="unit_of_measurement" class="label">
             <span class="label-text">Unit of measurement</span>
@@ -40,6 +54,10 @@
             <label class="label text-error">{{ form.unit_of_measurement.errors }}</label>
           {% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.reference_min %}
+        {% if form.reference_min %}
         <div class="form-control w-full">
           <label for="reference_min" class="label">
             <span class="label-text">Reference Min</span>
@@ -47,6 +65,10 @@
           {{ form.reference_min }}
           {% if form.reference_min.errors %}<label class="label text-error">{{ form.reference_min.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.reference_max %}
+        {% if form.reference_max %}
         <div class="form-control w-full">
           <label for="reference_max" class="label">
             <span class="label-text">Reference Max</span>
@@ -54,6 +76,8 @@
           {{ form.reference_max }}
           {% if form.reference_max.errors %}<label class="label text-error">{{ form.reference_max.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
         <div class="modal-action">
           <button type="button"
                   class="btn btn-error text-white"

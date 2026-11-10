@@ -44,9 +44,9 @@ def admin_dashboard(request: HttpRequest):
         "charges_breakdown_json": json.dumps(
             data["charges_breakdown"], cls=DjangoJSONEncoder
         ),
-        "most_ordered_tests": data["most_ordered_tests"],
-        "most_ordered_tests_json": json.dumps(
-            data["most_ordered_tests"], cls=DjangoJSONEncoder
+        "most_ordered_lab_services": data["most_ordered_lab_services"],
+        "most_ordered_lab_services_json": json.dumps(
+            data["most_ordered_lab_services"], cls=DjangoJSONEncoder
         ),
     }
 

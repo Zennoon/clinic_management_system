@@ -1,0 +1,163 @@
+{% load widget_tweaks %}
+<dialog id="new_patient_vital_sign_modal" class="bg-transparent">
+    {% if form and patient %}
+        <div class="modal-box p-10 w-full lg:min-w-[540px]">
+            <h3 class="font-bold text-lg mb-4">Record Vital Signs for Patient {{ patient.fullname }}</h3>
+            <form class="mb-4 space-y-4"
+                  hx-post="{% url 'vital_signs:register_new_patient_vital_sign' patient.id %}?{{ request.GET.urlencode }}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+                {% endif %}
+                {% if form.visit %}
+                    <div class="form-control w-full">
+                        <label for="id_visit" class="label">
+                            <span class="label-text">Visit</span>
+                        </label>
+                        {% render_field form.visit class='input input-bordered w-full' placeholder='Select a visit' %}
+                        {% if form.visit.errors %}<label class="label text-error">{{ form.visit.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                <div class="flex gap-2">
+                    {% if form.bp_systolic %}
+                        <div class="form-control w-full">
+                            <label for="id_bp_systolic" class="label">
+                                <span class="label-text">Systolic Pressure</span>
+                            </label>
+                            {{ form.bp_systolic }}
+                            {% if form.bp_systolic.errors %}<label class="label text-error">{{ form.bp_systolic.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.bp_diastolic %}
+                        <div class="form-control w-full">
+                            <label for="id_bp_diastolic" class="label">
+                                <span class="label-text">Diastolic Pressure</span>
+                            </label>
+                            {{ form.bp_diastolic }}
+                            {% if form.bp_diastolic.errors %}<label class="label text-error">{{ form.bp_diastolic.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="flex gap-2">
+                    {% if form.pulse_rate %}
+                        <div class="form-control w-full">
+                            <label for="id_pulse_rate" class="label">
+                                <span class="label-text">Pulse Rate</span>
+                            </label>
+                            {{ form.pulse_rate }}
+                            {% if form.pulse_rate.errors %}<label class="label text-error">{{ form.pulse_rate.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.respiratory_rate %}
+                        <div class="form-control w-full">
+                            <label for="id_respiratory_rate" class="label">
+                                <span class="label-text">Respiratory Rate</span>
+                            </label>
+                            {{ form.respiratory_rate }}
+                            {% if form.respiratory_rate.errors %}
+                                <label class="label text-error">{{ form.respiratory_rate.errors }}</label>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if form.spo2 %}
+                    <div class="form-control w-full">
+                        <label for="id_spo2" class="label">
+                            <span class="label-text">SpO2</span>
+                        </label>
+                        {{ form.spo2 }}
+                        {% if form.spo2.errors %}<label class="label text-error">{{ form.spo2.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                <div class="flex gap-2">
+                    {% if form.temperature %}
+                        <div class="form-control w-full">
+                            <label for="id_temperature" class="label">
+                                <span class="label-text">Temperature</span>
+                            </label>
+                            {{ form.temperature }}
+                            {% if form.temperature.errors %}<label class="label text-error">{{ form.temperature.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.temperature_unit %}
+                        <div class="form-control w-full">
+                            <label for="id_temperature_unit" class="label">
+                                <span class="label-text">Unit for Temperature</span>
+                            </label>
+                            {{ form.temperature_unit }}
+                            {% if form.temperature_unit.errors %}
+                                <label class="label text-error">{{ form.temperature_unit.errors }}</label>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="flex gap-2">
+                    {% if form.weight %}
+                        <div class="form-control w-full">
+                            <label for="id_weight" class="label">
+                                <span class="label-text">Weight</span>
+                            </label>
+                            {{ form.weight }}
+                            {% if form.weight.errors %}<label class="label text-error">{{ form.weight.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.weight_unit %}
+                        <div class="form-control w-full">
+                            <label for="id_weight_unit" class="label">
+                                <span class="label-text">Unit for Weight</span>
+                            </label>
+                            {{ form.weight_unit }}
+                            {% if form.weight_unit.errors %}<label class="label text-error">{{ form.weight_unit.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="flex gap-2">
+                    {% if form.height %}
+                        <div class="form-control w-full">
+                            <label for="id_height" class="label">
+                                <span class="label-text">Height</span>
+                            </label>
+                            {{ form.height }}
+                            {% if form.height.errors %}<label class="label text-error">{{ form.height.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.height_unit %}
+                        <div class="form-control w-full">
+                            <label for="id_height_unit" class="label">
+                                <span class="label-text">Unit for Height</span>
+                            </label>
+                            {{ form.height_unit }}
+                            {% if form.height_unit.errors %}<label class="label text-error">{{ form.height_unit.errors }}</label>{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if form.notes %}
+                    <div class="form-control w-full">
+                        <label for="id_notes" class="label">
+                            <span class="label-text">Notes</span>
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}<label class="label text-error">{{ form.notes.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                {% if form.date %}
+                    <div class="form-control w-full">
+                        <label for="id_date" class="label">
+                            <span class="label-text">Date</span>
+                        </label>
+                        {{ form.date }}
+                        {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-error text-white"
+                            onclick="document.getElementById('new_patient_vital_sign_modal').close()">Cancel</button>
+                    <button type="submit"
+                            class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                            {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</dialog>

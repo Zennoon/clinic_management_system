@@ -194,6 +194,7 @@ def reception_payments_filter(request: HttpRequest):
 @user_has_role(Staff.RoleEnum.RECEPTION)
 def reception_payments_table_row(request: HttpRequest, id):
     payment = get_object_or_404(Payment.objects.with_financials(), pk=id)
+    print(payment)
     return render(
         request,
         "staff/reception/payments/partials/payments-table-row-partial.html",

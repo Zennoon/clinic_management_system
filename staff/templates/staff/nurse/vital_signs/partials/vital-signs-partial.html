@@ -1,0 +1,35 @@
+<title>Vital Signs | {{ user.role.label }} Interface | {{ app_title }}</title>
+<div class="space-y-8">
+    <div class="flex flex-col sm:flex-row justify-between items-center">
+        <h2 class="text-2xl font-semibold">Vital Signs</h2>
+        <div class="flex gap-4" id="vital-signs-content">
+            <label class="label flex gap-2 items-center">
+                <input type="checkbox"
+                       id="hide_queue"
+                       name="hide_queue"
+                       {% if not queue %}checked{% endif %}
+                       class="toggle toggle-sm"
+                       hx-get="{% url 'staff:nurse_vital_signs' %}"
+                       hx-include="#vital-signs-content, #vital-signs-queue-table-filters, #vital-signs-history-table-filters"
+                       hx-target="#main_content" />
+                Hide Queue
+            </label>
+            <label class="label flex gap-2 items-center ">
+                <input type="checkbox"
+                       id="hide_history"
+                       name="hide_history"
+                       {% if not history %}checked{% endif %}
+                       class="toggle toggle-sm"
+                       hx-get="{% url 'staff:nurse_vital_signs' %}"
+                       hx-include="#vital-signs-content, #vital-signs-queue-table-filters, #vital-signs-history-table-filters"
+                       hx-target="#main_content" />
+                Hide History
+            </label>
+        </div>
+    </div>
+    {% include "staff/nurse/vital_signs/partials/vital-signs-queue-partial.html" %}
+    {% include "staff/nurse/vital_signs/partials/vital-signs-history-partial.html" %}
+</div>
+<div hx-swap-oob="true" id="page_modals_oob_container">
+    {% include "vital_signs/partials/new-visit-vital-sign-modal-partial.html" %}
+</div>

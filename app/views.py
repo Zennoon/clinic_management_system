@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
 from staff.models import Staff
 
@@ -76,3 +77,8 @@ def charge_details(request: HttpRequest, id):
         return response
 
     return redirect(url)
+
+def current_time(request: HttpRequest):
+    now = timezone.now()
+    print(now)
+    return render(request, "staff/datetime-display.html", { "now": now })

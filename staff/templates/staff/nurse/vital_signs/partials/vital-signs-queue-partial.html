@@ -1,0 +1,67 @@
+{% if queue %}
+    <div class="flex flex-col gap-4 bg-white border border-gray-300 rounded-xl p-8 shadow-lg">
+        <h3 class="text-xl font-semibold">Vital Signs Queue</h3>
+        <div class="flex flex-col lg:flex-row justify-between gap-4 items-center"
+             id="vital-signs-queue-table-filters">
+            <label class="input input-bordered flex items-center gap-2">
+                <svg class="h-[1em] opacity-50"
+                     viewbox="0 0 24 24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                </svg>
+                <input hx-get="{% url 'staff:nurse_vital_signs_queue_filter' %}"
+                       hx-include="#vital-signs-queue-table-filters"
+                       hx-target="#vital-signs-queue-table-container"
+                       hx-trigger="keyup delay:500ms"
+                       id="q_q"
+                       name="q_q"
+                       placeholder="Search for ID or patient name"
+                       type="search"
+                       value="{{ request.GET.q_q|default:'' }}" />
+            </label>
+            <div class="flex flex-col lg:flex-row items-center gap-2">
+                <label class="label flex gap-2 items-center ">
+                    <input id="q_archived" name="q_archived" type="checkbox" class="toggle toggle-sm" hx-get="{% url 'staff:nurse_vital_signs_queue_filter' %}" hx-target="#vital-signs-queue-table-container" hx-include="#vital-signs-queue-table-filters" />
+                    Show Archived
+                </label>
+                <label class="label flex gap-2 items-center ">
+                    <input id="q_past" name="q_past" type="checkbox" class="toggle toggle-sm" hx-get="{% url 'staff:nurse_vital_signs_queue_filter' %}" hx-target="#vital-signs-queue-table-container" hx-include="#vital-signs-queue-table-filters" />
+                    Include Past Dates
+                </label>
+                <select class="select select-bordered" id="q_sort" name="q_sort" hx-get="{% url 'staff:nurse_vital_signs_queue_filter' %}" hx-target="#vital-signs-queue-table-container" hx-include="#vital-signs-queue-table-filters">
+                    <option disabled="" selected="" value="">Sort by</option>
+                    {% for key, val in vital_signs_queue_order_options.items %}
+                        <option value="{{ key }}"
+                                {% if request.GET.q_sort == key %}selected{% endif %}
+                                class="flex gap-2 items-center text-black">
+                            Ascending
+                            {{ val }}
+                        </option>
+                        <option value="-{{ key }}"
+                                {% if request.GET.q_sort == '-'|add:key %}selected{% endif %}
+                                class="flex gap-2 items-center">
+                            Descending
+                            <svg class="lucide lucide-chevron-down-icon lucide-chevron-down"
+                                 fill="none"
+                                 height="24"
+                                 stroke="currentColor"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                                 stroke-width="2"
+                                 viewbox="0 0 24 24"
+                                 width="24"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                            {{ val }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% include "staff/nurse/vital_signs/partials/vital-signs-queue-table-partial.html" %}
+    </div>
+{% endif %}

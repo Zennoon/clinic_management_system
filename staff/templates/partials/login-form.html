@@ -6,6 +6,8 @@
   </div>
   <form hx-post="{% url 'staff:attempt_login' %}" hx-target="#login_form" hx-push-url="true" class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-4">
     {% csrf_token %}
+    {% if form.username %}
+    {% if form.username %}
     <div class="form-control w-full">
       <label for="id_username" class="label mb-2"><span class="label-text">Username</span></label>
       {{ form.username }}
@@ -14,7 +16,11 @@
         <label class="label text-error mt-2">{{ form.username.errors }}</label>
       {% endif %}
     </div>
+    {% endif %}
+    {% endif %}
 
+    {% if form.password %}
+    {% if form.password %}
     <div class="form-control w-full">
       <label for="id_password" class="label mb-2"><span class="label-text">Password</span></label>
       {{ form.password }}
@@ -23,6 +29,8 @@
         <label class="label text-error mt-2">{{ form.password.errors }}</label>
       {% endif %}
     </div>
+    {% endif %}
+    {% endif %}
 
     {% if error %}
       <p class="text-red-600 text-center">{{ error }}</p>

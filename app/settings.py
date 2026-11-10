@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "physical_exams.apps.PhysicalExamsConfig",
     "lab_requests.apps.LabRequestsConfig",
     "lab_results.apps.LabResultsConfig",
+    "treatments.apps.TreatmentsConfig",
     "prescriptions.apps.PrescriptionsConfig",
     "appointments.apps.AppointmentsConfig",
     "visits.apps.VisitsConfig",
@@ -188,7 +189,7 @@ CONSTANCE_CONFIG = {
     ),
     "REQUIRE_PARTIAL_PAYMENT": (
         True,
-        "This rule dictates that in order to create a new visit for a payment, all past consultation fees must be at least partially paid",
+        "Require all past related charges to be at least partially paid by patient in order to create new orders or visits",
         bool,
     ),
     "PARTIAL_PAYMENT_PERCENT": (

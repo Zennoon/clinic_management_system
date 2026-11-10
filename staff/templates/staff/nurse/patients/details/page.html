@@ -1,0 +1,7 @@
+{% extends "staff/nurse/nurse-layout.html" %}
+{% block title %}
+    Patient Record: {{ patient.fullname }}
+{% endblock title %}
+{% block main_content %}
+    {% include "staff/nurse/patients/partials/patient-details-partial.html" %}
+{% endblock main_content %}

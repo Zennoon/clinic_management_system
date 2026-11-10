@@ -74,7 +74,10 @@
         </button>
       {% else %}
         <button class="btn p-3 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-300 text-gray-200 disabled:text-gray-500 flex gap-2 justify-center items-center rounded-lg transition-colors"
-                disabled="">
+                hx-get="{% url 'payments:update_payment_modal' payment.id %}"
+                hx-vals='{"next_url": "{% url "staff:reception_payments_table_row" payment.id %}", "next_target": "payments-table-row-id-{{ payment.id }}", "next_swap": "outerHTML"}'
+                hx-swap="outerHTML"
+                hx-target="#update_payment_modal">
           <svg class="lucide lucide-pencil-icon lucide-pencil"
                fill="none"
                height="24"
@@ -99,6 +102,6 @@
   </div>
 {% endif %}
 <div hx-swap-oob="true" id="page_modals_oob_container">
-  {% include "payments/partials/new-adjustment-modal-partial.html" %} 
-  {% comment %} {% include "payments/partials/update-payment-modal-partial.html" %}{% endcomment %}
+  {% include "payments/partials/new-adjustment-modal-partial.html" %}
+  {% include "payments/partials/update-payment-modal-partial.html" %}
 </div>

@@ -6,7 +6,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
           <h3 class="text-xl">Payments</h3>
           <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
-                  {% if patient.is_operational %} hx-get="{% url 'payments:new_patient_payment_modal' visit.id %}" hx-vals='{ "next_url": "{% url "staff:reception_patient_details" patient.id %}" }' hx-target="#new_patient_payment_modal" hx-swap="outerHTML" {% else %} disabled {% endif %}>
+                  {% if patient.is_operational %} hx-get="{% url 'payments:new_patient_payment_modal' patient.id %}" hx-vals='{ "next_url": "{% url "staff:reception_patient_details" patient.id %}" }' hx-target="#new_patient_payment_modal" hx-swap="outerHTML" {% else %} disabled {% endif %}>
             New Payment
           </button>
         </div>

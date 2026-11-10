@@ -1,0 +1,49 @@
+<dialog id="new_appointment_visit_modal" class="bg-transparent">
+    <div class="modal-box p-10 w-full animate-swap">
+        <h3 class="font-bold text-lg mb-4">Convert appointment to visit</h3>
+        {% if form and appointment %}
+            <form class="mb-4 space-y-4"
+                  hx-post="{% url 'visits:register_new_appointment_visit' appointment.id %}?{{ request.GET.urlencode }}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
+                {% endif %}
+                {% if form.patient %}
+                    <div class="form-control w-full">
+                        <label for="id_patient" class="label">
+                            <span class="label-text">Patient</span>
+                        </label>
+                        {{ form.patient }}
+                        {% if form.patient.errors %}<label class="label text-error">{{ form.patient.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                {% if form.date %}
+                    <div class="form-control w-full">
+                        <label for="id_date" class="label">
+                            <span class="label-text">Date</span>
+                        </label>
+                        {{ form.date }}
+                        {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                {% if form.visit_category %}
+                    <div class="form-control w-full">
+                        <label for="id_visit_category" class="label">
+                            <span class="label-text">Category</span>
+                        </label>
+                        {{ form.visit_category }}
+                        {% if form.visit_category.errors %}<label class="label text-error">{{ form.visit_category.errors }}</label>{% endif %}
+                    </div>
+                {% endif %}
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-error text-white"
+                            onclick="this.closest('dialog')?.close()">Cancel</button>
+                    <button type="submit"
+                            class="btn bg-indigo-600 hover:bg-indigo-500 text-white"
+                            {% if form.disable_submit %}disabled{% endif %}>Submit</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</dialog>

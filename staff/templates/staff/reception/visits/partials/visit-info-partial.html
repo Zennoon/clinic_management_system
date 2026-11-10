@@ -8,10 +8,10 @@
       <div class="flex gap-2 items-center">
         <span class="font-semibold tracking-wide">Patient MRN/ID:</span>{{ visit.patient.id|stringformat:'06d' }}
       </div>
-      <div class="flex gap-2 items-center tooltip"
-           data-tip="View Patient Details">
+      <div class="flex gap-2 items-center">
         <span class="font-semibold tracking-wide">Patient Name:</span>
-        <div class="flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors cursor-pointer"
+        <div class="flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors cursor-pointer tooltip"
+             data-tip="View Patient Details"
              hx-get="{% url 'staff:reception_patient_details' visit.patient.id %}"
              hx-push-url="true"
              hx-target="#main_content">

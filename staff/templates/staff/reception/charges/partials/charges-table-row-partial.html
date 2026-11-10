@@ -54,6 +54,10 @@
     </button>
     {% if charge.is_operational %}
       <button class="w-10 h-10 p-3 bg-emerald-600 hover:bg-emerald-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+              hx-get="{% url 'payments:new_charge_payment_modal' charge.id %}"
+              hx-vals='{"next_url": "{% url "staff:reception_charges_table_row" charge.id %}", "next_target": "charges-table-row-id-{{ charge.id }}", "next_swap": "outerHTML"}'
+              hx-target="#new_charge_payment_modal"
+              hx-swap="outerHTML"
               data-tip="New Payment"
               aria-label="New Payment">
         <svg class="lucide lucide-plus-icon lucide-plus"

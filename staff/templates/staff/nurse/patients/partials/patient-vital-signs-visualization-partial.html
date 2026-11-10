@@ -1,0 +1,225 @@
+{% if patient_vital_signs_charts_data %}
+    <div class="carousel w-full p-8">
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Blood Pressure</h3>
+                <canvas id="blood-pressure-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Pulse Rate</h3>
+                <canvas id="pulse-rate-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Respiratory Rate</h3>
+                <canvas id="respiratory-rate-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Temperature</h3>
+                <canvas id="temperature-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Weight</h3>
+                <canvas id="weight-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">Height</h3>
+                <canvas id="height-line-chart"></canvas>
+            </div>
+        </div>
+        <div class="carousel-item w-full">
+            <div class="w-full flex flex-col gap-2">
+                <h3 class="text-xl font-semibold">SpO2</h3>
+                <canvas id="spo2-line-chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        function initCharts() {
+            const patientVitalSignsChartsData = {{ patient_vital_signs_charts_data|safe }};
+
+            if (patientVitalSignsChartsData) {
+                initBloodPressureLineChart(patientVitalSignsChartsData["blood_pressure"]);
+                initPulseRateLineChart(patientVitalSignsChartsData["pulse_rate"]);
+                initRespiratoryRateLineChart(patientVitalSignsChartsData["respiratory_rate"]);
+                initTemperatureLineChart(patientVitalSignsChartsData["temperature"]);
+                initWeightLineChart(patientVitalSignsChartsData["weight"]);
+                initHeightLineChart(patientVitalSignsChartsData["height"]);
+                initSpO2LineChart(patientVitalSignsChartsData["spo2"]);
+            }
+        }
+
+        function initBloodPressureLineChart(bloodPressureData) {
+            const ctx = document.getElementById("blood-pressure-line-chart");
+            const { labels, systolic, diastolic } = bloodPressureData;
+
+            if (ctx && bloodPressureData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Systolic (mmHg)",
+                                data: systolic,
+                                borderColor: "#5aa9e6",
+                                tension: 0.1,
+                            },
+                            {
+                                label: "Diastolic (mmHg)",
+                                data: diastolic,
+                                borderColor: "#ff6392",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initPulseRateLineChart(pulseRateData) {
+            const ctx = document.getElementById("pulse-rate-line-chart");
+            const { labels, values } = pulseRateData;
+
+            if (ctx && pulseRateData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Pulse Rate (bpm)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initRespiratoryRateLineChart(respiratoryRateData) {
+            const ctx = document.getElementById("respiratory-rate-line-chart");
+            const { labels, values } = respiratoryRateData;
+
+            if (ctx && respiratoryRateData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Respiratory Rate (bpm)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initTemperatureLineChart(temperatureData) {
+            const ctx = document.getElementById("temperature-line-chart");
+            const { labels, values } = temperatureData;
+
+            if (ctx && temperatureData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Temperature (Celsius)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initWeightLineChart(weightData) {
+            const ctx = document.getElementById("weight-line-chart");
+            const { labels, values } = weightData;
+
+            if (ctx && weightData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Weight (Kg)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initHeightLineChart(heightData) {
+            const ctx = document.getElementById("height-line-chart");
+            const { labels, values } = heightData;
+
+            if (ctx && heightData) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "Height (cm)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        function initSpO2LineChart(spo2Data) {
+            const ctx = document.getElementById("spo2-line-chart");
+            const { labels, values } = spo2Data;
+
+            if (ctx && spo2Data) {
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: "SpO2 (%)",
+                                data: values,
+                                borderColor: "#929eff",
+                                tension: 0.1,
+                            },
+                        ]
+                    }
+                })
+            }
+        }
+
+        initCharts();
+    </script>
+{% else %}
+    <div class="text-center p-4">Visualizations are currently unavailable.</div>
+{% endif %}

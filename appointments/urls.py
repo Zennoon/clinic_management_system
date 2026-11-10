@@ -13,6 +13,16 @@ urlpatterns = [
         views.register_new_appointment,
         name="register_new_appointment",
     ),
+    path(
+        "new_patient_appointment_modal/<int:id>",
+        views.new_patient_appointment_modal,
+        name="new_patient_appointment_modal",
+    ),
+    path(
+        "register_new_patient_appointment/<int:id>",
+        views.register_new_patient_appointment,
+        name="register_new_patient_appointment",
+    ),
     path("get_patient_visits/", views.get_patient_visits, name="get_patient_visits"),
     path(
         "update_appointment_modal/<int:id>/",
@@ -23,6 +33,16 @@ urlpatterns = [
         "update_appointment/<int:id>",
         views.update_appointment,
         name="update_appointment",
+    ),
+    path(
+        "cancel_appointment_modal/<int:id>/",
+        views.cancel_appointment_modal,
+        name="cancel_appointment_modal",
+    ),
+    path(
+        "cancel_appointment/<int:id>",
+        views.cancel_appointment,
+        name="cancel_appointment",
     ),
     path(
         "delete_appointment_modal/<int:id>",

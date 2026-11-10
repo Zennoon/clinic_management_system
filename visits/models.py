@@ -1,7 +1,12 @@
+import datetime
 from decimal import Decimal
 
 from django.db import models
 from django.db.models import (
+    Case,
+    Value,
+    When,
+    Exists,
     Q,
     BooleanField,
     DecimalField,
@@ -22,6 +27,127 @@ from staff.models import Staff
 
 # Create your models here.
 class VisitQuerySet(models.QuerySet):
+    def with_derived_status(self):
+        from charges.models import Charge
+        from payments.models import Payment
+        from vital_signs.models import VitalSign
+        from lab_requests.models import LabRequest
+        from treatments.models import TreatmentRequest
+
+        net_paid_subquery = Subquery(
+            Payment.objects.with_financials()
+            .filter(charge=OuterRef("id"))
+            .values("charge")
+            .annotate(net_paid=Coalesce(Sum("net_paid_annotated"), Decimal("0.00")))
+            .values("net_paid")
+        )
+
+        consultation_charge = Charge.objects.filter(
+            visit=OuterRef("pk"),
+            charge_type=Charge.ChargeTypeEnum.CONSULTATION,
+        ).values("id")
+
+        unpaid_consultation_charge = (
+            Charge.objects.filter(
+                visit=OuterRef("pk"),
+                charge_type=Charge.ChargeTypeEnum.CONSULTATION,
+            )
+            .annotate(net_paid=Coalesce(net_paid_subquery, Decimal("0.00")))
+            .filter(net_paid__lt=F("amount"))
+            .filter(charge_override__isnull=True)
+            .values("id")
+        )
+
+        unpaid_lab_request_charge = (
+            Charge.objects.filter(
+                visit=OuterRef("pk"),
+                charge_type=Charge.ChargeTypeEnum.LABORATORY,
+            )
+            .annotate(net_paid=Coalesce(net_paid_subquery, Decimal("0.00")))
+            .filter(net_paid__lt=F("amount"))
+            .filter(charge_override__isnull=True)
+            .values("id")
+        )
+
+        unpaid_treatment_request_charge = (
+            Charge.objects.filter(
+                visit=OuterRef("pk"),
+                charge_type=Charge.ChargeTypeEnum.TREATMENT,
+            )
+            .annotate(net_paid=Coalesce(net_paid_subquery, Decimal("0.00")))
+            .filter(net_paid__lt=F("amount"))
+            .filter(charge_override__isnull=True)
+            .values("id")
+        )
+
+        unpaid_misc_charge = (
+            Charge.objects.filter(
+                visit=OuterRef("pk"),
+                charge_type__in=Charge.miscelaneous_charge_types(),
+            )
+            .annotate(net_paid=Coalesce(net_paid_subquery, Decimal("0.00")))
+            .filter(net_paid__lt=F("amount"))
+            .filter(charge_override__isnull=True)
+            .values("id")
+        )
+
+        unfinished_lab_request = LabRequest.objects.filter(
+            visit=OuterRef("pk"), lab_results__isnull=True
+        ).values("id")
+        unfinished_treatment_request = TreatmentRequest.objects.filter(
+            visit=OuterRef("pk"), treatment_request_results__isnull=True
+        ).values("id")
+
+        return self.annotate(
+            visit_status_annotated=Case(
+                When(
+                    ~Exists(consultation_charge),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_INITIATION),
+                ),
+                When(
+                    Exists(unpaid_consultation_charge),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_CONSULTATION_PAYMENT),
+                ),
+                When(
+                    Exists(unpaid_lab_request_charge),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT),
+                ),
+                When(
+                    Exists(unpaid_treatment_request_charge),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_TREATMENT_PAYMENT),
+                ),
+                When(
+                    Exists(unpaid_misc_charge),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_MISC_PAYMENT),
+                ),
+                When(
+                    ~Exists(VitalSign.objects.filter(visit=OuterRef("pk"))),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_VITALS),
+                ),
+                When(
+                    ~Exists(Consultation.objects.filter(visit=OuterRef("pk"))),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_CONSULTATION),
+                ),
+                When(
+                    ~Exists(Consultation.objects.filter(visit=OuterRef("pk"))),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_CONSULTATION),
+                ),
+                When(
+                    Exists(unfinished_lab_request),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_LAB_RESULT),
+                ),
+                When(
+                    Exists(unfinished_treatment_request),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_TREATMENT),
+                ),
+                When(
+                    ~Exists(Review.objects.filter(visit=OuterRef("pk"))),
+                    then=Value(Visit.VisitStatusEnum.AWAITING_CONSULTATION),
+                ),
+                default=Value(Visit.VisitStatusEnum.COMPLETED),
+            )
+        )
+
     def with_operational(self):
         return self.annotate(
             is_operational_annotated=ExpressionWrapper(
@@ -114,7 +240,9 @@ class VisitQuerySet(models.QuerySet):
 
 class VisitManager(models.Manager):
     def get_queryset(self):
-        return VisitQuerySet(self.model, self._db).with_operational()
+        return (
+            VisitQuerySet(self.model, self._db).with_operational().with_derived_status()
+        )
 
     def with_financials(self):
         return self.get_queryset().with_financials()
@@ -144,6 +272,11 @@ class Visit(models.Model):
         AWAITING_LAB_RESULT = "AWAITING_LAB_RESULT", "Awaiting Lab Results"
         IN_LAB = "IN_LAB", "In Lab"
         AWAITING_REVIEW = "AWAITING_REVIEW", "Awaiting Lab Results Review"
+        AWAITING_TREATMENT_PAYMENT = (
+            "AWAITING_TREATMENT_PAYMENT",
+            "Awaiting Treatment Payment",
+        )
+        AWAITING_TREATMENT = "AWAITING_TREATMENT", "Awaiting Treament"
         COMPLETED = "COMPLETED", "Completed"
         STALE = "STALE", "Stale Visit"
         CANCELLED = "CANCELLED", "Cancelled"
@@ -152,11 +285,8 @@ class Visit(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     date = models.DateTimeField(default=timezone.now)
-    visit_status = EnumField(
-        VisitStatusEnum, default=VisitStatusEnum.AWAITING_CONSULTATION_PAYMENT
-    )
+
     visit_category = EnumField(VisitCategoryEnum)
-    current_status_since = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
     patient = models.ForeignKey(
@@ -193,6 +323,7 @@ class Visit(models.Model):
                 amount=consultation_fee,
                 issuer=staff,
                 date=date or self.date,
+                billable_action=self,
             )
 
             if self.patient.is_within_grace_period(date=self.date):
@@ -204,26 +335,45 @@ class Visit(models.Model):
                     acceptor=staff,
                 )
 
-            self.update_status()
+            self.transition_status()
+
         return consultation_charge
 
     def create_lab_request_charge(self, lab_request, staff, date=None):
         from charges.models import Charge
 
         lab_charge = Charge.objects.filter(
-            lab_request=lab_request, charge_type=Charge.ChargeTypeEnum.LABORATORY
+            charge_type=Charge.ChargeTypeEnum.LABORATORY, object_id=lab_request.id
         )
         if not lab_charge.exists():
             lab_charge = Charge.objects.create(
                 charge_type=Charge.ChargeTypeEnum.LABORATORY,
                 amount=lab_request.price,
                 visit=self,
-                lab_request=lab_request,
                 issuer=staff,
                 date=date or lab_request.date,
+                billable_action=lab_request,
             )
-        self.update_status()
+        self.transition_status()
         return lab_charge
+
+    def create_treatment_request_charge(self, treatment_request, staff, date=None):
+        from charges.models import Charge
+
+        treatment_charge = Charge.objects.filter(
+            charge_type=Charge.ChargeTypeEnum.TREATMENT, object_id=treatment_request.id
+        )
+        if not treatment_charge.exists():
+            treatment_charge = Charge.objects.create(
+                charge_type=Charge.ChargeTypeEnum.TREATMENT,
+                amount=treatment_request.price,
+                visit=self,
+                issuer=staff,
+                date=date or treatment_request.date,
+                billable_action=treatment_request,
+            )
+            self.transition_status()
+        return treatment_charge
 
     def reconcile_consultation_charge(self, reason, staff):
         from charges.models import Charge
@@ -267,7 +417,6 @@ class Visit(models.Model):
                     reason=f"Charge reconciliation: {reason}",
                     staff=staff,
                 )
-        self.update_status()
 
     def pay_charge(self, charge, amount, method, staff, date=None):
         from payments.models import Payment
@@ -279,7 +428,7 @@ class Visit(models.Model):
             acceptor=staff,
             date=date or charge.date,
         )
-        self.update_status()
+        self.transition_status()
         return payment
 
     def pay_consultation_charge(self, amount, method, staff, date=None):
@@ -309,7 +458,6 @@ class Visit(models.Model):
                 acceptor=staff,
                 date=date or charge.date,
             )
-        self.update_status()
 
     def derive_visit_status(self):
         from charges.models import Charge
@@ -321,6 +469,9 @@ class Visit(models.Model):
             charge_type=Charge.ChargeTypeEnum.CONSULTATION
         ).first()
         lab_charges = self.charges.filter(charge_type=Charge.ChargeTypeEnum.LABORATORY)
+        treatment_charges = self.charges.filter(
+            charge_type=Charge.ChargeTypeEnum.TREATMENT
+        )
         misc_charges = self.charges.filter(
             charge_type__in=Charge.miscelaneous_charge_types()
         )
@@ -335,6 +486,11 @@ class Visit(models.Model):
             for charge in lab_charges.all():
                 if charge.is_due and charge.override is None:
                     return Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT
+
+        if treatment_charges.exists():
+            for charge in treatment_charges.all():
+                if charge.is_due and charge.override is None:
+                    return Visit.VisitStatusEnum.AWAITING_TREATMENT_PAYMENT
 
         if misc_charges.exists():
             for charge in misc_charges.all():
@@ -352,23 +508,50 @@ class Visit(models.Model):
                 if not request.lab_results.exists():
                     return Visit.VisitStatusEnum.AWAITING_LAB_RESULT
 
+        if self.treatment_requests.exists():
+            for request in self.treatment_requests.all():
+                if not request.treatment_request_results.exists():
+                    return Visit.VisitStatusEnum.AWAITING_TREATMENT
+
         if not self.reviews.exists():
             return Visit.VisitStatusEnum.AWAITING_REVIEW
 
         return Visit.VisitStatusEnum.COMPLETED
 
-    def update_status(self):
-        old_status = self.visit_status
-        last_log = self.status_history.first()
-        new_status = self.derive_visit_status()
-        if last_log and last_log.status != new_status:
-            VisitStatusLog.objects.create(visit=self, status=new_status)
-        self.visit_status = self.derive_visit_status()
-        if old_status != new_status:
-            self.current_status_since = timezone.now()
-            print(self.current_status_since)
+    def transition_status(self):
+        new_status = self.visit_status
+        last_log = self.status_logs.last()
+        currently_logged_status = last_log.to_status if last_log else None
 
-        self.save()
+        if new_status != currently_logged_status:
+            VisitStatusLog.objects.create(
+                visit=self, from_status=currently_logged_status, to_status=new_status
+            )
+            print(
+                f"Visit {self.id} Status Change from **{currently_logged_status}** to **{new_status}**"
+            )
+            return True
+        return False
+
+    @property
+    def visit_status(self):
+        if hasattr(self, "visit_status_annotated"):
+            return Visit.VisitStatusEnum(self.visit_status_annotated)
+        return self.derive_visit_status()
+
+    @property
+    def current_status_since(self):
+        log = self.status_logs.filter(to_status=self.visit_status).last()
+        return log.created_at if log else None
+
+    @property
+    def current_time(self):
+        return datetime.datetime.now()
+
+    @property
+    def current_status_duration(self):
+        log = self.status_logs.filter(to_status=self.visit_status).last()
+        return timezone.now() - log.created_at if log else None
 
     @property
     def is_awaiting_payment(self):
@@ -487,10 +670,6 @@ class Visit(models.Model):
             return self.is_operational_annotated
         return self.is_active and self.patient.is_operational
 
-    def save(self, *args, **kwargs):
-        self.visit_status = self.derive_visit_status()
-        return super().save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.patient.fullname} visit on {self.date.date().strftime("%a %b %d, %Y")}"
 
@@ -554,22 +733,14 @@ class VisitUpdateLog(models.Model):
 
 
 class VisitStatusLog(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
-    status = EnumField(Visit.VisitStatusEnum)
-    changed_at = models.DateTimeField(auto_now=True)
+    from_status = EnumField(Visit.VisitStatusEnum, null=True)
+    to_status = EnumField(Visit.VisitStatusEnum)
 
     visit = models.ForeignKey(
-        Visit,
-        on_delete=models.CASCADE,
-        related_name="status_history",
-    )
-    changed_by = models.ForeignKey(
-        Staff,
-        on_delete=models.PROTECT,
-        null=True,
+        Visit, on_delete=models.PROTECT, related_name="status_logs"
     )
 
     class Meta:
-        ordering = ["-changed_at"]
+        ordering = ["created_at"]

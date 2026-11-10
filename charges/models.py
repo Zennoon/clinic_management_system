@@ -16,6 +16,8 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Round
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django_enum import EnumField
 from django.utils import timezone
 
@@ -167,8 +169,7 @@ class Charge(models.Model):
     class ChargeTypeEnum(models.TextChoices):
         CONSULTATION = "CONSULTATION", "Consultation"
         LABORATORY = "LABORATORY", "Laboratory"
-        PROCEDURE = "PROCEDURE", "Procedure"
-        MEDICATION = "MEDICATION", "Medication"
+        TREATMENT = "TREATMENT", "Treatment"
         MEDICAL_REPORT = "MEDICAL_REPORT", "Medical Report"
         EQUIPMENT_AND_CONSUMABLES = (
             "EQUIPMENT_AND_CONSUMABLES",
@@ -193,11 +194,11 @@ class Charge(models.Model):
         on_delete=models.PROTECT,
         related_name="charges",
     )
-    lab_request = models.OneToOneField(
-        LabRequest, on_delete=models.PROTECT, related_name="charge", null=True
-    )
-
     issuer = models.ForeignKey(Staff, on_delete=models.PROTECT, related_name="charges")
+    
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    billable_action = GenericForeignKey("content_type", "object_id")
 
     objects = ChargeManager()
 

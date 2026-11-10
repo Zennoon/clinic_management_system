@@ -1,0 +1,61 @@
+{% if vital_sign %}
+    {% with is_operational=vital_sign.is_operational %}
+        <tr class="{% if not is_operational %}opacity-70{% endif %}"
+            data-tip="Archived"
+            id="vital-signs-history-table-row-id-{{ vital_sign.id }}">
+            <th>{{ vital_sign.visit.patient.id|stringformat:"06d" }}</th>
+            <td>{{ vital_sign.visit.patient.fullname }}</td>
+            <td>{{ vital_sign.visit.patient.age }}</td>
+            <td>{{ vital_sign.visit.patient.sex.label }}</td>
+            <td>{{ vital_sign.id|stringformat:"06d" }}</td>
+            <td>{{ vital_sign.recorded_by.username|title }}</td>
+            <td>{{ vital_sign.date|date:"M d, Y" }}</td>
+            <td class="flex items-center justify-center gap-2">
+                <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                    data-tip="View Details"
+                    aria-label="View Details"
+                    hx-get="{% url 'staff:nurse_vital_sign_details' vital_sign.id %}"
+                    hx-target="#main_content"
+                    hx-swap="innerHTML"
+                    hx-push-url="true"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-book-open-text-icon lucide-book-open-text">
+                        <path d="M12 5v16" />
+                        <path d="M16 13h2" />
+                        <path d="M16 9h2" />
+                        <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" />
+                        <path d="M6 13h2" />
+                        <path d="M6 9h2" />
+                    </svg>
+                </button>
+                <button class="w-10 h-10 p-3 bg-emerald-600 hover:bg-emerald-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                        data-tip=" {% if is_operational %} Record New Vitals {% else %} Archived {% endif %} "
+                        aria-label=" {% if is_operational %} Record New Vitals {% else %} Archived {% endif %} "
+                        {% if is_operational %} hx-get="{% url 'vital_signs:new_visit_vital_sign_modal' vital_sign.visit.id %}" hx-vals='{ "next_url": "{% url "staff:nurse_vital_signs_history_table_row" "__ID__" %}", "next_target": "vital-signs-history-table-body", "next_swap": "afterbegin"  }' hx-target="#new_visit_vital_sign_modal" hx-swap="outerHTML" {% else %} disabled  {% endif %}>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         class="lucide lucide-plus-icon lucide-plus">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    {% endwith %}
+{% endif %}

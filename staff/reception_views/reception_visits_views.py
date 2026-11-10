@@ -201,7 +201,6 @@ def reception_visits_table_row(request: HttpRequest, id):
 @login_required
 @user_has_role(Staff.RoleEnum.RECEPTION)
 def reception_visit_details(request: HttpRequest, id):
-    print(request.headers)
     visit = get_object_or_404(Visit.objects.with_financials(), pk=id)
 
     total_charged = visit.total_charged_annotated

@@ -1,0 +1,15 @@
+{% if awaiting_vital_signs %}
+    {% for visit in awaiting_vital_signs %}
+        <tr>
+            <td>{{ visit.patient.id|stringformat:"06d" }}</td>
+            <td>{{ visit.patient.fullname }}</td>
+            <td>{{ visit.id|stringformat:"06d" }}</td>
+            <td>{{ visit.patient.vital_signs.first.date|date:"M d, Y"|default:"None Found" }}</td>
+            <td></td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td class="text-center p-4" colspan="7">No visits available.</td>
+    </tr>
+{% endif %}

@@ -12,7 +12,6 @@ from payments.forms import (
     ChargePaymentForm,
     PatientPaymentForm,
     PaymentForm,
-    UpdatePaymentForm,
     VisitPaymentForm,
 )
 from payments.models import Payment
@@ -136,8 +135,9 @@ def register_new_charge_payment(request: HttpRequest, id):
                     "nextSwap": next_swap,
                 },
                 "form-success": {
-                    "modalId": "new_payment_modal",
+                    "modalId": "new_charge_payment_modal",
                     "message": "Payment created successfully!",
+                    "detailsUrl": details_url
                 },
             }
         )
@@ -228,7 +228,6 @@ def register_new_visit_payment(request: HttpRequest, id):
 def new_patient_payment_modal(request: HttpRequest, id):
     patient = get_object_or_404(Patient, pk=id)
     form = PatientPaymentForm(patient=patient)
-    print(form)
     context = {"form": form, "patient": patient}
     response = render(
         request, "payments/partials/new-patient-payment-modal-partial.html", context
@@ -296,10 +295,7 @@ def register_new_patient_payment(request: HttpRequest, id):
 @login_required
 def update_payment_modal(request: HttpRequest, id: int):
     payment = get_object_or_404(Payment, pk=id)
-    form = PaymentForm(
-        instance=payment,
-        user=request.user
-    )
+    form = PaymentForm(instance=payment, user=request.user)
     context = {"form": form, "payment": payment}
     response = render(
         request, "payments/partials/update-payment-modal-partial.html", context
@@ -347,15 +343,6 @@ def update_payment(request: HttpRequest, id: int):
                 },
             }
         )
-        return response
-        response = render(
-            request,
-            "staff/admin/payments/partials/payments-table-row-partial.html",
-            {"payment": payment},
-        )
-        response["HX-Trigger"] = "update-payment-success"
-        response["HX-Retarget"] = f"#payments-table-row-id-{payment.id}"
-        response["HX-Reswap"] = "outerHTML"
         return response
     else:
         response = render(
@@ -509,7 +496,5 @@ def get_patient_visits(request: HttpRequest):
 def get_visit_charges(request: HttpRequest):
     visit_id = request.GET.get("visit")
     visit = get_object_or_404(Visit, pk=visit_id)
-    print(visit)
     form = VisitPaymentForm(visit=visit)
-    print(form)
     return HttpResponse(form["charge"])

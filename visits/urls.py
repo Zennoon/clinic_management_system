@@ -16,6 +16,16 @@ urlpatterns = [
         name="register_new_patient_visit",
     ),
     path(
+        "new_appointment_visit_modal/<int:id>",
+        views.new_appointment_visit_modal,
+        name="new_appointment_visit_modal",
+    ),
+    path(
+        "register_new_appointment_visit/<int:id>",
+        views.register_new_appointment_visit,
+        name="register_new_appointment_visit",
+    ),
+    path(
         "update_visit_modal/<int:id>",
         views.update_visit_modal,
         name="update_visit_modal",

@@ -32,25 +32,25 @@
               <li>Patient Details</li>
             </ul>
           </div>
-          {% if not patient.is_operational %}
-          <div class="tooltip text-red-400"
-               data-tip="Either this or a parent object was archived. Please contact an admin to get it restored.">
-            <svg class="lucide lucide-archive-icon lucide-archive"
-                 fill="none"
-                 height="24"
-                 stroke="currentColor"
-                 stroke-linecap="round"
-                 stroke-linejoin="round"
-                 stroke-width="2"
-                 viewbox="0 0 24 24"
-                 width="24"
-                 xmlns="http://www.w3.org/2000/svg">
-              <rect height="5" rx="1" width="20" x="2" y="3"></rect>
-              <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
-              <path d="M10 12h4"></path>
-            </svg>
-          </div>
-        {% endif %}
+          {% if not is_operational %}
+            <div class="tooltip text-red-400"
+                 data-tip="Either this or a parent object was archived. Please contact an admin to get it restored.">
+              <svg class="lucide lucide-archive-icon lucide-archive"
+                   fill="none"
+                   height="24"
+                   stroke="currentColor"
+                   stroke-linecap="round"
+                   stroke-linejoin="round"
+                   stroke-width="2"
+                   viewbox="0 0 24 24"
+                   width="24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <rect height="5" rx="1" width="20" x="2" y="3"></rect>
+                <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
+                <path d="M10 12h4"></path>
+              </svg>
+            </div>
+          {% endif %}
         </div>
         <div {% if not is_operational %}class="tooltip" data-tip="Patient is archived"{% endif %}>
           <button class="btn p-3 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-300 text-gray-200 disabled:text-gray-500 flex gap-2 justify-center items-center rounded-lg transition-colors"
@@ -76,6 +76,7 @@
       {% include "staff/reception/patients/partials/patient-info-partial.html" %}
       {% include "staff/reception/patients/partials/patient-financial-summary-partial.html" %}
       {% include "staff/reception/patients/partials/patient-visits-partial.html" %}
+      {% include "staff/reception/patients/partials/patient-appointments-partial.html" %}
       {% include "staff/reception/patients/partials/patient-charges-partial.html" %}
       {% include "staff/reception/patients/partials/patient-payments-partial.html" %}
     </div>

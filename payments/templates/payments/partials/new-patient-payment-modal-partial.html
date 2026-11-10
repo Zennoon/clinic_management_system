@@ -11,6 +11,8 @@
                 {% if form.non_field_errors %}
                     {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
                 {% endif %}
+                {% if form.visit %}
+                {% if form.visit %}
                 <div class="form-control w-full">
                     <label for="visit" class="label">
                         <span class="label-text">Visit</span>
@@ -19,6 +21,10 @@
                     {% render_field form.visit class="input input-bordered w-full" placeholder="Select a visit" hx-get=visit_charges_url hx-target="#id_charge" hx-swap="innerHTML" %}
                     {% if form.visit.errors %}<label class="label text-error">{{ form.visit.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.charge %}
+                {% if form.charge %}
                 <div class="form-control w-full">
                     <label for="charge" class="label">
                         <span class="label-text">Charge</span>
@@ -26,6 +32,10 @@
                     {% render_field form.charge class="input input-bordered w-full" placeholder="Select a charge" %}
                     {% if form.charge.errors %}<label class="label text-error">{{ form.charge.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.payment_method %}
+                {% if form.payment_method %}
                 <div class="form-control w-full">
                     <label for="payment_method" class="label">
                         <span class="label-text">Method</span>
@@ -33,6 +43,10 @@
                     {{ form.payment_method }}
                     {% if form.payment_method.errors %}<label class="label text-error">{{ form.payment_method.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.amount %}
+                {% if form.amount %}
                 <div class="form-control w-full">
                     <label for="amount" class="label">
                         <span class="label-text">Amount</span>
@@ -40,6 +54,10 @@
                     {{ form.amount }}
                     {% if form.amount.errors %}<label class="label text-error">{{ form.amount.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.date %}
+                {% if form.date %}
                 <div class="form-control w-full">
                     <label for="date" class="label">
                         <span class="label-text">Date</span>
@@ -47,6 +65,8 @@
                     {{ form.date }}
                     {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
                 <div class="modal-action">
                     <button type="button"
                             class="btn btn-error text-white"

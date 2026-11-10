@@ -1,0 +1,16 @@
+{% if pending_treatment_requests %}
+    {% for request in pending_treatment_requests %}
+        <tr>
+            <td>{{ request.visit.patient.id|stringformat:"06d" }}</td>
+            <td>{{ request.visit.patient.fullname }}</td>
+            <td>{{ request.id|stringformat:"06d" }}</td>
+            <td>{{ request.visit.id|stringformat:"06d" }}</td>
+            <td>{{ request.visit.patient.treatment_requests.first.date|date:"M d, Y"|default:"None Found" }}</td>
+            <td></td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td class="text-center p-4" colspan="7">No Treatment Requests available.</td>
+    </tr>
+{% endif %}

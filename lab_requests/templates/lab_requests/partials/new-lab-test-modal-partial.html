@@ -9,6 +9,8 @@
       {% if form.non_field_errors %}
         {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
       {% endif %}
+      {% if form.name %}
+      {% if form.name %}
       <div class="form-control w-full">
         <label for="name" class="label">
           <span class="label-text">Name</span>
@@ -16,6 +18,10 @@
         {{ form.name }}
         {% if form.name.errors %}<label class="label text-error">{{ form.name.errors }}</label>{% endif %}
       </div>
+      {% endif %}
+      {% endif %}
+      {% if form.price %}
+      {% if form.price %}
       <div class="form-control w-full">
         <label for="price" class="label">
           <span class="label-text">Price</span>
@@ -23,6 +29,8 @@
         {{ form.price }}
         {% if form.price.errors %}<label class="label text-error">{{ form.price.errors }}</label>{% endif %}
       </div>
+      {% endif %}
+      {% endif %}
       <div class="modal-action">
         <button type="button"
                 class="btn btn-error text-white"

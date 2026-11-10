@@ -7,6 +7,8 @@ from django.db.models.functions import Coalesce, Concat
 from django.shortcuts import get_object_or_404, render
 from django.urls import path, re_path, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+from appointments.models import Appointment
 from ..utils import clean_urlencode, user_has_role
 
 from charges.models import Charge
@@ -234,12 +236,27 @@ def reception_patient_details(request: HttpRequest, id):
     payment_method_breakdown.sort(key=lambda item: item["amount"], reverse=True)
 
     visits_paginator = Paginator(
-        patient.visits.with_financials().exclude(is_operational_annotated=False).order_by("-date"), per_page=5
+        patient.visits.with_financials()
+        .exclude(is_operational_annotated=False)
+        .order_by("-date"),
+        per_page=5,
     )
+
     patient_visits = visits_paginator.get_page(1)
 
+    appointments_paginator = Paginator(
+        patient.appointments.exclude(is_operational_annotated=False)
+        .filter(appointment_status=Appointment.AppointmentStatus.SCHEDULED)
+        .order_by("-date"),
+        per_page=5,
+    )
+    patient_appointments = appointments_paginator.get_page(1)
+
     payments_paginator = Paginator(
-        patient.payments.with_financials().exclude(is_operational_annotated=False).order_by("-date"), per_page=5
+        patient.payments.with_financials()
+        .exclude(is_operational_annotated=False)
+        .order_by("-date"),
+        per_page=5,
     )
     patient_payments = payments_paginator.get_page(1)
 
@@ -255,6 +272,7 @@ def reception_patient_details(request: HttpRequest, id):
     context = {
         "patient": patient,
         "patient_visits": patient_visits,
+        "patient_appointments": patient_appointments,
         "patient_payments": patient_payments,
         "patient_charges": patient_charges,
         "visit_order_options": {
@@ -262,6 +280,11 @@ def reception_patient_details(request: HttpRequest, id):
             "net_charged_annotated": "Total Charges",
             "net_paid_annotated": "Total Payments",
             "net_balance": "Balance",
+            "date": "Date",
+        },
+        "appointment_order_options": {
+            "id": "ID",
+            "appointment_date": "Appointment Date",
             "date": "Date",
         },
         "payment_order_options": {
@@ -359,6 +382,64 @@ def reception_patient_visits_table_row(request: HttpRequest, id):
         request,
         "staff/reception/patients/partials/patient-visits-table-row-partial.html",
         {"visit": visit},
+    )
+
+
+@login_required
+@user_has_role(Staff.RoleEnum.RECEPTION)
+def reception_patient_appointments_filter(request: HttpRequest, id):
+    patient = get_object_or_404(Patient, pk=id)
+    page = request.GET.get("page", 1)
+    per_page = 5
+
+    try:
+        page_number = int(page)
+    except (TypeError, ValueError):
+        page_number = 1
+
+    order_by = request.GET.get("sort")
+    show_archived = request.GET.get("show_archived")
+    show_inactive = request.GET.get("show_inactive")
+
+    qs = patient.appointments
+
+    if not show_archived:
+        qs = qs.exclude(is_operational_annotated=False)
+
+    if not show_inactive:
+        qs = qs.filter(appointment_status=Appointment.AppointmentStatus.SCHEDULED)
+
+    if order_by:
+        qs = qs.order_by(order_by)
+    else:
+        qs = qs.order_by("-date")
+
+    paginator = Paginator(qs, per_page)
+    try:
+        patient_appointments = paginator.get_page(page_number)
+    except (PageNotAnInteger, ValueError):
+        patient_appointments = paginator.get_page(1)
+    except EmptyPage:
+        patient_appointments = paginator.get_page(
+            paginator.num_pages if paginator.num_pages else 1
+        )
+
+    context = {"patient": patient, "patient_apoointments": patient_appointments}
+    return render(
+        request,
+        "staff/reception/patients/partials/patient-appointments-table-partial.html",
+        context,
+    )
+
+
+@login_required
+@user_has_role(Staff.RoleEnum.RECEPTION)
+def reception_patient_appointments_table_row(request: HttpRequest, id):
+    appointment = get_object_or_404(Appointment, pk=id)
+    return render(
+        request,
+        "staff/reception/patients/partials/patient-appointments-table-row-partial.html",
+        {"appointment": appointment},
     )
 
 
@@ -511,6 +592,21 @@ reception_patients_urlpatterns = [
         "reception/patients/visits/table-row/<int:id>",
         reception_patient_visits_table_row,
         name="reception_patient_visits_table_row",
+    ),
+    path(
+        "reception/patients/<int:id>/appointments/filter/",
+        reception_patient_appointments_filter,
+        name="reception_patient_appointments_filter",
+    ),
+    re_path(
+        r"^reception/patients/appointments/table-row/(?P<id>[0-9]+|__ID__)/$",
+        reception_patient_appointments_table_row,
+        name="reception_patient_appointments_table_row",
+    ),
+    path(
+        "reception/patients/appointments/table-row/<int:id>",
+        reception_patient_appointments_table_row,
+        name="reception_patient_appointments_table_row",
     ),
     path(
         "reception/patients/<int:id>/payments/filter/",

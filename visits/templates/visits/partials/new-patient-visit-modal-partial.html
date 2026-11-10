@@ -8,6 +8,8 @@
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
         {% endif %}
+        {% if form.date %}
+        {% if form.date %}
         <div class="form-control w-full">
           <label for="id_date" class="label">
             <span class="label-text">Date</span>
@@ -15,6 +17,10 @@
           {{ form.date }}
           {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.visit_category %}
+        {% if form.visit_category %}
         <div class="form-control w-full">
           <label for="id_visit_category" class="label">
             <span class="label-text">Category</span>
@@ -22,6 +28,8 @@
           {{ form.visit_category }}
           {% if form.visit_category.errors %}<label class="label text-error">{{ form.visit_category.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
         <div class="modal-action">
           <button type="button"
                   class="btn btn-error text-white"

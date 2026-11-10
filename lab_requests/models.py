@@ -2,10 +2,12 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum, Count
+from django.db.models import F, Sum, Count
 from django.db.models.functions import Coalesce
 from django_enum import EnumField
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from constance import config
 
 from staff.models import Staff
 from visits.models import Visit
@@ -115,20 +117,23 @@ class LabService(models.Model):
     )
 
     def clean(self):
-        lab_observation_ids = self.lab_observations.values_list("id", flat=True)
-
-        matching_services = (
+        observation_ids = set(self.lab_observations.values_list("id", flat=True))
+        equal_count_services = (
             LabService.objects.exclude(pk=self.pk)
-            .filter(lab_observations__in=self.lab_observations.all())
             .annotate(observations_count=Count("lab_observations"))
             .filter(observations_count=self.lab_observations.count())
             .distinct()
         )
 
-        if matching_services.exists():
-            raise ValidationError(
-                "There exists another lab service with the exact same observations set."
+        for service in equal_count_services.all():
+            service_observation_ids = set(
+                service.lab_observations.values_list("id", flat=True)
             )
+            if observation_ids == service_observation_ids:
+                raise ValidationError(
+                    "There exists another lab service with the exact same observations set."
+                )
+
         return super().clean()
 
     def __str__(self):
@@ -163,6 +168,28 @@ class LabRequest(models.Model):
         return self.lab_services.aggregate(
             total=Coalesce(Sum("price"), Decimal("0.00"))
         )["total"]
+
+    @property
+    def can_proceed(self):
+        from charges.models import Charge
+
+        require_partial_payment = config.REQUIRE_PARTIAL_PAYMENT
+
+        if not require_partial_payment:
+            return True
+
+        partial_payment_percent = (Decimal(config.PARTIAL_PAYMENT_PERCENT or 50)) / 100
+
+        return (
+            Charge.objects.with_financials()
+            .filter(
+                charge_type=Charge.ChargeTypeEnum.LABORATORY,
+                content_type=ContentType.objects.get_for_model(LabRequest),
+                object_id=self.pk,
+            )
+            .filter(net_paid_annotated__gte=F("amount") * partial_payment_percent)
+            .exists()
+        )
 
     @property
     def observations(self):

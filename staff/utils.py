@@ -1,9 +1,13 @@
+from decimal import Decimal
+import json
+
 from django.contrib.auth.decorators import user_passes_test
 from dateutil.relativedelta import relativedelta
 from django.http import QueryDict
 from django.utils import timezone
-from django.db.models import F, Count, Sum, Q
+from django.db.models import F, Count, QuerySet, Sum, Q
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth, TruncYear
+from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
 import pandas as pd
 from reportlab.lib import colors
@@ -140,17 +144,19 @@ def get_timespan_data(start_date, previous_date, history_start_date, trunc):
         laboratory=Sum(
             "amount", filter=Q(charge_type=Charge.ChargeTypeEnum.LABORATORY)
         ),
-        procedure=Sum("amount", filter=Q(charge_type=Charge.ChargeTypeEnum.PROCEDURE)),
-        medication=Sum(
-            "amount", filter=Q(charge_type=Charge.ChargeTypeEnum.MEDICATION)
+        treatment=Sum("amount", filter=Q(charge_type=Charge.ChargeTypeEnum.TREATMENT)),
+        medical_report=Sum(
+            "amount", filter=Q(charge_type=Charge.ChargeTypeEnum.MEDICAL_REPORT)
         ),
         other=Sum("amount", filter=Q(charge_type=Charge.ChargeTypeEnum.OTHER)),
     )
 
     charges_breakdown["consultation"] = float(charges_breakdown["consultation"] or 0)
     charges_breakdown["laboratory"] = float(charges_breakdown["laboratory"] or 0)
-    charges_breakdown["procedure"] = float(charges_breakdown["procedure"] or 0)
-    charges_breakdown["medication"] = float(charges_breakdown["medication"] or 0)
+    charges_breakdown["treatment"] = float(charges_breakdown["treatment"] or 0)
+    charges_breakdown["medical_report"] = float(
+        charges_breakdown["medical_report"] or 0
+    )
     charges_breakdown["other"] = float(charges_breakdown["other"] or 0)
 
     payments_method_breakdown = Payment.objects.filter(date__gte=start_date).aggregate(
@@ -191,8 +197,10 @@ def get_timespan_data(start_date, previous_date, history_start_date, trunc):
 
     most_ordered_lab_services = (
         LabRequest.objects.filter(date__gte=start_date)
-        .values("lab_services__id", "lab_service__name")
-        .annotate(order_count=Count("lab_services__id"), service_name=F("lab_services__name"))
+        .values("lab_services__id", "lab_services__name")
+        .annotate(
+            order_count=Count("lab_services__id"), service_name=F("lab_services__name")
+        )
         .order_by("-order_count")
         .distinct()[:5]
     )
@@ -321,13 +329,13 @@ def get_all_data():
             "charges__amount",
             filter=Q(charges__charge_type=Charge.ChargeTypeEnum.LABORATORY),
         ),
-        procedure=Sum(
+        treatment=Sum(
             "charges__amount",
-            filter=Q(charges__charge_type=Charge.ChargeTypeEnum.PROCEDURE),
+            filter=Q(charges__charge_type=Charge.ChargeTypeEnum.TREATMENT),
         ),
-        medication=Sum(
+        medical_report=Sum(
             "charges__amount",
-            filter=Q(charges__charge_type=Charge.ChargeTypeEnum.MEDICATION),
+            filter=Q(charges__charge_type=Charge.ChargeTypeEnum.MEDICAL_REPORT),
         ),
         other=Sum(
             "charges__amount",
@@ -337,8 +345,10 @@ def get_all_data():
 
     charges_breakdown["consultation"] = float(charges_breakdown["consultation"] or 0)
     charges_breakdown["laboratory"] = float(charges_breakdown["laboratory"] or 0)
-    charges_breakdown["procedure"] = float(charges_breakdown["procedure"] or 0)
-    charges_breakdown["medication"] = float(charges_breakdown["medication"] or 0)
+    charges_breakdown["treatment"] = float(charges_breakdown["treatment"] or 0)
+    charges_breakdown["medical_report"] = float(
+        charges_breakdown["medical_report"] or 0
+    )
     charges_breakdown["other"] = float(charges_breakdown["other"] or 0)
 
     payments_method_breakdown = Payment.objects.aggregate(
@@ -379,7 +389,9 @@ def get_all_data():
 
     most_ordered_lab_services = (
         LabRequest.objects.values("lab_services__id", "lab_services__name")
-        .annotate(order_count=Count("lab_services__id"), service_name=F("lab_services__name"))
+        .annotate(
+            order_count=Count("lab_services__id"), service_name=F("lab_services__name")
+        )
         .order_by("-order_count")[:5]
     )
 
@@ -391,6 +403,202 @@ def get_all_data():
         "payments_status_breakdown": payments_status_breakdown,
         "most_ordered_lab_services": list(most_ordered_lab_services),
     }
+
+
+def get_patient_vitals_chart_data(patient):
+    base_qs: QuerySet = patient.vital_signs.order_by("date")
+
+    bp_qs = (
+        base_qs.exclude(bp_systolic__isnull=True)
+        .exclude(bp_diastolic__isnull=True)
+        .values_list("date", "bp_systolic", "bp_diastolic")
+    )
+    bp_labels, systolics, diastolics = zip(*bp_qs) if bp_qs else ([], [], [])
+
+    pulse_qs = base_qs.exclude(pulse_rate__isnull=True).values_list(
+        "date", "pulse_rate"
+    )
+    pulse_labels, pulses = zip(*pulse_qs) if pulse_qs else ([], [])
+
+    respiratory_rate_qs = base_qs.exclude(respiratory_rate__isnull=True).values_list(
+        "date", "respiratory_rate"
+    )
+    respiratory_labels, respiratory_rates = (
+        zip(*respiratory_rate_qs) if respiratory_rate_qs else ([], [])
+    )
+
+    temperature_labels, temperature_values = get_temperature_chart_data(base_qs)
+
+    weight_labels, weight_values = get_weight_chart_data(base_qs)
+
+    height_labels, height_values = get_height_chart_data(base_qs)
+
+    spo2_qs = base_qs.exclude(spo2__isnull=True).values_list("date", "spo2")
+    spo2_labels, spo2_values = zip(*spo2_qs) if spo2_qs else ([], [])
+
+    mock_vitals_data = {
+        "blood_pressure": {
+            "labels": [
+                "Sep 01, 08:00", "Sep 01, 14:00", "Sep 01, 20:00",
+                "Sep 02, 08:30", "Sep 02, 15:00", "Sep 02, 21:00",
+                "Sep 03, 08:00", "Sep 03, 19:30",
+                "Sep 04, 08:15", "Sep 04, 14:30", "Sep 04, 20:45",
+                "Sep 05, 08:00", "Sep 05, 18:00",
+                "Sep 06, 09:00", "Sep 06, 17:30",
+                "Sep 07, 08:00"
+            ],
+            "systolic": [122, 128, 125, 130, 135, 128, 124, 121, 119, 126, 122, 120, 123, 118, 121, 120],
+            "diastolic": [80, 84, 82, 85, 88, 83, 81, 79, 78, 82, 80, 78, 80, 76, 79, 78],
+        },
+        "pulse_rate": {
+            "labels": [
+                "Sep 01, 08:00", "Sep 01, 14:00", "Sep 01, 20:00",
+                "Sep 02, 08:30", "Sep 02, 15:00", "Sep 02, 21:00",
+                "Sep 03, 08:00", "Sep 03, 14:00", "Sep 03, 19:30",
+                "Sep 04, 08:15", "Sep 04, 20:45",
+                "Sep 05, 08:00", "Sep 05, 18:00",
+                "Sep 06, 09:00", "Sep 06, 17:30",
+                "Sep 07, 08:00"
+            ],
+            "values": [72, 78, 75, 82, 88, 80, 74, 76, 71, 69, 73, 70, 72, 68, 71, 69],
+        },
+        "respiratory_rate": {
+            "labels": [
+                "Sep 01, 08:00", "Sep 01, 20:00",
+                "Sep 02, 08:30", "Sep 02, 21:00",
+                "Sep 03, 08:00", "Sep 03, 19:30",
+                "Sep 04, 08:15", "Sep 04, 20:45",
+                "Sep 05, 08:00",
+                "Sep 06, 09:00",
+                "Sep 07, 08:00"
+            ],
+            "values": [16, 17, 19, 18, 16, 15, 16, 16, 15, 14, 15],
+        },
+        "temperature": {
+            "labels": [
+                "Sep 01, 08:00", "Sep 01, 14:00", "Sep 01, 20:00",
+                "Sep 02, 08:30", "Sep 02, 15:00", "Sep 02, 21:00",
+                "Sep 03, 08:00", "Sep 03, 19:30",
+                "Sep 04, 08:15", "Sep 04, 20:45",
+                "Sep 05, 08:00", "Sep 05, 18:00",
+                "Sep 06, 09:00",
+                "Sep 07, 08:00"
+            ],
+            "values": [36.8, 37.2, 37.5, 38.1, 38.6, 37.9, 37.3, 37.0, 36.9, 36.8, 36.7, 36.8, 36.6, 36.7],
+        },
+        "weight": {
+            "labels": [
+                "Sep 01, 08:00",
+                "Sep 03, 08:00",
+                "Sep 05, 08:00",
+                "Sep 07, 08:00"
+            ],
+            "values": [74.5, 74.3, 74.1, 73.9],
+        },
+        "height": {
+            "labels": [
+                "Sep 01, 08:00"
+            ],
+            "values": [175.0],
+        },
+        "spo2": {
+            "labels": [
+                "Sep 01, 08:00", "Sep 01, 14:00", "Sep 01, 20:00",
+                "Sep 02, 08:30", "Sep 02, 15:00", "Sep 02, 21:00",
+                "Sep 03, 08:00", "Sep 03, 19:30",
+                "Sep 04, 08:15", "Sep 04, 20:45",
+                "Sep 05, 08:00",
+                "Sep 06, 09:00",
+                "Sep 07, 08:00"
+            ],
+            "values": [98, 97, 98, 95, 94, 96, 98, 99, 98, 98, 99, 98, 99],
+        },
+    }
+    
+    # return json.dumps(mock_vitals_data, cls=DjangoJSONEncoder)
+    return json.dumps(
+        {
+            "blood_pressure": {
+                "labels": [date.strftime("%b %d, %H:%M") for date in bp_labels],
+                "systolic": list(systolics),
+                "diastolic": list(diastolics),
+            },
+            "pulse_rate": {
+                "labels": [date.strftime("%b %d, %H:%M") for date in pulse_labels],
+                "values": list(pulses),
+            },
+            "respiratory_rate": {
+                "labels": [
+                    date.strftime("%b %d, %H:%M") for date in respiratory_labels
+                ],
+                "values": list(respiratory_rates),
+            },
+            "temperature": {"labels": temperature_labels, "values": temperature_values},
+            "weight": {"labels": weight_labels, "values": weight_values},
+            "height": {"labels": height_labels, "values": height_values},
+            "spo2": {
+                "labels": [date.strftime("%b %d, %H:%M") for date in spo2_labels],
+                "values": list(spo2_values),
+            },
+        },
+        cls=DjangoJSONEncoder
+    )
+
+
+def get_temperature_chart_data(vitals_qs: QuerySet):
+    temp_qs = vitals_qs.exclude(temperature__isnull=True).values_list(
+        "date", "temperature", "temperature_unit"
+    )
+
+    if not temp_qs:
+        return ([], [])
+    labels = []
+    values = []
+
+    for date, val, unit in temp_qs:
+        celsius_val = convert_temp_to_celsius(val, unit)
+
+        labels.append(date.strftime("%b %d, %H:%M"))
+        values.append(celsius_val)
+    return (labels, values)
+
+
+def get_weight_chart_data(vitals_qs: QuerySet):
+    weight_qs = vitals_qs.exclude(weight__isnull=True).values_list(
+        "date", "weight", "weight_unit"
+    )
+
+    if not weight_qs:
+        return ([], [])
+
+    labels = []
+    values = []
+
+    for date, val, unit in weight_qs:
+        kg_val = convert_weight_to_kg(val, unit)
+
+        labels.append(date.strftime("%b %d, %H:%M"))
+        values.append(kg_val)
+    return (labels, values)
+
+
+def get_height_chart_data(vitals_qs: QuerySet):
+    height_qs = vitals_qs.exclude(height__isnull=True).values_list(
+        "date", "height", "height_unit"
+    )
+
+    if not height_qs:
+        return ([], [])
+
+    labels = []
+    values = []
+
+    for date, val, unit in height_qs:
+        cm_val = convert_height_to_cms(val, unit)
+
+        labels.append(date.strftime("%b %d, %H:%M"))
+        values.append(cm_val)
+    return (labels, values)
 
 
 def dataframe_to_pdf(df: pd.DataFrame):
@@ -460,3 +668,45 @@ def clean_urlencode(query_dict: QueryDict, **kwargs):
 
     encoded = params.urlencode()
     return f"?{encoded}" if encoded else ""
+
+
+def convert_weight_to_kg(weight: Decimal, unit_from):
+    from vital_signs.models import VitalSign
+
+    match unit_from:
+        case VitalSign.WeightUnitEnum.GRAMS:
+            return weight / Decimal("1000")
+        case VitalSign.WeightUnitEnum.POUNDS:
+            return weight / Decimal("2.20462")
+        case VitalSign.WeightUnitEnum.STONES:
+            return weight * Decimal("6.350293")
+        case VitalSign.WeightUnitEnum.OUNCES:
+            return weight / Decimal("35.274")
+        case _:
+            return weight
+
+
+def convert_height_to_cms(height: Decimal, unit_from):
+    from vital_signs.models import VitalSign
+
+    match unit_from:
+        case VitalSign.HeightUnitEnum.METERS:
+            return height * Decimal("100")
+        case VitalSign.HeightUnitEnum.FEET:
+            return height * Decimal("30.48")
+        case VitalSign.HeightUnitEnum.INCHES:
+            return height * Decimal("2.54")
+        case _:
+            return height
+
+
+def convert_temp_to_celsius(temp: Decimal, unit):
+    from vital_signs.models import VitalSign
+
+    match unit:
+        case VitalSign.TemperatureUnitEnum.FAHRENHEIT:
+            return round((temp - 32) * 5 / 9, 1)
+        case VitalSign.TemperatureUnitEnum.KELVIN:
+            return round(temp - Decimal("273.15"), 1)
+        case _:
+            return round(temp, 1)

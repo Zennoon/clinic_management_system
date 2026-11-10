@@ -8,6 +8,8 @@
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
         {% endif %}
+        {% if form.first_name %}
+        {% if form.first_name %}
         <div class="form-control w-full">
           <label for="id_first_name" class="label">
             <span class="label-text">First Name</span>
@@ -15,6 +17,10 @@
           {{ form.first_name }}
           {% if form.first_name.errors %}<label class="label text-error">{{ form.first_name.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.last_name %}
+        {% if form.last_name %}
         <div class="form-control w-full">
           <label for="id_last_name" class="label">
             <span class="label-text">Last Name</span>
@@ -22,6 +28,10 @@
           {{ form.last_name }}
           {% if form.last_name.errors %}<label class="label text-error">{{ form.last_name.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.date_of_birth %}
+        {% if form.date_of_birth %}
         <div class="form-control w-full">
           <label for="id_date_of_birth" class="label">
             <span class="label-text">Date of Birth (GC)</span>
@@ -29,6 +39,10 @@
           {{ form.date_of_birth }}
           {% if form.date_of_birth.errors %}<label class="label text-error">{{ form.date_of_birth.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.sex %}
+        {% if form.sex %}
         <div class="form-control w-full">
           <label for="id_sex" class="label">
             <span class="label-text">Sex</span>
@@ -36,6 +50,10 @@
           {{ form.sex }}
           {% if form.sex.errors %}<label class="label text-error">{{ form.sex.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.weight %}
+        {% if form.weight %}
         <div class="form-control w-full">
           <label for="id_weight" class="label">
             <span class="label-text">Weight</span>
@@ -43,6 +61,10 @@
           {{ form.weight }}
           {% if form.weight.errors %}<label class="label text-error">{{ form.weight.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.height %}
+        {% if form.height %}
         <div class="form-control w-full">
           <label for="id_height" class="label">
             <span class="label-text">Height</span>
@@ -50,6 +72,10 @@
           {{ form.height }}
           {% if form.height.errors %}<label class="label text-error">{{ form.height.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.phone %}
+        {% if form.phone %}
         <div class="form-control w-full">
           <label for="id_phone" class="label">
             <span class="label-text">Phone</span>
@@ -57,6 +83,10 @@
           {{ form.phone }}
           {% if form.phone.errors %}<label class="label text-error">{{ form.phone.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.region %}
+        {% if form.region %}
         <div class="form-control w-full">
           <label for="id_region" class="label">
             <span class="label-text">Region</span>
@@ -64,6 +94,10 @@
           {{ form.region }}
           {% if form.region.errors %}<label class="label text-error">{{ form.region.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.city %}
+        {% if form.city %}
         <div class="form-control w-full">
           <label for="id_city" class="label">
             <span class="label-text">City</span>
@@ -71,6 +105,8 @@
           {{ form.city }}
           {% if form.city.errors %}<label class="label text-error">{{ form.city.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
         <div class="modal-action">
           <button type="button"
                   class="btn btn-error text-white"

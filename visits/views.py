@@ -5,9 +5,10 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
+from appointments.models import Appointment
 from patients.models import Patient
 from utils import get_url_model_id, visit_details
-from visits.forms import PatientVisitForm, VisitForm
+from visits.forms import AppointmentVisitForm, PatientVisitForm, VisitForm
 from visits.models import Visit
 
 # Create your views here.
@@ -26,6 +27,7 @@ def new_visit_modal(request: HttpRequest):
 
 
 @login_required
+@require_POST
 def register_new_visit(request: HttpRequest):
     form = VisitForm(request.POST)
     next_url = request.GET.get("next_url")
@@ -88,6 +90,7 @@ def new_patient_visit_modal(request: HttpRequest, id):
 
 
 @login_required
+@require_POST
 def register_new_patient_visit(request: HttpRequest, id):
     patient = get_object_or_404(Patient, pk=id)
     form = PatientVisitForm(request.POST, patient=patient)
@@ -137,6 +140,75 @@ def register_new_patient_visit(request: HttpRequest, id):
             {"form-error": {"modalId": "new_patient_visit_modal"}}
         )
         return response
+
+
+@login_required
+def new_appointment_visit_modal(request: HttpRequest, id):
+    appointment = get_object_or_404(Appointment, pk=id)
+    form = AppointmentVisitForm(appointment=appointment)
+    context = {"appointment": appointment, "form": form}
+    response = render(
+        request, "visits/partials/new-appointment-visit-modal-partial.html", context
+    )
+    if request.headers.get("HX-Request"):
+        response["HX-Trigger-After-Settle"] = json.dumps(
+            {"modal-response": {"modalId": "new_appointment_visit_modal"}}
+        )
+    return response
+
+@login_required
+@require_POST
+def register_new_appointment_visit(request: HttpRequest, id):
+    appointment = get_object_or_404(Appointment, pk=id)
+    form = AppointmentVisitForm(request.POST, appointment=appointment)
+    next_url = request.GET.get("next_url")
+    next_target = request.GET.get("next_target", "main_content")
+    next_swap = request.GET.get("next_swap", "innerHTML")
+    next_model = request.GET.get("next_model", "visit")
+
+    if form.is_valid():
+        visit = form.save(commit=False)
+        visit.created_by = request.user
+        visit.save()
+        appointment.update_appointment_status()
+        visit.create_consultation_charge(staff=request.user)
+        response = HttpResponse()
+        details_url = visit_details(request, visit.id)
+        response["HX-Trigger"] = json.dumps(
+            {
+                "next-htmx-request": {
+                    "nextUrl": (next_url or details_url).replace(
+                        "__ID__",
+                        get_url_model_id(
+                            next_model, patient=visit.patient, visit=visit
+                        ),
+                    ),
+                    "nextTarget": next_target,
+                    "nextSwap": next_swap,
+                },
+                "form-success": {
+                    "modalId": "new_appointment_visit_modal",
+                    "message": "Visit created successfully!",
+                    "detailsUrl": details_url,
+                },
+            }
+        )
+
+        return response
+    else:
+        response = render(
+            request,
+            "visits/partials/new-appointment-visit-modal-partial.html",
+            { "form": form, "appointment": appointment }
+        )
+        response["HX-Retarget"] = "#new_appointment_visit_modal"
+        response["HX-Reswap"] = "outerHTML"
+        response["HX-Trigger-After-Settle"] = json.dumps(
+            {"form-error": {"modalId": "new_appointment_visit_modal"}}
+        )
+        return response
+
+
 
 
 @login_required

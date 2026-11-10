@@ -5,6 +5,7 @@ from django.db.transaction import atomic
 from django.core.exceptions import ValidationError
 from constance import config
 
+from appointments.models import Appointment
 from patients.models import Patient
 from visits.models import Visit, VisitUpdateLog
 
@@ -60,8 +61,8 @@ class VisitForm(forms.ModelForm):
         if self.instance.pk and not self.instance.is_operational:
             msg = "This visit is archived, and cannot be modified. Please contact an admin to get it restored."
             self.add_error(None, msg)
-            for field in self.fields.values():
-                field.disabled = True
+            for field in self.fields.copy():
+                self.fields.pop(field)
             self.disable_submit = True
 
         self._old_patient = self.instance.patient if self.instance.pk else None
@@ -73,15 +74,11 @@ class VisitForm(forms.ModelForm):
             raise ValidationError("Changes cannot be saved for an archived patient.")
 
         if not self.instance.pk or self.instance.patient != patient:
-            require_partial_payment = config.REQUIRE_PARTIAL_PAYMENT
-            partial_payment_percent = config.PARTIAL_PAYMENT_PERCENT
+            if not patient.can_create_new_visit:
+                raise ValidationError(
+                    "Patient has a consultation charge that hasn't been paid to the required amount"
+                )
 
-            if require_partial_payment and patient and patient.pk:
-                unpaid_charge = patient.unpaid_consultation_fee_charge
-                if unpaid_charge:
-                    raise ValidationError(
-                        f"Patient has a consultation fee charge (ID: {str(unpaid_charge.pk).zfill(6)}) that hasn't been paid up to the required amount ({partial_payment_percent/100:.1%}). Please make sure to fulfill it before creating a new visit."
-                    )
         return patient
 
     def clean_date(self):
@@ -203,19 +200,14 @@ class PatientVisitForm(forms.ModelForm):
                 field.disabled = True
             self.disable_submit = True
 
-        require_partial_payment = config.REQUIRE_PARTIAL_PAYMENT
-        partial_payment_percent = config.PARTIAL_PAYMENT_PERCENT
-        if require_partial_payment and self.patient and self.patient.pk:
-            unpaid_charge = self.patient.unpaid_consultation_fee_charge
-            if unpaid_charge:
-                self.add_error(
-                    None,
-                    f"Patient has a consultation fee charge (ID: {str(unpaid_charge.pk).zfill(6)}) that hasn't been paid up to the required amount ({partial_payment_percent/100:.1%}). Please make sure to fulfill it before creating a new visit.",
-                )
-
-                for field in self.fields.values():
-                    field.disabled = True
-                self.disable_submit = True
+        if self.patient and not self.patient.can_create_new_visit:
+            self.add_error(
+                None,
+                "Patient has a consultation charge that hasn't been paid to the required amount",
+            )
+            for field in self.fields.values():
+                field.disabled = True
+            self.disable_submit = True
 
         if self.instance.pk and not self.instance.is_operational:
             msg = "This visit is archived, and cannot be modified. Please contact an admin to get it restored."
@@ -275,3 +267,92 @@ class PatientVisitForm(forms.ModelForm):
     class Meta:
         model = Visit
         fields = {"visit_category", "date"}
+
+
+class AppointmentVisitForm(forms.ModelForm):
+    patient = forms.ModelChoiceField(
+        Patient.objects.filter(is_active=True).order_by("first_name"),
+        required=True,
+        disabled=True,
+        empty_label="Select a patient",
+        widget=forms.Select(
+            {"class": "input input-bordered w-full", "placeholder": "John"}
+        ),
+    )
+    visit_category = EnumChoiceField(
+        enum=Visit.VisitCategoryEnum,
+        choices=[(tag.value, tag.label) for tag in Visit.VisitCategoryEnum],
+        required=True,
+        widget=forms.Select(
+            {
+                "class": "select select-bordered",
+                "placeholder": "Select the visit category",
+            }
+        ),
+    )
+    date = forms.DateTimeField(
+        initial=timezone.now(),
+        disabled=True,
+        widget=forms.DateInput(
+            {
+                "class": "input input-bordered w-full",
+                "placeholder": "Date",
+                "type": "date",
+            }
+        ),
+    )
+
+    def __init__(self, *args, appointment, **kwargs):
+        self.appointment = appointment
+
+        super().__init__(*args, **kwargs)
+        self.fields.get("patient").initial = self.appointment.patient
+        self.fields.get("date").initial = self.appointment.appointment_date
+
+        if not hasattr(self, "cleaned_data"):
+            self.cleaned_data = {}
+
+        if not (
+            self.appointment
+            and self.appointment.appointment_status
+            == Appointment.AppointmentStatus.SCHEDULED
+        ):
+            msg = "This appointment is not active (scheduled)."
+            self.add_error(None, msg)
+            for field in self.fields.copy():
+                self.fields.pop(field)
+            self.disable_submit = True
+
+        if self.instance.pk and not self.instance.is_operational:
+            msg = "This visit is archived, and cannot be modified. Please contact an admin to get it restored."
+            self.add_error(None, msg)
+            for field in self.fields.copy():
+                self.fields.pop(field)
+            self.disable_submit = True
+
+    def clean_patient(self):
+        patient = self.cleaned_data.get("patient")
+        if patient != self.appointment.patient:
+            self.add_error(
+                "patient",
+                f"This appointment is intended for {self.appointment.patient.fullname}",
+            )
+        if not patient.is_operational:
+            self.add_error(
+                "patient",
+                "This patient has been archived. Please contact an admin to get them restored.",
+            )
+        return patient
+
+    def clean_date(self):
+        date = self.cleaned_data.get("date")
+        if not (date and date.date() == self.appointment.appointment_date.date()):
+            self.add_error(
+                "date",
+                f"This appointment is scheduled for {self.appointment.appointment_date.strftime("%a %b %d, %Y")}",
+            )
+        return date
+
+    class Meta:
+        model = Visit
+        fields = ["patient", "visit_category", "date"]

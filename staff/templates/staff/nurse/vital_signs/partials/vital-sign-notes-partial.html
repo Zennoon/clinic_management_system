@@ -1,0 +1,8 @@
+{% if vital_sign and vital_sign.notes %}
+    <div class="bg-white border border-gray-300 rounded-xl p-8  shadow-lg space-y-6">
+        <h3 class="text-xl">Notes</h3>
+        <div class="bg-gray-100 text-black p-4 rounded-md shadow-lg border-gray-300 border">
+            <code>{{ vital_sign.notes }}</code>
+        </div>
+    </div>
+{% endif %}

@@ -1,5 +1,4 @@
 from django.http import HttpRequest
-from django.urls import reverse
 from django.shortcuts import reverse
 
 from staff.models import Staff
@@ -19,8 +18,9 @@ def patient_details(request: HttpRequest, id):
         url = reverse("staff:reception_patient_details", kwargs={"id": id})
     else:
         url = reverse("index")
-    
+
     return url
+
 
 def visit_details(request: HttpRequest, id):
     role = request.user.role
@@ -36,44 +36,71 @@ def visit_details(request: HttpRequest, id):
         url = reverse("staff:reception_visit_details", kwargs={"id": id})
     else:
         url = reverse("index")
-    
+
     return url
+
 
 def charge_details(request: HttpRequest, id):
     role = request.user.role
     if role == Staff.RoleEnum.ADMIN:
         url = reverse("staff:admin_charge_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.DOCTOR:
-        url = reverse("staff:doctor_charge_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.LABORATORY:
-        url = reverse("staff:lab_charge_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.NURSE:
-        url = reverse("staff:nurse_charge_details", kwargs={"id": id})
     elif role == Staff.RoleEnum.RECEPTION:
         url = reverse("staff:reception_charge_details", kwargs={"id": id})
     else:
         url = reverse("index")
-    
+
     return url
+
+
+def vital_sign_details(request: HttpRequest, id):
+    role = request.user.role
+    print(role)
+    if role == Staff.RoleEnum.ADMIN:
+        url = reverse("staff:admin_vital_sign_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.DOCTOR:
+        url = reverse("staff:doctor_vital_sign_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.NURSE:
+        url = reverse("staff:nurse_vital_sign_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.LABORATORY:
+        url = reverse("staff:lab_vital_sign_details", kwargs={"id": id})
+    else:
+        url = reverse("index")
+    return url
+
 
 def payment_details(request: HttpRequest, id):
     role = request.user.role
     if role == Staff.RoleEnum.ADMIN:
         url = reverse("staff:admin_payment_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.DOCTOR:
-        url = reverse("staff:doctor_payment_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.LABORATORY:
-        url = reverse("staff:lab_payment_details", kwargs={"id": id})
-    elif role == Staff.RoleEnum.NURSE:
-        url = reverse("staff:nurse_payment_details", kwargs={"id": id})
     elif role == Staff.RoleEnum.RECEPTION:
         url = reverse("staff:reception_payment_details", kwargs={"id": id})
     else:
         url = reverse("index")
-    
+
     return url
 
-def get_url_model_id(model, patient=None, visit=None, charge=None, payment=None):
+
+def appointment_details(request: HttpRequest, id):
+    role = request.user.role
+    if role == Staff.RoleEnum.ADMIN:
+        url = reverse("staff:admin_appointment_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.DOCTOR:
+        url = reverse("staff:doctor_appointment_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.LABORATORY:
+        url = reverse("staff:lab_appointment_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.NURSE:
+        url = reverse("staff:nurse_appointment_details", kwargs={"id": id})
+    elif role == Staff.RoleEnum.RECEPTION:
+        url = reverse("staff:reception_appointment_details", kwargs={"id": id})
+    else:
+        url = reverse("index")
+
+    return url
+
+
+def get_url_model_id(
+    model, patient=None, visit=None, charge=None, payment=None, appointment=None, vital_sign=None
+):
     model_id = None
     match model:
         case "patient":
@@ -84,7 +111,11 @@ def get_url_model_id(model, patient=None, visit=None, charge=None, payment=None)
             model_id = charge.id if charge else None
         case "payment":
             model_id = payment.id if payment else None
+        case "appointment":
+            model_id = appointment.id if appointment else None
+        case "vital_sign":
+            model_id = vital_sign.id if vital_sign else None
         case _:
             model_id = None
-    
+
     return str(model_id)

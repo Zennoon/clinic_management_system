@@ -1,0 +1,94 @@
+{% if treatment_request %}
+    {% with is_operational=treatment_request.is_operational is_due=treatment_request.is_due is_misc=treatment_request.is_misc_treatment_request %}
+        <tr id="patient-treatment_requests-table-row-id-{{ treatment_request.id }}"
+            class="{% if not is_operational %}opacity-70 text-base-content/70{% endif %}">
+            <th>{{ treatment_request.id|stringformat:'06d' }}</th>
+            <td>{{ treatment_request.visit.id|stringformat:'06d' }}</td>
+            <td>{{ treatment_request.treatment_services.count }}</td>
+            <td>{{ treatment_request.treatments|length }}</td>
+            <td>{{ treatment_request.ordered_by.username|title }}</td>
+            <td>{{ treatment_request.date|date:"M d, Y" }}</td>
+            <td>
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full ring {% if treatment_request.is_completed %} bg-indigo-500 ring-indigo-400 {% elif treatment_request.is_pending %} bg-gray-500 ring-gray-400 {% elif treatment_request.is_in_progress %} bg-emerald-500 ring-emerald-400 {% elif treatment_request.is_failed %} bg-amber-500 ring-amber-400 {% elif treatment_request.is_cancelled %} bg-rose-500 ring-rose-400 {% endif %}"></span>
+                    <span>{{ treatment_request.request_status.label }}</span>
+                </div>
+            </td>
+            <td class="flex justify-center items-center gap-2">
+                <button class="w-10 h-10 p-3 bg-blue-600 hover:bg-blue-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                        data-tip="View Details"
+                        aria-label="View Details"
+                        hx-push-url="true"
+                        hx-target="#main_content">
+                    <svg class="lucide lucide-book-open-text-icon lucide-book-open-text"
+                         fill="none"
+                         height="24"
+                         stroke="currentColor"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         stroke-width="2"
+                         viewbox="0 0 24 24"
+                         width="24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 7v14"></path>
+                        <path d="M16 12h2"></path>
+                        <path d="M16 8h2"></path>
+                        <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z">
+                        </path>
+                        <path d="M6 12h2"></path>
+                        <path d="M6 8h2"></path>
+                    </svg>
+                </button>
+                {% if not treatment_request.is_pending and treatment_request.treatment_request_results.all %}
+                    <button class="w-10 h-10 p-3 bg-indigo-600 hover:bg-indigo-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                            data-tip="View Results"
+                            aria-label="View Results"
+                            hx-push-url="true"
+                            hx-target="#main_content">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="#ffffff"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             class="lucide lucide-telescope-icon lucide-telescope">
+                            <path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44" />
+                            <path d="m13.56 11.747 4.332-.924" />
+                            <path d="m16 21-3.105-6.21" />
+                            <path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z" />
+                            <path d="m6.158 8.633 1.114 4.456" />
+                            <path d="m8 21 3.105-6.21" />
+                            <circle cx="12" cy="13" r="2" />
+                        </svg>
+                    </button>
+                {% endif %}
+                {% if not treatment_request.is_completed %}
+                    <button class="w-10 h-10 p-3 bg-emerald-600 hover:bg-emerald-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
+                            data-tip="Submit Result"
+                            aria-label="Submit Result"
+                            hx-push-url="true"
+                            hx-target="#main_content">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="#ffffff"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             class="lucide lucide-file-plus-icon lucide-file-plus">
+                            <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+                            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                            <path d="M9 15h6" />
+                            <path d="M12 18v-6" />
+                        </svg>
+                    </button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endwith %}
+{% endif %}

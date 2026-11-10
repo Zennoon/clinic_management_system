@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -24,6 +25,27 @@ class Staff(AbstractUser):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def action_required_statuses(self):
+        Visit = apps.get_model("visits", "Visit")
+
+
+        if self.role == Staff.RoleEnum.RECEPTION:
+            return [
+                Visit.VisitStatusEnum.AWAITING_INITIATION,
+                Visit.VisitStatusEnum.AWAITING_CONSULTATION_PAYMENT,
+                Visit.VisitStatusEnum.AWAITING_LAB_PAYMENT,
+                Visit.VisitStatusEnum.AWAITING_TREATMENT_PAYMENT,
+            ]
+
+        if self.role == Staff.RoleEnum.NURSE:
+            return [
+                Visit.VisitStatusEnum.AWAITING_VITALS,
+                Visit.VisitStatusEnum.AWAITING_TREATMENT,
+            ]
+        
+        return []
 
     REQUIRED_FIELDS = ["role"]
 

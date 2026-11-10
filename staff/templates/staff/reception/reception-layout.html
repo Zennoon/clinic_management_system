@@ -113,7 +113,10 @@
       <span class="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-data-[state=open]:opacity-100 md:group-data-[state=open]:max-w-[200px] group-data-[state=closed]:opacity-0 max-w-0">Payments</span>
     </a>
     <a class="w-full flex gap-3 items-center py-2 px-3 rounded-md hover:bg-gray-50 hover:text-indigo-600 cursor-pointer transition-colors"
-       href="#">
+       href="{% url 'staff:reception_appointments' %}"
+       hx-get="{% url 'staff:reception_appointments' %}"
+       hx-push-url="true"
+       hx-target="#main_content">
       <svg class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock shrink-0"
            fill="none"
            height="24"

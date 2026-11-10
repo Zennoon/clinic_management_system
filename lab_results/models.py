@@ -27,7 +27,7 @@ class LabResult(models.Model):
         return self.is_active and self.lab_request.is_operational
 
     def __str__(self):
-        return f"Patient {self.visit.patient.fullname} lab result {self.id} for lab request {self.lab_request.id} reported by {self.reported_by.username}"
+        return f"Patient {self.lab_request.visit.patient.fullname} lab result {self.id} for lab request {self.lab_request.id} reported by {self.reported_by.username}"
 
 
 class LabObservationResult(models.Model):

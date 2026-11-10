@@ -8,6 +8,8 @@
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
         {% endif %}
+        {% if form.patient %}
+        {% if form.patient %}
         <div class="form-control w-full">
           <label for="patient" class="label">
             <span class="label-text">Patient</span>
@@ -15,6 +17,10 @@
           {{ form.patient }}
           {% if form.patient.errors %}<label class="label text-error">{{ form.patient.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.date %}
+        {% if form.date %}
         <div class="form-control w-full">
           <label for="date" class="label">
             <span class="label-text">Date</span>
@@ -22,6 +28,10 @@
           {{ form.date }}
           {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
+        {% if form.visit_category %}
+        {% if form.visit_category %}
         <div class="form-control w-full">
           <label for="visit_category" class="label">
             <span class="label-text">Category</span>
@@ -29,11 +39,15 @@
           {{ form.visit_category }}
           {% if form.visit_category.errors %}<label class="label text-error">{{ form.visit_category.errors }}</label>{% endif %}
         </div>
+        {% endif %}
+        {% endif %}
         {% if form.sensitive_change_attempted %}
           <div class="label text-error text-lg font-semibold">
             Warning: You are modifying the patient or date. This will trigger a financial reconciliation.
           </div>
           <input type="hidden" name="confirmed" value="True" />
+          {% if form.reason %}
+          {% if form.reason %}
           <div class="form-control w-full">
             <label for="reason" class="label">
               <span class="label-text">Reason for modification</span>
@@ -41,6 +55,8 @@
             {{ form.reason }}
             {% if form.reason.errors %}<label class="label text-error">{{ form.reason.errors }}</label>{% endif %}
           </div>
+          {% endif %}
+          {% endif %}
         {% endif %}
         <div class="modal-action">
           <button type="button"

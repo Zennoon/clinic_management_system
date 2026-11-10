@@ -3,7 +3,8 @@
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
     <h2 class="text-2xl font-semibold">Payments</h2>
     <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
-            hx-get="{% url 'payments:new_payment_modal' %}?template={{ 'staff/reception/payments/partials/payments-table-row-partial.html'|urlencode }}&amp;target={{ 'payments-table-body'|urlencode }}&amp;swap=afterbegin"
+            hx-get="{% url 'payments:new_payment_modal' %}"
+            hx-vals='{"next_url": "{% url "staff:reception_payments_table_row" "__ID__" %}", "next_target": "payments-table-body", "next_swap": "afterbegin"}'
             hx-swap="outerHTML"
             hx-target="#new_payment_modal">
       <svg class="lucide lucide-plus-icon lucide-plus"

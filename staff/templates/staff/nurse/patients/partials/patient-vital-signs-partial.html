@@ -1,0 +1,58 @@
+{% if patient %}
+    {% with is_operational=patient.is_operational %}
+        <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h3 class="text-xl font-semibold">Vital Signs</h3>
+                <div {% if not is_operational %}class="tooltip" data-tip="Patient is archived"{% endif %}>
+                    <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
+                            {% if is_operational %} hx-get="{% url 'vital_signs:new_patient_vital_sign_modal' patient.id %}" hx-vals='{ "next_url": "{% url "staff:nurse_patient_details" patient.id %}", "next_target": "main_content", "next_swap": "innerHTML" }' hx-swap="outerHTML" hx-target="#new_patient_vital_sign_modal" {% else %} disabled {% endif %}>
+                        <svg class="lucide lucide-plus-icon lucide-plus"
+                             fill="none"
+                             height="24"
+                             stroke="currentColor"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             stroke-width="2"
+                             viewbox="0 0 24 24"
+                             width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14"></path>
+                            <path d="M12 5v14"></path>
+                        </svg>
+                        New Measurement
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div class="flex">
+                    <input type="radio"
+                           name="vital-sign-tabs"
+                           id="table"
+                           hx-get="{% url 'staff:nurse_patient_vital_signs_table' patient.id %}"
+                           hx-target="#patient-vital-signs-content"
+                           hx-swap="innerHTML"
+                           checked
+                           class="hidden peer/table" />
+                    <label for="table"
+                           class="font-semibold cursor-pointer flex-1 text-center border-indigo-400 relative top-0 transition-all hover:-top-1 peer-checked/table:text-indigo-500 peer-checked/table:border-b-2 peer-checked/table:z-10 peer-checked/table:pointer-events-none">
+                        Table
+                    </label>
+                    <input type="radio"
+                           name="vital-sign-tabs"
+                           id="visualization"
+                           hx-get="{% url 'staff:nurse_patient_vital_signs_visuals' patient.id %}"
+                           hx-target="#patient-vital-signs-content"
+                           hx-swap="innerHTML"
+                           class="hidden peer/visualization" />
+                    <label for="visualization"
+                           class="font-semibold cursor-pointer flex-1 text-center border-indigo-400 relative top-0 transition-all hover:-top-1 peer-checked/visualization:text-indigo-500 peer-checked/visualization:border-b-2 peer-checked/visualization:z-10 peer-checked/visualization:pointer-events-none">
+                        Visualization
+                    </label>
+                </div>
+                <div id="patient-vital-signs-content">
+                    {% include "staff/nurse/patients/partials/patient-vital-signs-table-partial.html" %}
+                </div>
+            </div>
+        </div>
+    {% endwith %}
+{% endif %}

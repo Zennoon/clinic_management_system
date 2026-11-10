@@ -11,6 +11,8 @@
                 {% if form.non_field_errors %}
                     {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
                 {% endif %}
+                {% if form.payment_method %}
+                {% if form.payment_method %}
                 <div class="form-control w-full">
                     <label for="payment_method" class="label">
                         <span class="label-text">Method</span>
@@ -18,6 +20,10 @@
                     {{ form.payment_method }}
                     {% if form.payment_method.errors %}<label class="label text-error">{{ form.payment_method.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.amount %}
+                {% if form.amount %}
                 <div class="form-control w-full">
                     <label for="amount" class="label">
                         <span class="label-text">Amount</span>
@@ -25,6 +31,10 @@
                     {{ form.amount }}
                     {% if form.amount.errors %}<label class="label text-error">{{ form.amount.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.date %}
+                {% if form.date %}
                 <div class="form-control w-full">
                     <label for="date" class="label">
                         <span class="label-text">Date</span>
@@ -32,6 +42,8 @@
                     {{ form.date }}
                     {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
                 <div class="modal-action">
                     <button type="button"
                             class="btn btn-error text-white"

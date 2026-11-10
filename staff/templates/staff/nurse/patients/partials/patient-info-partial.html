@@ -1,0 +1,52 @@
+{% if patient %}
+    <div class="bg-white border border-gray-300 rounded-xl p-8 shadow-lg text-sm flex flex-col lg:flex-row lg:justify-between divide-y-2 lg:divide-x-2 lg:divide-y-0 divide-gray-300 gap-6">
+        <div class="flex flex-col gap-3">
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Full Name:</span>{{ patient.fullname }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">MRN/ID:</span>{{ patient.id|stringformat:'06d' }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Sex:</span>{{ patient.sex.label }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Age:</span>{{ patient.age }} (DOB: {{ patient.date_of_birth|date:'M d, Y' }})
+            </div>
+        </div>
+        <div class="flex flex-col gap-3 py-4 lg:px-4 lg:py-0">
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Weight (kg):</span>{{ patient.weight|floatformat:1|default:'--' }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Height (cm):</span>{{ patient.height|floatformat:1|default:'--' }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">BMI:</span>{{ patient.bmi|floatformat:2|default:'--' }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Address:</span>{{ patient.address|default:'Not recorded' }}
+            </div>
+        </div>
+        <div class="flex flex-col gap-3 py-4 lg:px-4 lg:py-0">
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Phone:</span>{{ patient.phone|default:'Not recorded' }}
+            </div>
+            <div class="flex gap-2 items-center">
+                <span class="font-semibold tracking-wide">Registration Date:</span>{{ patient.date|date:'M d, Y' }}
+            </div>
+            <div class="flex gap-4 justify-between items-center">
+                <span class="font-semibold tracking-wide">Current Visit Status:</span>
+                {% with visit_status=patient.current_visit.visit_status %}
+                    <div class="flex items-center gap-2">
+                        {% if visit_status in request.user.action_required_statuses %}
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring ring-emerald-400 animate-pulse tooltip"
+                                  data-tip="Action Required"></span>
+                        {% endif %}
+                        {{ visit_status.label|default:"No active visit" }}
+                    </div>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+{% endif %}

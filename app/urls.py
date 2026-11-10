@@ -20,6 +20,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name="index"),
+    path('now/', views.current_time, name="now"),
     path('staff/patients/<int:id>/', views.patient_details, name="patient_details"),
     path('staff/visits/<int:id>/', views.visit_details, name="visit_details"),
     path('staff/charges/<int:id>/', views.charge_details, name="charge_details"),
@@ -31,4 +32,5 @@ urlpatterns = [
     path('charges/', include("charges.urls")),
     path('payments/', include("payments.urls")),
     path('lab_requests/', include("lab_requests.urls")),
+    path('vital_signs/', include("vital_signs.urls")),
 ]

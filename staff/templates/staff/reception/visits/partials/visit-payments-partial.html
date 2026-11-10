@@ -4,7 +4,7 @@
       <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
         <h3 class="text-xl">Payments</h3>
         <button class="btn flex gap-2 items-center bg-indigo-600 text-white hover:bg-indigo-500"
-                {% if visit.is_operational %} hx-get="{% url 'payments:new_visit_payment_modal' visit.id %}" hx-target="#new_visit_payment_modal" hx-swap="outerHTML" {% else %} disabled {% endif %}>
+                {% if visit.is_operational %} hx-get="{% url 'payments:new_visit_payment_modal' visit.id %}" hx-vals='{"next_url": "{% url "staff:reception_visit_details" visit.id %}"}' hx-target="#new_visit_payment_modal" hx-swap="outerHTML" {% else %} disabled {% endif %}>
           <svg class="lucide lucide-plus-icon lucide-plus"
                fill="none"
                height="24"

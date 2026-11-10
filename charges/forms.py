@@ -62,7 +62,7 @@ class ChargeForm(DynamicFormMixin, forms.ModelForm):
         widget=forms.Select(
             {"class": "select select-bordered", "placeholder": "Select the charge type"}
         ),
-    ) 
+    )
     description = forms.CharField(
         widget=forms.Textarea(
             {

@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 <dialog id="update_appointment_modal" class="bg-transparent">
-    <div class="modal-box p-10 w-full lg:min-w-[480px]">
+    <div class="modal-box p-10 w-full animate-swap">
         <h3 class="font-bold text-lg mb-4">Update appointment information</h3>
         {% if appointment %}
             <form class="mb-4 space-y-4"
@@ -10,6 +10,8 @@
                 {% if form.non_field_errors %}
                     {% for error in form.non_field_errors %}<div class="label text-error">{{ error }}</div>{% endfor %}
                 {% endif %}
+                {% if form.patient %}
+                {% if form.patient %}
                 <div class="form-control w-full">
                     <label for="patient" class="label">
                         <span class="label-text">Patient</span>
@@ -18,6 +20,10 @@
                     {% render_field form.patient hx-get=patient_visits_url hx-target="#id_visit" hx-swap="innerHTML" %}
                     {% if form.patient.errors %}<label class="label text-error">{{ form.patient.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.doctor %}
+                {% if form.doctor %}
                 <div class="form-control w-full">
                     <label for="doctor" class="label">
                         <span class="label-text">Doctor</span>
@@ -25,6 +31,10 @@
                     {{ form.doctor }}
                     {% if form.doctor.errors %}<label class="label text-error">{{ form.doctor.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.visit %}
+                {% if form.visit %}
                 <div class="form-control w-full">
                     <label for="visit" class="label">
                         <span class="label-text">Associated Visit</span>
@@ -32,6 +42,10 @@
                     {% render_field form.visit class="input input-bordered w-full" placeholder="Select a visit" %}
                     {% if form.visit.errors %}<label class="label text-error">{{ form.visit.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.reason %}
+                {% if form.reason %}
                 <div class="form-control w-full">
                     <label for="reason" class="label">
                         <span class="label-text">Reason for appointment</span>
@@ -39,6 +53,10 @@
                     {{ form.reason }}
                     {% if form.reason.errors %}<label class="label text-error">{{ form.reason.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.appointment_date %}
+                {% if form.appointment_date %}
                 <div class="form-control w-full">
                     <label for="appointment_date" class="label">
                         <span class="label-text">Appointment Date</span>
@@ -48,6 +66,10 @@
                         <label class="label text-error">{{ form.appointment_date.errors }}</label>
                     {% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
+                {% if form.date %}
+                {% if form.date %}
                 <div class="form-control w-full">
                     <label for="date" class="label">
                         <span class="label-text">Date</span>
@@ -55,6 +77,8 @@
                     {{ form.date }}
                     {% if form.date.errors %}<label class="label text-error">{{ form.date.errors }}</label>{% endif %}
                 </div>
+                {% endif %}
+                {% endif %}
                 <div class="modal-action">
                     <button type="button"
                             class="btn btn-error text-white"

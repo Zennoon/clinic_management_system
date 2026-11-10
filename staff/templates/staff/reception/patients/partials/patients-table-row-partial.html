@@ -52,8 +52,7 @@
           </svg>
         </button>
         <button class="w-10 h-10 p-3 bg-emerald-600 disabled:bg-emerald-300 hover:bg-emerald-500 text-gray-200 flex justify-center items-center rounded-lg transition-colors tooltip"
-                {% if is_operational %} hx-get="{% url 'visits:new_patient_visit_modal' patient.id %}" hx-swap="outerHTML" hx-target="#new_patient_visit_modal" data-tip="{% if unpaid_consultation_fee %} Patient has an unfulfilled consultation fee {% else %} New Visit {% endif %}
-                "
+                {% if is_operational %} hx-get="{% url 'visits:new_patient_visit_modal' patient.id %}" hx-swap="outerHTML" hx-target="#new_patient_visit_modal" data-tip="{% if unpaid_consultation_fee %} Patient has an unfulfilled consultation fee {% else %} New Visit {% endif %}"
                 {% else %}
                 disabled
                 data-tip="Patient is archived"

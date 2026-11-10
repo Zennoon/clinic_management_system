@@ -1,0 +1,7 @@
+{% extends "staff/nurse/nurse-layout.html" %}
+{% block title %}
+  Vital Sign Details: {{ vital_sign.visit.patient.fullname }} at {{ vital_sign.date|date:"M d, Y" }}
+{% endblock title %}
+{% block main_content %}
+  {% include "staff/nurse/vital_signs/partials/vital-sign-details-partial.html" %}
+{% endblock main_content %}
